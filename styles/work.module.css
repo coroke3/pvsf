@@ -1,0 +1,152 @@
+@charset "utf-8";
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap");
+.yf {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: 34px;
+}
+.userinfo {
+  display: flex;
+  margin: 16px 0 20px 0;
+}
+.icon {
+  width: 40px;
+  aspect-ratio: 1 / 1;
+  height: 40px;
+  border-radius: 50%;
+}
+.creator {
+  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-weight: 300;
+  width: calc(100% - 240px);
+  border: 0px;
+  font-style: normal;
+  font-size: 1.3rem;
+  margin: auto;
+  padding-left: 0px;
+}
+.creator a {
+  color: #000;
+}
+.title {
+  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 2rem;
+  margin: 6px auto 10px auto;
+  padding: 11px 0;
+  border-bottom: solid 2px #000000;
+}
+.time {
+  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  line-height: 1.4rem;
+  margin: auto;
+  width: 171px;
+  text-align: right;
+}
+
+.template-page,
+.template-single {
+  max-width: 1600px;
+  margin: auto;
+}
+.bf {
+  display: flex;
+  flex-wrap: wrap;
+}
+.s1f {
+  width: calc(97% - 350px);
+  margin: 0 0.5%;
+}
+.s2f {
+  width: 350px;
+  margin: 24px 1%;
+}
+.ss1 {
+  display: flex;
+  margin: 10px 0;
+}
+.ss12 {
+  width: 42%;
+}
+.ss12 img {
+  aspect-ratio: 16 / 9;
+}
+.ss13 {
+  width: 54%;
+  margin: 4px 2%;
+}
+.scc {
+  margin: 0;
+  font-size: 0.8rem;
+  max-height: 48px;
+  overflow: hidden;
+}
+.sc {
+  margin: 0;
+  color: #696969;
+  font-size: 0.6rem;
+}
+@media screen and (max-width: 1000px) {
+  .s1f {
+    width: 100%;
+    margin: 0;
+  }
+  .s2f {
+    width: 100%;
+    margin: 24px 0;
+  }
+}
+@media screen and (max-width: 600px) {
+
+  .s1f p,
+  .s1f div,
+  .s1f h2 {
+    width: 93%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .s2f {
+    width: 93%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .yf {
+    margin-top: 0px;
+  }
+  .works h3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    white-space: normal;
+    font-size: 0.8rem;
+    line-height: 1.1rem;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .creator {
+    font-size: 1rem;
+    width: 100%;
+  }
+  .time {
+    padding: 0px 0;
+    font-size: 0.8rem;
+  }
+  .icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+@media screen and (min-width: 1150px) {
+  @media (min-aspect-ratio: 16 / 9) {
+    .template-page,
+    .template-single {
+      width: calc(100% - 200px);
+      margin-left: 187px;
+    }
+  }
+}

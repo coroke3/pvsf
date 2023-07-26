@@ -1,0 +1,147 @@
+@charset "utf-8";
+
+.videobg{
+    width: 100%;
+    height: calc(100vh);
+    overflow: hidden;
+    position: relative;
+    z-index: -10;
+}
+.videobg iframe{
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 100vw;
+    height: 60vw;
+}
+#itopm{
+    max-width: 1080px;
+    margin: auto;
+}
+.itopm{
+    display: flex;
+    flex-wrap:wrap;
+    margin: 20px auto;
+    height: 200px;
+}
+.topms1{
+    width: 500px;
+    height: 120px;
+}
+.topms2{
+    width: calc(100% - 500px);
+    word-break: keep-all;
+    margin: auto;
+}
+
+.topms1 h2{
+    width: 500px;
+    letter-spacing:3px;
+    padding: 5px;
+    font-family: 'Inter','Noto Sans JP', sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    border-bottom: solid 0px;
+}
+.topms1 h2 span{
+    color: #fff;
+    background-color:#191919;
+    padding: 5px;
+}
+.topms1 h3{
+    position: relative;
+    top: -96px;
+    height: 0px;
+    margin: 0;
+    width: 500px;
+    font-family: 'Mrs Saint Delafield', cursive;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 6rem;
+    font-style: normal;
+    color: #000;
+    z-index: -10;
+    border:0px;
+}
+.topml{
+    text-align: right;
+}
+.topml2{
+    flex-flow: row-reverse;
+}
+
+@media screen and (max-width: 950px) {
+    .topms1,.topms1 h2,.topms1 h3 {
+    width: 340px;
+    }
+    .topms2{
+        width: calc(100% - 340px);
+    }
+    .topms1 h2{
+        font-size: 1.5rem;
+    }
+    .topms1 h3{
+        font-size: 3rem;
+    }
+    .itopm{
+        height: 150px;
+    }
+}
+@media screen and (max-width: 600px) {
+    .topms1,.topms1 h2,.topms1 h3 {
+        width: 99%;
+        top: -94px;
+    }
+    .itopm{
+        height: auto;
+    }
+    .topms2{
+        width: 100%;
+    }
+    .topms2 p {
+        padding: 0px 10px;
+    }
+    .topml2 {
+    flex-flow: column;
+    }
+    .topml {
+    text-align: left;
+    }
+    .itopm {
+    margin: 25px auto;
+    }
+    .topms1 {
+    height: 110px;
+    }
+}
+@media (max-aspect-ratio: 16 / 9){
+.videobg iframe {
+    height: 100%;
+    width: 5000px;
+    left: 50%;
+}
+@media screen and (max-width: 500px) {
+    .videobg iframe {
+    height: 100%;
+    width: 5000px;
+    left: 50%;
+    }
+    .videobg{
+        height: 40%;
+    }
+}
+}
+@media (aspect-ratio: 16 / 9), (min-aspect-ratio: 16 / 9){
+.videobg iframe {
+    width: 100%;
+    top: 50%;
+}}
+@media screen and (min-width: 1150px) {
+@media (min-aspect-ratio: 16 / 9){
+    .videobg{
+        width: calc(100%);
+    height: calc(100vh);
+    }
+}}

@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300&display=swap');
+	.work{
+		display: flex;
+		flex-wrap : wrap;
+		justify-content:space-between;
+	}
+	.works{
+		width: 19.8%;
+		overflow: hidden;
+    	white-space: nowrap;
+	}
+	.works h3{
+		font-family: 'Inter','Noto Sans JP', sans-serif;
+    	font-weight: 300;
+    	font-style: normal;
+    	font-size: 1rem;
+    	line-height: 1.5rem;
+    	border-left: solid 0px;
+    	margin: 4px 0 0 0;
+    	padding: 0;
+    	text-overflow: ellipsis;
+	}
+	.works h4{
+		font-family: 'Inter','Noto Sans JP', sans-serif;
+    	font-weight: 300;
+    	font-style: normal;
+    	font-size: 0.6rem;
+    	line-height: 0.6rem;
+    	margin: 7px auto 0px auto;
+		text-overflow: ellipsis;
+	}
+	.works p{
+		font-family: 'Inter','Noto Sans JP', sans-serif;
+    	font-weight: 300;
+    	font-style: normal;
+    	line-height: 0.5rem;
+    	margin: 7px 0px 24px 0px;
+    	font-size: 0.6rem;
+    	color: #424242;
+    	text-overflow: ellipsis;
+	}
+	.works img{
+		width: 100%;
+		aspect-ratio: 16 / 9;
+	}
+	.templatepage-archive, #template-single {
+    	max-width: 95%;
+    	margin: auto;
+	}
+
+	@media screen and (max-width:1550px) {
+		.works{
+			width: 24.8%;
+		}
+	}
+	@media screen and (max-width:1230px) {
+		.works{
+			width: 33%;
+		}
+	}
+	@media screen and (max-width:900px) {
+		.works{
+			width: 49.5%;
+		}
+	}
+	@media screen and (max-width:800px) {
+		.works h3{
+			display: -webkit-box;
+  			-webkit-box-orient: vertical;
+  			-webkit-line-clamp: 2;
+  			overflow: hidden;
+			white-space: normal;
+			font-size: 0.8rem;
+    		line-height: 1.1rem;
+		}
+	}
+	@media screen and (min-width: 1150px) {
+		@media (min-aspect-ratio: 16 / 9){
+			#template-page-archive, #template-single{
+				width: calc(100% - 200px);
+				margin-left:187px;
+			}
+	}	}
