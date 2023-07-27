@@ -87,7 +87,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
           <div className={styles.s2f}>
             <div className={styles.navLinks}>
               {previousWorks.map((prevWork) => (
-                <div className={styles.ss1}  key={nextWork.id}>
+                <div className={styles.ss1}  key={prevWork.id}>
                   <div className={styles.ss12}>
                     <Link href={`/work/${prevWork.id}`}>
                       <img
