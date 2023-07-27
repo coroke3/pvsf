@@ -2,6 +2,6 @@
 import { createClient } from 'microcms-js-sdk';
 
 export const client = createClient({
-  serviceDomain: 'pvscreeningfes'
+  serviceDomain: 'pvscreeningfes',
   apiKey: process.env.API_KEY,
 });
