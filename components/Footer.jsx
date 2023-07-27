@@ -134,7 +134,7 @@ function Footer() {
                   class="menu-item menu-item-type-post_type menu-item-object-page menu-item-171"
                 >
                   <a
-                    href="../../../../lwu97rrl9d2f/"
+                    href="../../../../page/lwu97rrl9d2f/"
                     id="generated-id-1690357356137-ickgpyf78"
                   >
                     運営メンバー

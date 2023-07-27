@@ -28,11 +28,12 @@ function Header() {
         <div className="menu-items">
           <div className="hea">
             <Link href="../../../../">
-              <img src="https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png" />
+              <img src="https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png" className="b" />
+              <img src="https://i.gyazo.com/f736d6fc965df51b682ccc29bc842eaf.png"className="w" />
             </Link>
 
             <Link href="../../../../">
-              <h1 className="sitetitle2">映像連続投稿祭</h1>
+              <h1 className="sitetitle2">- movie event</h1>
               <h1 className="sitetitle">PVSF</h1>
             </Link>
 

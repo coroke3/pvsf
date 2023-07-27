@@ -1,4 +1,3 @@
-// pages/index.js
 import Link from "next/link";
 import { client } from "../../libs/client";
 
@@ -7,6 +6,14 @@ import Footer from "../../components/Footer";
 import styles from "../../styles/works.module.css";
 
 export default function Home({ work }) {
+  
+  // -9時間を引く関数
+  const subtractNineHours = (dateString) => {
+    const originalDate = new Date(dateString);
+    const modifiedDate = new Date(originalDate.getTime() - 9 * 60 * 60 * 1000);
+    return modifiedDate.toLocaleString();
+  };
+
   return (
     <div>
       <Header />
@@ -26,14 +33,13 @@ export default function Home({ work }) {
               </Link>
               <h3>{work.title}</h3>
               <p>
-                {work.creator} | {new Date(work.time).toLocaleString()}
+                {work.creator} | {subtractNineHours(work.time)}
               </p>
             </div>
           ))}
         </div>
         <Footer />
       </div>
-     
     </div>
   );
 }
@@ -42,7 +48,7 @@ export default function Home({ work }) {
 export const getStaticProps = async () => {
   const data = await client.get({
     endpoint: "work",
-    queries: { offset: 0, limit: 120 },
+    queries: { offset: 0, limit:999 },
   });
 
   return {

@@ -10,8 +10,7 @@
     	white-space: nowrap;
 	}
 	.works h3{
-		font-family: 'Inter','Noto Sans JP', sans-serif;
-    	font-weight: 300;
+    	font-weight: 500;
     	font-style: normal;
     	font-size: 1rem;
     	line-height: 1.5rem;
@@ -21,8 +20,7 @@
     	text-overflow: ellipsis;
 	}
 	.works h4{
-		font-family: 'Inter','Noto Sans JP', sans-serif;
-    	font-weight: 300;
+    	font-weight: 500;
     	font-style: normal;
     	font-size: 0.6rem;
     	line-height: 0.6rem;
@@ -30,8 +28,7 @@
 		text-overflow: ellipsis;
 	}
 	.works p{
-		font-family: 'Inter','Noto Sans JP', sans-serif;
-    	font-weight: 300;
+    	font-weight: 500;
     	font-style: normal;
     	line-height: 0.5rem;
     	margin: 7px 0px 24px 0px;

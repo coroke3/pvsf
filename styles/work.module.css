@@ -16,7 +16,7 @@
   border-radius: 50%;
 }
 .creator {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 300;
   width: calc(100% - 240px);
   border: 0px;
@@ -27,9 +27,11 @@
 }
 .creator a {
   color: #000;
+  text-decoration: none;
+  margin: auto 0px auto 5px;
 }
 .title {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 300;
   font-style: normal;
   font-size: 2rem;
@@ -38,7 +40,7 @@
   border-bottom: solid 2px #000000;
 }
 .time {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 300;
   font-style: normal;
   line-height: 1.4rem;

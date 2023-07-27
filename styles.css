@@ -1,10 +1,10 @@
 @charset "utf-8";
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Mrs+Saint+Delafield&family=Noto+Sans+JP:wght@300;500&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Mrs+Saint+Delafield&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap');
 body {
   margin: 0;
   background-color: #ececec;
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 300;
   font-style: normal;
 }
@@ -18,13 +18,13 @@ a:hover {
 }
 
 h1 {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 700;
   font-style: normal;
   margin: auto 0px;
 }
 h2 {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 500;
   font-style: normal;
   font-size: 2rem;
@@ -33,7 +33,7 @@ h2 {
   padding: 8px 0;
 }
 h3 {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 500;
   font-style: normal;
   font-size: 1.7rem;
@@ -42,7 +42,7 @@ h3 {
   border-left: solid 13px #161616;
 }
 h4 {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
   font-weight: 500;
   font-style: normal;
   font-size: 1.3rem;
@@ -52,8 +52,8 @@ p,
 li,
 td,
 th {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
-  font-weight: 300;
+  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-weight: 500;
   font-style: normal;
   line-height: 1.4rem;
   margin: 10px 0;
@@ -68,7 +68,7 @@ th {
 }
 
 strong {
-  font-weight: 500;
+  font-weight: 700;
 }
 .disco {
   margin: 2px 0;
@@ -95,12 +95,15 @@ strong {
   display: flex;
   justify-content: space-between;
 }
-.menu-items img {
+.menu-items .b {
   position: relative;
   width: 50px;
   height: 50px;
   margin: 0px;
   z-index: 200;
+}
+.menu-items .w {
+  display: none;
 }
 .hea {
   display: flex;
@@ -184,11 +187,12 @@ strong {
 .mf1-2 p {
   margin: 10px 0;
 }
-strong {
-  font-weight: 500;
-}
 .disco {
   margin: 2px 0;
+}
+table td, table th {
+  border: 1px solid;
+  padding: 0.5em;
 }
 @media screen and (min-width: 1150px) {
 
@@ -215,7 +219,7 @@ strong {
       filter: blur(50px);
       z-index: -1;
     }
-    .menu-items img {
+    .menu-items .b {
       position: relative;
       width: 150px;
       height: 150px;
@@ -223,9 +227,10 @@ strong {
       z-index: 200;
     }
     .sitetitle2 {
-      font-size: 1rem;
+      font-size: 0.7rem;
       color: #000;
       font-weight: 500;
+      letter-spacing:3px;
     }
     .sitetitle {
       color: #000;
@@ -367,7 +372,6 @@ strong {
     right: 0px;
     background-color: #000000;
     padding: calc(50vh - 200px) calc(50% - 150px);
-    z-index: 0;
     margin: 0;
     box-sizing: content-box;
   }
@@ -379,6 +383,7 @@ strong {
     width: 100%;
     font-size: 2rem;
     margin: auto;
+    z-index: 10;
   }
   .hea a,
   .menubar a {
@@ -388,13 +393,18 @@ strong {
     margin: 0;
     font-size: 1.5rem;
   }
-  .hea img {
+  .hea .w {
+    display: block;
     position: absolute;
     bottom: 10%;
     right: 10%;
     width: 350px;
     height: 350px;
     opacity: 0.5;
+    z-index: 0;
+  }
+  .hea .b {
+    display:none;
   }
   .hea {
     height: 30px;

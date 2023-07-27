@@ -4,8 +4,24 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { client } from "../../libs/client";
 import styles from "../../styles/work.module.css";
+import { css } from "@emotion/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 
 export default function WorkId({ work, previousWorks, nextWorks }) {
+  const showComment = work.comment !== undefined && work.comment !== "";
+  const showIcon = work.icon !== undefined && work.icon !== "";
+  const showCreator = work.creator !== undefined && work.creator !== "";
+  const showTwitter = work.tlink !== undefined && work.tlink !== "";
+  const showYoutube = work.ylink !== undefined && work.ylink !== "";
+  const showMenber = work.member !== undefined && work.member !== "";
+
+  const originalDate = new Date(work.time);
+  const modifiedDate = new Date(originalDate.getTime() - 9 * 60 * 60 * 1000);
+  const formattedDate = modifiedDate.toLocaleString();
+  const showTime = work.time !== undefined && work.time !== "";
+
   return (
     <div>
       <Header />
@@ -23,8 +39,49 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
               allowFullScreen
               className={styles.yf}
             ></iframe>
-            <h2>{work.title}</h2>
-            <div dangerouslySetInnerHTML={{ __html: `${work.comment}` }} />
+            <h2 className={styles.title}>{work.title}</h2>
+            <div className={styles.userinfo}>
+              {showIcon && (
+                <img
+                  src={`https://drive.google.com/uc?id=${work.icon.slice(33)}`}
+                  className={styles.icon}
+                />
+              )}
+              {showCreator && (
+                <h3 className={styles.creator}>
+                  {work.creator}
+                  {showYoutube && (
+                    <a
+                      href={`${work.ylink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faYoutube} />
+                    </a>
+                  )}
+                  {showTwitter && (
+                    <a
+                      href={`https://twitter.com/${work.tlink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faTwitter} />
+                    </a>
+                  )}
+                </h3>
+              )}
+              {showTime && <p className={styles.time}>{formattedDate}</p>}
+            </div>
+            <p>
+              {showComment && (
+                <div dangerouslySetInnerHTML={{ __html: `${work.comment}` }} />
+              )}
+            </p>
+            <p>
+              {showMenber && (
+                <div dangerouslySetInnerHTML={{ __html: `${work.member}` }} />
+              )}
+            </p>
           </div>
 
           <div className={styles.s2f}>
@@ -74,7 +131,6 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
         </div>
         <Footer />
       </div>
-      
     </div>
   );
 }
@@ -83,7 +139,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
 export async function getStaticPaths() {
   const data = await client.get({
     endpoint: "work",
-    queries: { offset: 0, limit: 999 },
+    queries: { offset: 0, limit: 9999 },
   });
 
   const paths = data.contents.map((content) => `/work/${content.id}`);
@@ -97,7 +153,7 @@ export async function getStaticProps(context) {
 
   const allWork = await client.get({
     endpoint: "work",
-    queries: { offset: 0, limit: 999 },
+    queries: { offset: 0, limit: 9999 },
   });
   const currentIndex = allWork.contents.findIndex(
     (content) => content.id === id
