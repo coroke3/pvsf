@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from 'next/image'
 import { client } from "../../libs/client";
-
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/works.module.css";

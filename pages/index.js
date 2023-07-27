@@ -24,7 +24,7 @@ export default function Home({ blog }) {
             <h2>
               <span>PVSFってなに？</span>
             </h2>
-            <h3>What's pvsf?</h3>
+            <h3>Whats pvsf?</h3>
           </div>
           <div className={`${styles.topms2} ${styles.topml}`}>
             <p>
@@ -55,7 +55,7 @@ export default function Home({ blog }) {
             <h2>
               <span>どんな企画をやってるの？</span>
             </h2>
-            <h3>What's Event?</h3>
+            <h3>Whats Event?</h3>
           </div>
           <div className={styles.topms2}>
             <p>
@@ -76,7 +76,7 @@ export default function Home({ blog }) {
             <h2>
               <span>どうやって参加するの？</span>
             </h2>
-            <h3>What's join?</h3>
+            <h3>Whats join?</h3>
           </div>
           <div className={`${styles.topms2} ${styles.topml}`}>
             <p>

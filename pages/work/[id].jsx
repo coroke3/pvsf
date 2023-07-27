@@ -45,6 +45,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                 <img
                   src={`https://drive.google.com/uc?id=${work.icon.slice(33)}`}
                   className={styles.icon}
+                  alt={`${work.title} - ${work.creater} | PVSF archive`}
                 />
               )}
               {showCreator && (
@@ -72,18 +73,17 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
               )}
               {showTime && <p className={styles.time}>{formattedDate}</p>}
             </div>
-            <p>
-              {showComment && (
+            {showComment && (
+              <p>
                 <div dangerouslySetInnerHTML={{ __html: `${work.comment}` }} />
-              )}
-            </p>
-            <p>
-              {showMenber && (
+              </p>
+            )}
+            {showMenber && (
+              <p>
                 <div dangerouslySetInnerHTML={{ __html: `${work.member}` }} />
-              )}
-            </p>
+              </p>
+            )}
           </div>
-
           <div className={styles.s2f}>
             <div className={styles.navLinks}>
               {previousWorks.map((prevWork) => (
@@ -135,7 +135,6 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
   );
 }
 
-// 静的生成のためのパスを指定します
 export async function getStaticPaths() {
   const data = await client.get({
     endpoint: "work",
@@ -146,7 +145,6 @@ export async function getStaticPaths() {
   return { paths, fallback: false };
 }
 
-// データをテンプレートに受け渡す部分の処理を記述します
 export async function getStaticProps(context) {
   const id = context.params.id;
   const data = await client.get({ endpoint: "work", contentId: id });
