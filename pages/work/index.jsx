@@ -4,6 +4,7 @@ import { client } from "../../libs/client";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/works.module.css";
+import { createClient } from 'microcms-js-sdk';
 
 export default function Home({ work }) {
   
