@@ -8,7 +8,7 @@ export default function BlogId({ blog }) {
   return (
     <div>
       <Header />
-      <div className="content">
+      <div className="content" key={blog}>
         <h2>{blog.title}</h2>
         <div
           dangerouslySetInnerHTML={{
