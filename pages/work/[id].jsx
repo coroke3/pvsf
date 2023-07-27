@@ -87,9 +87,9 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
           <div className={styles.s2f}>
             <div className={styles.navLinks}>
               {previousWorks.map((prevWork) => (
-                <div className={styles.ss1}>
+                <div className={styles.ss1}  key={nextWork.id}>
                   <div className={styles.ss12}>
-                    <Link key={prevWork.id} href={`/work/${prevWork.id}`}>
+                    <Link href={`/work/${prevWork.id}`}>
                       <img
                         src={`https://i.ytimg.com/vi/${prevWork.ylink.slice(
                           17,
@@ -107,9 +107,9 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                 </div>
               ))}
               {nextWorks.map((nextWork) => (
-                <div className={styles.ss1}>
+                <div className={styles.ss1} key={nextWork.id}>
                   <div className={styles.ss12}>
-                    <Link key={nextWork.id} href={`/work/${nextWork.id}`}>
+                    <Link href={`/work/${nextWork.id}`}>
                       <img
                         src={`https://i.ytimg.com/vi/${nextWork.ylink.slice(
                           17,
