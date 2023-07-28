@@ -1,6 +1,6 @@
 // pages/work/[id].jsx
 import Link from "next/link";
-import Head from 'next/head';
+import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { client } from "../../libs/client";
@@ -26,8 +26,26 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
   return (
     <div>
       <Head>
-        <title>{work.title} - {work.creator}  |  PVSF archive</title>
-        <meta name="description" content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`} />
+        <title>
+          {work.title} - {work.creator} - オンライン映像イベント / PVSF archive
+        </title>
+        <meta
+          name="description"
+          content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`}
+        />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@pvscreeningfes" />
+        <meta name="twitter:creator" content="@coroke3" />
+        <meta property="og:url" content="pvsf.jp" />
+        <meta property="og:title" content="" />
+        <meta property="og:description" content="" />
+        <meta
+          property="og:image"
+          content={`https://i.ytimg.com/vi/${nextWork.ylink.slice(
+            17,
+            28
+          )}/maxresdefault.jpg`}
+        />
       </Head>
       <Header />
       <div className={styles.contentr}>

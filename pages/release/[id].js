@@ -60,6 +60,19 @@ export default function Releases({ release, works }) {
           name="description"
           content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`}
         />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@pvscreeningfes" />
+        <meta name="twitter:creator" content="@coroke3" />
+        <meta property="og:url" content="pvsf.jp" />
+        <meta property="og:title" content="" />
+        <meta property="og:description" content="" />
+        <meta
+          property="og:image"
+          content={`https://i.ytimg.com/vi/${release.ylink.slice(
+            17,
+            28
+          )}/maxresdefault.jpg`}
+        />
       </Head>
       <Header />
       <div className={styles.contentr}>

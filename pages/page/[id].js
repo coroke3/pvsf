@@ -12,6 +12,16 @@ export default function PageId({ page }) {
       <Head>
         <title>{page.title} - オンライン映像イベント / PVSF</title>
         <meta name="description" content={``} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@pvscreeningfes" />
+        <meta name="twitter:creator" content="@coroke3" />
+        <meta property="og:url" content="pvsf.jp" />
+        <meta property="og:title" content={`${page.title} - オンライン映像イベント / PVSF`} />
+        <meta property="og:description" content="" />
+        <meta
+          property="og:image"
+          content="https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg"
+        />
       </Head>
       <Header />
       <div className="content">
