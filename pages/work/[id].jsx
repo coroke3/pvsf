@@ -8,7 +8,6 @@ import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { createClient } from 'microcms-js-sdk';
 
 
 export default function WorkId({ work, previousWorks, nextWorks }) {

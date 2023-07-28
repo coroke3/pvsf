@@ -1,0 +1,191 @@
+import Link from "next/link";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import styles from "../../styles/release.module.css";
+import { css } from "@emotion/react";
+
+export const getStaticProps = async () => {
+  const res = await fetch(
+    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
+  );
+  const release = await res.json();
+
+  return {
+    props: { release },
+  };
+};
+
+export default function Releases(data) {
+  return (
+    <div>
+      <Header />
+      <div className="content">
+        <div className={styles.table}>
+          {data.release.map((release) => {
+            const showYlink =
+              release.ylink !== undefined && release.ylink !== "";
+            return (
+              <div className={styles.tab} key={release.id}>
+                {showYlink ? (
+                  <div
+                    className={styles.releases1}
+                    style={{
+                      backgroundImage: `url(https://i.ytimg.com/vi/${release.ylink.slice(
+                        17,
+                        28
+                      )}/maxresdefault.jpg)`,
+                    }}
+                  >
+                    <div className={styles.releases2}>
+                      <div
+                        className={styles.r1}
+                        id="generated-id-1690476115475-vx3fsggdf"
+                      >
+                        {release.time}
+                      </div>
+                      <div
+                        className={styles.r2}
+                        id="generated-id-1690476115475-us5y3bfp6"
+                      >
+                        {release.type2}
+                      </div>
+                      <div className={styles.r3}>
+                        <a
+                          href={`https://twitter.com/${release.tlink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <div
+                            className={styles.r31}
+                            style={{
+                              backgroundImage: `url(https://drive.google.com/uc?id=${release.icon.slice(
+                                33
+                              )})`,
+                            }}
+                          >
+                            <img src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" />
+                          </div>
+                        </a>
+                      </div>
+                      <div
+                        className={styles.r4}
+                        id="generated-id-1690476115475-e07u3mmo7"
+                      >
+                        {release.creator}
+                      </div>
+                      <div
+                        className={styles.r5}
+                        id="generated-id-1690476115475-bu15q8iql"
+                      >
+                        {release.title}
+                      </div>
+                      <div
+                        className={styles.r6}
+                        id="generated-id-1690476115475-gw648oy86"
+                      >
+                        {release.comment}
+                      </div>
+                      <div className={styles.r7}>
+                        <div className={styles.r71}>
+                          {" "}
+                          <a
+                            href={`https://youtu.be/${release.ylink.slice(
+                              17,
+                              28
+                            )}?list=PLhxvXoQxAfWJu5MXy1QxLuv_RHf_lDsFV`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            id="generated-id-1690507402817-hylf4ea9j"
+                          >
+                            {" "}
+                            YouTubeで視聴する
+                          </a>
+                        </div>
+                        <div className={styles.r72}>
+                          <a
+                            href={`release/${release.timestamp}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            id="generated-id-1690476115475-4m58gwhth"
+                          >
+                            詳細を見る
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.releases1}>
+                    <div className={styles.releases2}>
+                      <div
+                        className={styles.r1}
+                        id="generated-id-1690476115475-vx3fsggdf"
+                      >
+                        {release.time}
+                      </div>
+                      <div
+                        className={styles.r2}
+                        id="generated-id-1690476115475-us5y3bfp6"
+                      >
+                        {release.type2}
+                      </div>
+                      <div className={styles.r3}>
+                        <a
+                          href={`https://twitter.com/${release.tlink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <div
+                            className={styles.r31}
+                            style={{
+                              backgroundImage: `url(https://drive.google.com/uc?id=${release.icon.slice(
+                                33
+                              )})`,
+                            }}
+                          >
+                            <img src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" />
+                          </div>
+                        </a>
+                      </div>
+                      <div
+                        className={styles.r4}
+                        id="generated-id-1690476115475-e07u3mmo7"
+                      >
+                        {release.creator}
+                      </div>
+                      <div
+                        className={styles.r5}
+                        id="generated-id-1690476115475-bu15q8iql"
+                      >
+                        {release.title}
+                      </div>
+                      <div
+                        className={styles.r6}
+                        id="generated-id-1690476115475-gw648oy86"
+                      >
+                        {release.comment}
+                      </div>
+                      <div className={styles.r7}>
+                        <div className={styles.r72}>
+                          <a
+                            href={`release/${release.timestamp}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            id="generated-id-1690476115475-4m58gwhth"
+                          >
+                            詳細を見る
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <Footer />
+      </div>
+    </div>
+  );
+}
