@@ -54,7 +54,7 @@ export default function Releases({ release, works }) {
     <div>
       <Head>
         <title>
-          {release.title} - {release.creator} | オンライン映像イベント / PVSF
+          {release.title}{' '}-{' '}{release.creator}{' '}|{' '}オンライン映像イベント / PVSF
         </title>
         <meta
           name="description"
@@ -64,8 +64,8 @@ export default function Releases({ release, works }) {
         <meta name="twitter:site" content="@pvscreeningfes" />
         <meta name="twitter:creator" content="@coroke3" />
         <meta property="og:url" content="pvsf.jp" />
-        <meta property="og:title" content="" />
-        <meta property="og:description" content="" />
+        <meta property="og:title" content={`${release.title} - ${release.creator} | オンライン映像イベント / PVSF archive`} />
+        <meta property="og:description" content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`} />
         <meta
           property="og:image"
           content={`https://i.ytimg.com/vi/${release.ylink.slice(

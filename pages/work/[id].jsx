@@ -27,7 +27,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
     <div>
       <Head>
         <title>
-          {work.title} - {work.creator} - オンライン映像イベント / PVSF archive
+          {work.title}{' '}-{' '}{work.creator}{' '}-{' '}オンライン映像イベント{' '}/{' '}PVSF{' '}archive
         </title>
         <meta
           name="description"
@@ -37,8 +37,8 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
         <meta name="twitter:site" content="@pvscreeningfes" />
         <meta name="twitter:creator" content="@coroke3" />
         <meta property="og:url" content="pvsf.jp" />
-        <meta property="og:title" content="" />
-        <meta property="og:description" content="" />
+        <meta property="og:title" content={`${work.title} - ${work.creator} / PVSF archive`} />
+        <meta property="og:description" content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`} />
         <meta
           property="og:image"
           content={`https://i.ytimg.com/vi/${work.ylink.slice(
