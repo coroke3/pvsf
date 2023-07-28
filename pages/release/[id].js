@@ -60,15 +60,15 @@ export default function Releases({ release, works }) {
               const showIcon2 = work.icon !== undefined && work.icon !== "";
 
               return (
-                <Link href={`../release/${work.timestamp}`}>
-                  <div className={styles.works} key={work.id}>
+                <Link href={`../release/${work.timestamp}`} key={work.id}>
+                  <div className={styles.works} >
                     {showIcon2 && (
                       <img
                         src={`https://drive.google.com/uc?id=${work.icon.slice(
                           33
                         )}`}
                         className={styles.icon}
-                        alt={`${work.creator} | PVSF archive`} // 修正: release.creater を release.creator に変更
+                        alt={`${work.creator} | PVSF archive`} 
                       />
                     )}
                     <div className={styles.w1}>{work.creator}</div>
