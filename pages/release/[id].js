@@ -53,80 +53,104 @@ export default function Releases({ release, works }) {
     <div>
       <Header />
       <div className="content">
-        <div className={styles.s3f}>
-          {works.map((work) => {
-            // 修正: works.works ではなく works を直接マップする
-            return <div className={styles.works} key={work.id}>
-              {work.title}
-            </div>; // 修正: work.id を使用する
-          })}
-        </div>
-        <div className={styles.s1f}>
-          {showYoutube ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${release.ylink.slice(
-                17,
-                28
-              )}?autoplay=1`}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className={styles.yf}
-            ></iframe>
-          ) : (
-            <img
-              src="https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"
-              className={styles.yf}
-            />
-          )}
-          <h2 className={styles.title}>{release.title}</h2>
-          <div className={styles.userinfo}>
-            {showIcon && (
+        <div className={styles.bf}>
+          <div className={styles.s3f}>
+            {works.map((work) => {
+              // 修正: works.works ではなく works を直接マップする
+              const showIcon2 = work.icon !== undefined && work.icon !== "";
+
+              return (
+                <Link href={`../release/${work.timestamp}`}>
+                  <div className={styles.works} key={work.id}>
+                    {showIcon2 && (
+                      <img
+                        src={`https://drive.google.com/uc?id=${work.icon.slice(
+                          33
+                        )}`}
+                        className={styles.icon}
+                        alt={`${work.creator} | PVSF archive`} // 修正: release.creater を release.creator に変更
+                      />
+                    )}
+                    <div className={styles.w1}>{work.creator}</div>
+                    <div className={styles.w2}>{work.title}</div>
+                  </div>
+                </Link>
+              ); // 修正: work.id を使用する
+            })}
+          </div>
+          <div className={styles.s1f}>
+            {showYoutube ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${release.ylink.slice(
+                  17,
+                  28
+                )}?autoplay=1?list=PLhxvXoQxAfWJu5MXy1QxLuv_RHf_lDsFV`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className={styles.yf}
+              ></iframe>
+            ) : (
               <img
-                src={`https://drive.google.com/uc?id=${release.icon.slice(33)}`}
-                className={styles.icon}
-                alt={`${release.title} - ${release.creator} | PVSF archive`} // 修正: release.creater を release.creator に変更
+                src="https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"
+                className={styles.yf}
               />
             )}
-            {showCreator && (
-              <h3 className={styles.creator}>
-                {release.creator}
-                {showYoutube && (
-                  <a
-                    href={`${release.ylink}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FontAwesomeIcon icon={faYoutube} />
-                  </a>
-                )}
-                {showTwitter && (
-                  <a
-                    href={`https://twitter.com/${release.tlink}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FontAwesomeIcon icon={faTwitter} />
-                  </a>
-                )}
-              </h3>
+            <h2 className={styles.title}>{release.title}</h2>
+            <div className={styles.userinfo}>
+              {showIcon && (
+                <img
+                  src={`https://drive.google.com/uc?id=${release.icon.slice(
+                    33
+                  )}`}
+                  className={styles.icon}
+                  alt={`${release.title} - ${release.creator} | PVSF archive`} // 修正: release.creater を release.creator に変更
+                />
+              )}
+              {showCreator && (
+                <h3 className={styles.creator}>
+                  {release.creator}
+                  {showYoutube && (
+                    <a
+                      href={`${release.ylink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faYoutube} />
+                    </a>
+                  )}
+                  {showTwitter && (
+                    <a
+                      href={`https://twitter.com/${release.tlink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faTwitter} />
+                    </a>
+                  )}
+                </h3>
+              )}
+              <p className={styles.time}>
+                {release.data} {release.time}{" 公開予定"}
+                {/* 修正: release.data を release.date に変更 */}
+              </p>
+            </div>
+            <p>{release.type1}{"出展  "}{release.type2}の部</p>
+            {showComment && (
+              <p>
+                <div
+                  dangerouslySetInnerHTML={{ __html: `${release.comment}` }}
+                />
+              </p>
             )}
-            <p className={styles.time}>
-              {release.date} {release.time}{" "}
-              {/* 修正: release.data を release.date に変更 */}
-            </p>
+            {showMember && (
+              <p>参加メンバー<div
+                  dangerouslySetInnerHTML={{ __html: `${release.member}` }}
+                />
+              </p>
+            )}
           </div>
-          {showComment && (
-            <p>
-              <div dangerouslySetInnerHTML={{ __html: `${release.comment}` }} />
-            </p>
-          )}
-          {showMember && (
-            <p>
-              <div dangerouslySetInnerHTML={{ __html: `${release.member}` }} />
-            </p>
-          )}
         </div>
         <Footer />
       </div>

@@ -62,9 +62,36 @@
   width: calc(97% - 350px);
   margin: 0 0.5%;
 }
-.s2f {
+.s3f {
   width: 350px;
   margin: 24px 1%;
+}
+.s3f a{
+	text-decoration: none;
+}
+.works{
+	display: flex;
+	font-size: 0.8rem;
+	margin: 10px 0;
+}
+.works div{
+	text-decoration: none;
+	color: #000;
+	margin: auto;
+	overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.works img{
+	width: 30px;
+	height: 30px;
+}
+.w1{
+	width: calc(40% - 40px);
+	margin: auto 5px;
+}
+.w2{
+	width: 60%;
 }
 .ss1 {
   display: flex;
@@ -91,6 +118,7 @@
   color: #696969;
   font-size: 0.6rem;
 }
+
 @media screen and (max-width: 1000px) {
   .s1f {
     width: 100%;

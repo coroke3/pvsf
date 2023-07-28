@@ -102,14 +102,11 @@ export default function Releases(data) {
                           </a>
                         </div>
                         <div className={styles.r72}>
-                          <a
+                          <Link
                             href={`release/${release.timestamp}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            id="generated-id-1690476115475-4m58gwhth"
                           >
                             詳細を見る
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -167,14 +164,11 @@ export default function Releases(data) {
                       </div>
                       <div className={styles.r7}>
                         <div className={styles.r72}>
-                          <a
+                          <Link
                             href={`release/${release.timestamp}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            id="generated-id-1690476115475-4m58gwhth"
                           >
                             詳細を見る
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>
