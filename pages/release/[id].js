@@ -73,6 +73,7 @@ export default function Releases({ release, works }) {
             28
           )}/maxresdefault.jpg`}
         />
+        <link rel="icon" type="image/png" href="https://i.gyazo.com/43e91f32a8de88634732538ebc68f6e0.png" sizes="260x260" />
       </Head>
       <Header />
       <div className={styles.contentr}>
