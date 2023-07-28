@@ -33,7 +33,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
           name="description"
           content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`}
         />
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@pvscreeningfes" />
         <meta name="twitter:creator" content="@coroke3" />
         <meta property="og:url" content="pvsf.jp" />

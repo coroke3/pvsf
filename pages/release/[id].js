@@ -54,33 +54,56 @@ export default function Releases({ release, works }) {
     <div>
       <Head>
         <title>
-          {release.title}{' '}-{' '}{release.creator}{' '}|{' '}オンライン映像イベント / PVSF
+          {release.title} - {release.creator} | オンライン映像イベント / PVSF
         </title>
         <meta
           name="description"
           content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`}
         />
-        <meta name="twitter:card" content="summary" />
+
         <meta name="twitter:site" content="@pvscreeningfes" />
         <meta name="twitter:creator" content="@coroke3" />
         <meta property="og:url" content="pvsf.jp" />
-        <meta property="og:title" content={`${release.title} - ${release.creator} | オンライン映像イベント / PVSF archive`} />
-        <meta property="og:description" content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`} />
         <meta
-          property="og:image"
-          content={`https://i.ytimg.com/vi/${release.ylink.slice(
-            17,
-            28
-          )}/maxresdefault.jpg`}
+          property="og:title"
+          content={`${release.title} - ${release.creator} | オンライン映像イベント / PVSF archive`}
         />
-        <link rel="icon" type="image/png" href="https://i.gyazo.com/43e91f32a8de88634732538ebc68f6e0.png" sizes="260x260" />
+        {showYoutube ? (
+          <meta
+            property="og:image"
+            content={`https://i.ytimg.com/vi/${release.ylink.slice(
+              17,
+              28
+            )}/maxresdefault.jpg`}
+          />
+        ) : (
+          <meta
+            property="og:image"
+            content="https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg"
+          />
+        )}
+        {showYoutube ? (
+          <meta name="twitter:card" content="summary_large_image" />
+        ) : (
+          <meta name="twitter:card" content="summary" />
+        )}
+        <meta
+          property="og:description"
+          content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`}
+        />
+
+        <link
+          rel="icon"
+          type="image/png"
+          href="https://i.gyazo.com/43e91f32a8de88634732538ebc68f6e0.png"
+          sizes="260x260"
+        />
       </Head>
       <Header />
       <div className={styles.contentr}>
         <div className={styles.bf}>
           <div className={styles.s3f}>
             {works.map((work) => {
-              // 修正: works.works ではなく works を直接マップする
               const showIcon2 = work.icon !== undefined && work.icon !== "";
 
               return (
