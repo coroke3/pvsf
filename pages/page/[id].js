@@ -3,12 +3,16 @@ import Link from "next/link";
 import { client } from "../../libs/client";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { createClient } from 'microcms-js-sdk';
-
+import { createClient } from "microcms-js-sdk";
+import Head from "next/head";
 
 export default function PageId({ page }) {
   return (
     <div>
+      <Head>
+        <title>{page.title} - オンライン映像イベント / PVSF</title>
+        <meta name="description" content={``} />
+      </Head>
       <Header />
       <div className="content">
         <h2>{page.title}</h2>

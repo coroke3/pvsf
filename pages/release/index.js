@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/release.module.css";
 import { css } from "@emotion/react";
+import Head from "next/head";
 
 export const getStaticProps = async () => {
   const res = await fetch(
@@ -18,6 +19,15 @@ export const getStaticProps = async () => {
 export default function Releases(data) {
   return (
     <div>
+      <Head>
+        <title>
+        投稿予定のご案内 - オンライン映像イベント / PVSF
+        </title>
+        <meta
+          name="description"
+          content={`PVSFにて投稿予定の作品です。ぜひご覧ください。`}
+        />
+      </Head>
       <Header />
       <div className="content">
         <div className={styles.table}>
@@ -102,9 +112,7 @@ export default function Releases(data) {
                           </a>
                         </div>
                         <div className={styles.r72}>
-                          <Link
-                            href={`release/${release.timestamp}`}
-                          >
+                          <Link href={`release/${release.timestamp}`}>
                             詳細を見る
                           </Link>
                         </div>
@@ -164,9 +172,7 @@ export default function Releases(data) {
                       </div>
                       <div className={styles.r7}>
                         <div className={styles.r72}>
-                          <Link
-                            href={`release/${release.timestamp}`}
-                          >
+                          <Link href={`release/${release.timestamp}`}>
                             詳細を見る
                           </Link>
                         </div>

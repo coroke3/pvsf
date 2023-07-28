@@ -1,7 +1,8 @@
 // pages/index.js
 import Link from "next/link";
+import Head from "next/head";
 import { client } from "../libs/client";
-import { createClient } from 'microcms-js-sdk';
+import { createClient } from "microcms-js-sdk";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import styles from "../styles/index.module.css";
@@ -9,6 +10,10 @@ import styles from "../styles/index.module.css";
 export default function Home({ blog }) {
   return (
     <div>
+      <Head>
+        <title>オンライン映像イベント / PVSF</title>
+        <meta name="description" content={`PVSFはノンジャンルのオンライン映像イベントです。`} />
+      </Head>
       <div className={styles.videobg}>
         <iframe
           src="https://www.youtube.com/embed/rGUAxWcOSVY?autoplay=1&vq=highres&start=0&mute=1&showinfo=1&playsinline=1&loop=1&controls=0&playlist=rGUAxWcOSVY&disablekb=1"
@@ -97,10 +102,16 @@ export default function Home({ blog }) {
           </div>
         </div>
         <h2>参加者募集中</h2>
-        <p>映像連続投稿祭 <Link href={"../../../../page/5s_i_h_ir"}>PVSF2023S</Link> 夏のPV連続投稿祭 参加者募集中！<br />
-2023 08/18 ~ 08/19<br /><br />
-
-同時にPVSFShareも実施！こちらもぜひご応募ください。</p>
+        <p>
+          映像連続投稿祭{" "}
+          <Link href={"../../../../page/5s_i_h_ir"}>PVSF2023S</Link>{" "}
+          夏のPV連続投稿祭 参加者募集中！
+          <br />
+          2023 08/18 ~ 08/19
+          <br />
+          <br />
+          同時にPVSFShareも実施！こちらもぜひご応募ください。
+        </p>
 
         <h2>運営情報</h2>
         <ul>
@@ -111,17 +122,17 @@ export default function Home({ blog }) {
           ))}
         </ul>
         <Footer />
-        
       </div>
-      
     </div>
   );
 }
 
 // データをテンプレートに受け渡す部分の処理を記述します
 export const getStaticProps = async () => {
-  const data = await client.get({ endpoint: "blog",
-  queries: { offset: 0, limit:999 }, });
+  const data = await client.get({
+    endpoint: "blog",
+    queries: { offset: 0, limit: 999 },
+  });
 
   return {
     props: {

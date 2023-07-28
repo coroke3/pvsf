@@ -1,5 +1,6 @@
 // pages/work/[id].jsx
 import Link from "next/link";
+import Head from 'next/head';
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { client } from "../../libs/client";
@@ -8,7 +9,6 @@ import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
-
 
 export default function WorkId({ work, previousWorks, nextWorks }) {
   const showComment = work.comment !== undefined && work.comment !== "";
@@ -25,6 +25,10 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
 
   return (
     <div>
+      <Head>
+        <title>{work.title} - {work.creator}  |  PVSF archive</title>
+        <meta name="description" content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`} />
+      </Head>
       <Header />
       <div className={styles.contentr}>
         <div className={styles.bf}>
@@ -88,7 +92,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
           <div className={styles.s2f}>
             <div className={styles.navLinks}>
               {previousWorks.map((prevWork) => (
-                <div className={styles.ss1}  key={prevWork.id}>
+                <div className={styles.ss1} key={prevWork.id}>
                   <div className={styles.ss12}>
                     <Link href={`/work/${prevWork.id}`}>
                       <img

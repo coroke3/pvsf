@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/releases.module.css";
@@ -51,6 +52,15 @@ export default function Releases({ release, works }) {
   const showMember = release.member !== undefined && release.member !== "";
   return (
     <div>
+      <Head>
+        <title>
+          {release.title} - {release.creator} | オンライン映像イベント / PVSF
+        </title>
+        <meta
+          name="description"
+          content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`}
+        />
+      </Head>
       <Header />
       <div className={styles.contentr}>
         <div className={styles.bf}>
@@ -61,14 +71,14 @@ export default function Releases({ release, works }) {
 
               return (
                 <Link href={`../release/${work.timestamp}`} key={work.id}>
-                  <div className={styles.works} >
+                  <div className={styles.works}>
                     {showIcon2 && (
                       <img
                         src={`https://drive.google.com/uc?id=${work.icon.slice(
                           33
                         )}`}
                         className={styles.icon}
-                        alt={`${work.creator} | PVSF archive`} 
+                        alt={`${work.creator} | PVSF archive`}
                       />
                     )}
                     <div className={styles.w1}>{work.creator}</div>
@@ -132,11 +142,16 @@ export default function Releases({ release, works }) {
                 </h3>
               )}
               <p className={styles.time}>
-                {release.data} {release.time}{" 公開予定"}
+                {release.data} {release.time}
+                {" 公開予定"}
                 {/* 修正: release.data を release.date に変更 */}
               </p>
             </div>
-            <p>{release.type1}{"出展  "}{release.type2}の部</p>
+            <p>
+              {release.type1}
+              {"出展  "}
+              {release.type2}の部
+            </p>
             {showComment && (
               <p>
                 <div
@@ -145,7 +160,9 @@ export default function Releases({ release, works }) {
               </p>
             )}
             {showMember && (
-              <p>参加メンバー<div
+              <p>
+                参加メンバー
+                <div
                   dangerouslySetInnerHTML={{ __html: `${release.member}` }}
                 />
               </p>

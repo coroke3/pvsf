@@ -4,6 +4,7 @@ import { client } from "../../libs/client";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/works.module.css";
+import Head from "next/head";
 import { createClient } from 'microcms-js-sdk';
 
 export default function Home({ work }) {
@@ -17,6 +18,15 @@ export default function Home({ work }) {
 
   return (
     <div>
+            <Head>
+        <title>
+        過去の投稿作品 - オンライン映像イベント / PVSF archive
+        </title>
+        <meta
+          name="description"
+          content={`過去の投稿作品です。ぜひご覧ください。`}
+        />
+      </Head>
       <Header />
       <div className="content">
         <div className={styles.work}>
