@@ -1,10 +1,10 @@
 @charset "utf-8";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Mrs+Saint+Delafield&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Mrs+Saint+Delafield&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap");
 body {
   margin: 0;
   background-color: #ececec;
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 300;
   font-style: normal;
 }
@@ -18,13 +18,13 @@ a:hover {
 }
 
 h1 {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 700;
   font-style: normal;
   margin: auto 0px;
 }
 h2 {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 500;
   font-style: normal;
   font-size: 2rem;
@@ -33,7 +33,7 @@ h2 {
   padding: 8px 0;
 }
 h3 {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 500;
   font-style: normal;
   font-size: 1.7rem;
@@ -42,7 +42,7 @@ h3 {
   border-left: solid 13px #161616;
 }
 h4 {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 500;
   font-style: normal;
   font-size: 1.3rem;
@@ -52,7 +52,7 @@ p,
 li,
 td,
 th {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 500;
   font-style: normal;
   line-height: 1.4rem;
@@ -190,12 +190,52 @@ strong {
 .disco {
   margin: 2px 0;
 }
-table td, table th {
+table td,
+table th {
   border: 1px solid;
   padding: 0.5em;
 }
-@media screen and (min-width: 1150px) {
+/* Add this CSS to your existing styles or create a new stylesheet */
+.hamburger-menu {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: #fff;
+}
 
+.menu-btn {
+  display: none; /* Hide the menu button on desktop */
+}
+
+.menu-btn__burger {
+  width: 40px;
+  height: 4px;
+  background-color: black;
+  margin: 6px 0;
+  transition: 0.4s;
+}
+
+.open .menu-btn__burger:nth-child(1) {
+  transform: rotate(-45deg) translate(-8px, 8px);
+}
+
+.open .menu-btn__burger:nth-child(2) {
+  opacity: 0;
+}
+
+.open .menu-btn__burger:nth-child(3) {
+  transform: rotate(45deg) translate(-5px, -7px);
+}
+
+.menu-items {
+  padding: 10px 0;
+  z-index: 1;
+}
+.mb {
+  display: none;
+}
+
+@media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
     .menu-items {
       position: fixed;
@@ -230,7 +270,7 @@ table td, table th {
       font-size: 0.7rem;
       color: #000;
       font-weight: 500;
-      letter-spacing:3px;
+      letter-spacing: 3px;
     }
     .sitetitle {
       color: #000;
@@ -292,75 +332,25 @@ table td, table th {
   margin: 20px auto;
   padding-right: 23px;
 }
-@media screen and (max-width: 600px) {
-  h2 {
-    font-size: 1.5rem;
+@media screen and (max-width: 900px) {
+  .content {
+    width: 95%;
+    margin: 120px 2.5%;
   }
-  h3 {
-    font-size: 1.2rem;
-  }
-  h4 {
-    font-size: 1rem;
-  }
-  p,
-  li,
-  td,
-  th {
-    font-size: 0.9rem;
-  }
-}
-/* Add this CSS to your existing styles or create a new stylesheet */
-.hamburger-menu {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  background-color: #fff;
-}
-
-.menu-btn {
-  display: none; /* Hide the menu button on desktop */
-}
-
-.menu-btn__burger {
-  width: 40px;
-  height: 4px;
-  background-color: black;
-  margin: 6px 0;
-  transition: 0.4s;
-}
-
-.open .menu-btn__burger:nth-child(1) {
-  transform: rotate(-45deg) translate(-8px, 8px);
-}
-
-.open .menu-btn__burger:nth-child(2) {
-  opacity: 0;
-}
-
-.open .menu-btn__burger:nth-child(3) {
-  transform: rotate(45deg) translate(-5px, -7px);
-}
-
-.menu-items {
-  padding: 10px 0;
-  z-index: 1;
-}
-
-/* Media query for mobile devices */
-@media (max-width: 900px) {
   .menu-btn {
     display: block;
     position: fixed;
     cursor: pointer;
     z-index: 100;
-    top: 25px;
-    right: 25px;
+    top: 20px;
+    right: 20px;
   }
   .open .menu-btn__burger {
     background-color: #fff;
   }
   .menu-items {
     display: none;
+
   }
   .open .menu-items {
     width: 300px;
@@ -397,16 +387,93 @@ table td, table th {
     display: block;
     position: absolute;
     bottom: 10%;
-    right: 10%;
+    right: 0%;
     width: 350px;
     height: 350px;
     opacity: 0.5;
     z-index: 0;
   }
   .hea .b {
-    display:none;
+    display: none;
   }
   .hea {
     height: 30px;
+  }
+  .mb {
+    display: block;
+    width: 50px;
+    height: 50px;
+    padding: 13.5px 10px;
+  }
+  header {
+    background-color: #fff;
+    height: 75px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+
+  
+  .open {
+    top: 0;
+    right: 0;
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    background-color: #000;
+    animation: fadeIn 0.3s ease-in 0s forwards;
+    transition: all 0.5s;
+  }
+
+
+  @keyframes fadeIn {
+    0% {
+      display: none;
+      opacity: 0;
+    }
+
+    1% {
+      display: block;
+      opacity: 0;
+    }
+
+    100% {
+      display: block;
+      opacity: 1;
+    }
+  }
+  @keyframes fadeOut {
+    0% {
+      display: block;
+      opacity: 1;
+    }
+
+    99% {
+      display: block;
+      opacity: 0;
+    }
+
+    100% {
+      display: none;
+      opacity: 0;
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.2rem;
+  }
+  h4 {
+    font-size: 1rem;
+  }
+  p,
+  li,
+  td,
+  th {
+    font-size: 0.9rem;
   }
 }

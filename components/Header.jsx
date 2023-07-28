@@ -17,8 +17,12 @@ function Header() {
 
   return (
     <header>
-      {/* ... Existing header content ... */}
-      {/* Step 4: Conditionally render the menu items */}
+      <Link href="../../../../">
+        <img
+          src="https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png"
+          className="mb"
+        />
+      </Link>
       <div className={`hamburger-menu ${isMenuOpen ? "open" : ""}`}>
         <div className="menu-btn" onClick={toggleMenu}>
           <div className="menu-btn__burger"></div>
@@ -28,8 +32,14 @@ function Header() {
         <div className="menu-items">
           <div className="hea">
             <Link href="../../../../">
-              <img src="https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png" className="b" />
-              <img src="https://i.gyazo.com/f736d6fc965df51b682ccc29bc842eaf.png"className="w" />
+              <img
+                src="https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png"
+                className="b"
+              />
+              <img
+                src="https://i.gyazo.com/f736d6fc965df51b682ccc29bc842eaf.png"
+                className="w"
+              />
             </Link>
 
             <Link href="../../../../">
@@ -79,9 +89,7 @@ function Header() {
               <Link href="../../../../page/hv8gfp0jdji">参加する</Link>
             </div>
             <div className="menubars ms1">
-              <Link href="../../../../release ">
-                投稿予定のご案内
-              </Link>
+              <Link href="../../../../release ">投稿予定のご案内</Link>
             </div>
             <div className="menubars ms1">
               <Link href="../../../../work">過去の投稿作品</Link>

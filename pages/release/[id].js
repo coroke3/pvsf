@@ -52,7 +52,7 @@ export default function Releases({ release, works }) {
   return (
     <div>
       <Header />
-      <div className="content">
+      <div className={styles.contentr}>
         <div className={styles.bf}>
           <div className={styles.s3f}>
             {works.map((work) => {

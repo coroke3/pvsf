@@ -16,7 +16,7 @@
   border-radius: 50%;
 }
 .creator {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 300;
   width: calc(100% - 240px);
   border: 0px;
@@ -31,7 +31,7 @@
   margin: auto 0px auto 5px;
 }
 .title {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 300;
   font-style: normal;
   font-size: 2rem;
@@ -40,7 +40,7 @@
   border-bottom: solid 2px #000000;
 }
 .time {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 300;
   font-style: normal;
   line-height: 1.4rem;
@@ -48,11 +48,9 @@
   width: 171px;
   text-align: right;
 }
-
-.template-page,
-.template-single {
-  max-width: 1600px;
-  margin: auto;
+.contentr {
+  width: 90%;
+  margin: 50px 5%;
 }
 .bf {
   display: flex;
@@ -102,7 +100,6 @@
   }
 }
 @media screen and (max-width: 600px) {
-
   .s1f p,
   .s1f div,
   .s1f h2 {
@@ -142,13 +139,16 @@
     width: 32px;
     height: 32px;
   }
+  .contentr {
+    width: 100%;
+    margin: 100px 0%;
+  }
 }
 @media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
-    .template-page,
-    .template-single {
-      width: calc(100% - 200px);
-      margin-left: 187px;
+    .contentr {
+      margin-left: 300px;
+      width: calc(100% - 350px);
     }
   }
 }

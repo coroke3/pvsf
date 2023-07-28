@@ -26,7 +26,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
   return (
     <div>
       <Header />
-      <div className="content">
+      <div className={styles.contentr}>
         <div className={styles.bf}>
           <div className={styles.s1f}>
             <iframe

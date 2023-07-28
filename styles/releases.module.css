@@ -16,7 +16,7 @@
   border-radius: 50%;
 }
 .creator {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 300;
   width: calc(100% - 240px);
   border: 0px;
@@ -31,7 +31,7 @@
   margin: auto 0px auto 5px;
 }
 .title {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 300;
   font-style: normal;
   font-size: 2rem;
@@ -40,7 +40,7 @@
   border-bottom: solid 2px #000000;
 }
 .time {
-  font-family: "Inter",'Zen Kaku Gothic New', sans-serif;
+  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
   font-weight: 300;
   font-style: normal;
   line-height: 1.4rem;
@@ -49,11 +49,6 @@
   text-align: right;
 }
 
-.template-page,
-.template-single {
-  max-width: 1600px;
-  margin: auto;
-}
 .bf {
   display: flex;
   flex-wrap: wrap;
@@ -66,32 +61,32 @@
   width: 350px;
   margin: 24px 1%;
 }
-.s3f a{
-	text-decoration: none;
+.s3f a {
+  text-decoration: none;
 }
-.works{
-	display: flex;
-	font-size: 0.8rem;
-	margin: 10px 0;
+.works {
+  display: flex;
+  font-size: 0.8rem;
+  margin: 10px 0;
 }
-.works div{
-	text-decoration: none;
-	color: #000;
-	margin: auto;
-	overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.works div {
+  text-decoration: none;
+  color: #000;
+  margin: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.works img{
-	width: 30px;
-	height: 30px;
+.works img {
+  width: 30px;
+  height: 30px;
 }
-.w1{
-	width: calc(40% - 40px);
-	margin: auto 5px;
+.w1 {
+  width: calc(40% - 40px);
+  margin: auto 5px;
 }
-.w2{
-	width: 60%;
+.w2 {
+  width: 60%;
 }
 .ss1 {
   display: flex;
@@ -118,19 +113,25 @@
   color: #696969;
   font-size: 0.6rem;
 }
+.contentr {
+  width: 90%;
+  margin: 50px 5%;
+}
 
 @media screen and (max-width: 1000px) {
-  .s1f {
+  .s3f {
     width: 100%;
-    margin: 0;
+    margin: 30px 0;
   }
-  .s2f {
+  .s1f {
     width: 100%;
     margin: 24px 0;
   }
+  .bf {
+    flex-wrap: wrap-reverse;
+  }
 }
 @media screen and (max-width: 600px) {
-
   .s1f p,
   .s1f div,
   .s1f h2 {
@@ -138,7 +139,7 @@
     margin-left: auto;
     margin-right: auto;
   }
-  .s2f {
+  .s3f {
     width: 93%;
     margin-left: auto;
     margin-right: auto;
@@ -170,13 +171,16 @@
     width: 32px;
     height: 32px;
   }
+  .contentr {
+    width: 100%;
+    margin: 50px 0%;
+  }
 }
 @media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
-    .template-page,
-    .template-single {
-      width: calc(100% - 200px);
-      margin-left: 187px;
+    .contentr {
+      margin-left: 300px;
+      width: calc(100% - 350px);
     }
   }
 }
