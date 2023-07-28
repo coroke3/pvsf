@@ -17,12 +17,14 @@ function Header() {
 
   return (
     <header>
+      <div className="mlogo">
       <Link href="../../../../">
         <img
           src="https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png"
           className="mb"
         />
-      </Link>
+      </Link> 
+      </div>
       <div className={`hamburger-menu ${isMenuOpen ? "open" : ""}`}>
         <div className="menu-btn" onClick={toggleMenu}>
           <div className="menu-btn__burger"></div>

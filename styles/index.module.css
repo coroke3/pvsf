@@ -95,6 +95,7 @@
     margin-top: 75px;
     height: auto;
     aspect-ratio: 16 / 9;
+    margin-bottom: -70px;
   }
 }
 @media screen and (max-width: 600px) {
