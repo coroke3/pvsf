@@ -41,7 +41,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
         <meta property="og:description" content="" />
         <meta
           property="og:image"
-          content={`https://i.ytimg.com/vi/${nextWork.ylink.slice(
+          content={`https://i.ytimg.com/vi/${work.ylink.slice(
             17,
             28
           )}/maxresdefault.jpg`}
