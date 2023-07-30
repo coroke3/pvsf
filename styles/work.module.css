@@ -136,6 +136,8 @@
   .creator {
     font-size: 0.8rem;
     width: 100%;
+    margin-left: 5px;
+
   }
   .time {
     padding: 0px 0;
@@ -152,11 +154,12 @@
   }
   @media (max-aspect-ratio: 9 / 14) {
     .yf {
-      top:75px;
+      top: 75px;
+      left: 0;
       position: fixed;
     }
     .bf::before {
-      content: "→";
+      content: "";
       position:relative;
       width: 100%;
       aspect-ratio: 16/9;
