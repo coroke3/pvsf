@@ -150,7 +150,7 @@
     margin: 75px 0%;
     margin-left: 5px;
   }
-  @media (max-aspect-ratio: 9 / 16) {
+  @media (max-aspect-ratio: 9 / 14) {
     .yf {
       top:75px;
       position: fixed;

@@ -234,6 +234,12 @@ table th {
 .mb {
   display: none;
 }
+.svg-inline--fa {
+  display: var(--fa-display, inline-block);
+  height: 1em;
+  overflow: visible;
+  vertical-align: -0.125em;
+}
 
 @media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
