@@ -155,7 +155,7 @@
   @media (max-aspect-ratio: 9 / 14) {
     .yf {
       top: 75px;
-      left: 0;
+      left: 0px;
       position: fixed;
     }
     .bf::before {
