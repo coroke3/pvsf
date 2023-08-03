@@ -5,6 +5,8 @@ import * as gtag from "../libs/gtag";
 import { createClient } from "microcms-js-sdk";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { Analytics } from '@vercel/analytics/react';
+
 
 function MyApp({ Component, pageProps }, AppProps) {
   const router = useRouter();
@@ -19,6 +21,8 @@ function MyApp({ Component, pageProps }, AppProps) {
   }, [router.events]);
   return (
     <>
+    <Analytics />
+
       <Script
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}
