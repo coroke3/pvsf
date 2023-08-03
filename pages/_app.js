@@ -1,7 +1,7 @@
 import "../styles.css";
 import Head from "next/head";
 import Script from "next/script";
-import * as gtag from "../lib/gtag";
+import * as gtag from "../libs/gtag";
 import { createClient } from "microcms-js-sdk";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
