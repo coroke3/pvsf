@@ -28,6 +28,21 @@ export const getStaticProps = async (context) => {
   };
 };
 
+export const getStaticPaths = async () => {
+  const res = await fetch(
+    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
+  );
+  const releases = await res.json();
+  const paths = releases.map((release) => ({
+    params: { id: release.timestamp.toString() },
+  }));
+
+  return {
+    paths,
+    fallback: false,
+  };
+};
+
 export default function Releases({ release, works }) {
   const showComment = release.comment !== undefined && release.comment !== "";
   const showIcon = release.icon !== undefined && release.icon !== "";
