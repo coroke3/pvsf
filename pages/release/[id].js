@@ -18,10 +18,8 @@ export const getStaticProps = async (context) => {
   const releases = await res.json();
   const works = await res2.json();
 
-  const timestamp = context.params.id;
-  const release = releases.find(
-    (release) => release.timestamp.toString() === timestamp
-  );
+  const timestamp = Number(context.params.id); // 文字列を数値に変換する
+  const release = releases.find((release) => release.timestamp === timestamp);
 
   return {
     props: { release, works },
