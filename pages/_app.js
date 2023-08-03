@@ -9,7 +9,7 @@ import { useEffect } from "react";
 function MyApp({ Component, pageProps }, AppProps) {
   const router = useRouter();
   useEffect(() => {
-    const handleRouterChange = (url: any) => {
+    const handleRouterChange = (url, any) => {
       gtag.pageview(url);
     };
     router.events.on("routeChangeComplete", handleRouterChange);
