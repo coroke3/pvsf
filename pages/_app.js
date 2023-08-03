@@ -5,8 +5,7 @@ import * as gtag from "../libs/gtag";
 import { createClient } from "microcms-js-sdk";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { Analytics } from '@vercel/analytics/react';
-
+import { Analytics } from "@vercel/analytics/react";
 
 function MyApp({ Component, pageProps }, AppProps) {
   const router = useRouter();
@@ -21,7 +20,7 @@ function MyApp({ Component, pageProps }, AppProps) {
   }, [router.events]);
   return (
     <>
-    <Analytics />
+      <Analytics />
 
       <Script
         strategy="afterInteractive"
