@@ -8,26 +8,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 
-export const getStaticProps = async (context) => {
-  const res = await fetch(
-    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
-  );
-  const res2 = await fetch(
-    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
-  );
-  const releases = await res.json();
-  const works = await res2.json();
-
-  const timestamp = context.params.id;
-  const release = releases.find(
-    (release) => release.timestamp.toString() === timestamp
-  );
-
-  return {
-    props: { release, works },
-  };
-};
-
 export const getStaticPaths = async () => {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
