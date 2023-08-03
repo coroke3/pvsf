@@ -124,16 +124,24 @@
     font-size: 0.8rem;
     line-height: 1.1rem;
   }
+  .s1f p,.s1f div{
+    font-size: 0.7rem;
+  }
+  .s1f p div {
+    margin: 2px;
+  }
   .title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
   .creator {
-    font-size: 1rem;
+    font-size: 0.8rem;
     width: 100%;
+    margin-left: 5px;
+
   }
   .time {
     padding: 0px 0;
-    font-size: 0.8rem;
+    font-size: 0.5rem;
   }
   .icon {
     width: 32px;
@@ -142,6 +150,20 @@
   .contentr {
     width: 100%;
     margin: 75px 0%;
+    margin-left: 5px;
+  }
+  @media (max-aspect-ratio: 9 / 14) {
+    .yf {
+      top: 75px;
+      left: 0px;
+      position: fixed;
+    }
+    .bf::before {
+      content: "";
+      position:relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+    }
   }
 }
 @media screen and (min-width: 1150px) {

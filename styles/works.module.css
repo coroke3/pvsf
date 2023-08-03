@@ -73,8 +73,5 @@
 	}
 	@media screen and (min-width: 1150px) {
 		@media (min-aspect-ratio: 16 / 9){
-			#template-page-archive, #template-single{
-				width: calc(100% - 200px);
-				margin-left:187px;
-			}
+
 	}	}
