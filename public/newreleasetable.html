@@ -1,0 +1,1121 @@
+<head>
+  <title>PVSF システム部運営ツール 投稿予定表作成</title>
+  <meta charset="UTF-8" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;900&family=Mrs+Saint+Delafield&family=Noto+Sans+JP:wght@300;500&family=Zen+Kaku+Gothic+New:wght@500&display=swap"
+    rel="stylesheet"
+  />
+  <script>
+    (function (d) {
+      var config = {
+          kitId: "qgy2nus",
+          scriptTimeout: 3000,
+          async: true,
+        },
+        h = d.documentElement,
+        t = setTimeout(function () {
+          h.className =
+            h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+        }, config.scriptTimeout),
+        tk = d.createElement("script"),
+        f = false,
+        s = d.getElementsByTagName("script")[0],
+        a;
+      h.className += " wf-loading";
+      tk.src = "https://use.typekit.net/" + config.kitId + ".js";
+      tk.async = true;
+      tk.onload = tk.onreadystatechange = function () {
+        a = this.readyState;
+        if (f || (a && a != "complete" && a != "loaded")) return;
+        f = true;
+        clearTimeout(t);
+        try {
+          Typekit.load(config);
+        } catch (e) {}
+      };
+      s.parentNode.insertBefore(tk, s);
+    })(document);
+  </script>
+</head>
+<body>
+  <div id="tablesetting">
+    <p>
+      企画名<input
+        type="text"
+        id="i-eventname"
+        name="i-eventname"
+        value="PVSF2023S"
+      />
+    </p>
+    <p>一日目<input type="text" id="i-date1" name="i-date1" value="08/18" /></p>
+    <p>二日目<input type="text" id="i-date2" name="i-date2" value="08/19" /></p>
+    <p>
+      フォント<input
+        type="text"
+        id="i-font"
+        name="i-font"
+        value="Zen Kaku Gothic New"
+      />
+    </p>
+    <p>
+      フォームデータ<input
+        type="url"
+        id="i-url"
+        name="i-url"
+        value="https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
+      />
+    </p>
+    <p>
+      文字色<input type="color" id="i-tcolor" name="i-tcolor" value="#ffffff" />
+    </p>
+    <p>
+      背景色<input type="color" id="i-bcolor" name="i-bcolor" value="#000000" />
+    </p>
+    <p>
+      企画色<input type="color" id="i-ecolor" name="i-ecolor" value="#ffffff" />
+    </p>
+    <div class="range">
+      <p>
+        メイン列数<input
+          type="range"
+          id="brow"
+          name="brow"
+          min="2"
+          max="4"
+          step="2"
+          value="2"
+        /><span>2</span>
+      </p>
+    </div>
+    <div class="range">
+      <p>
+        日別列数<input
+          type="range"
+          id="srow"
+          name="srow"
+          min="1"
+          max="2"
+          step="1"
+          value="1"
+        /><span>1</span>
+      </p>
+    </div>
+    <button id="button">canvasを生成する</button>
+  </div>
+  <div id="table">
+    <div>
+      <canvas id="btable" width="2880" height="3240"></canvas>
+    </div>
+    <div>
+      <div>
+        <canvas id="s1table" class="stable" width="3840" height="2160"></canvas>
+      </div>
+      <div>
+        <canvas id="s2table" class="stable" width="3840" height="2160"></canvas>
+      </div>
+    </div>
+  </div>
+  <div id="testtext"></div>
+  <div id="testtext1"></div>
+  <div id="testtext2"></div>
+  <div id="testtext3"></div>
+</body>
+
+<style>
+  #table {
+    display: flex;
+    flex-wrap: wrap;
+    width: 1950px;
+  }
+  #btable {
+    width: 960px;
+    height: 1080px;
+    border: solid white 5px;
+  }
+  .stable {
+    width: 960px;
+    height: 540px;
+    border: solid white 5px;
+  }
+</style>
+<script>
+  var elem = document.getElementsByClassName("range");
+  var rangeValue = function (elem, target) {
+    return function (evt) {
+      target.innerHTML = elem.value;
+    };
+  };
+  for (var i = 0, max = elem.length; i < max; i++) {
+    bar = elem[i].getElementsByTagName("input")[0];
+    target = elem[i].getElementsByTagName("span")[0];
+    bar.addEventListener("input", rangeValue(bar, target));
+  }
+</script>
+<script type="text/javascript">
+  $(function () {
+    var url = $("#i-url").val();
+    var font = $("#i-font").val();
+
+    $.getJSON(url + "?p=(new Date()).getTime()", (plan) => {
+      var planlong = Object.keys(plan).length;
+      h =
+        "投稿予定団体混合<style>#testtext{ font-family: " +
+        font +
+        ",sans-serif;</style>";
+      $("#testtext").append(h);
+      for (let i = 0; i < planlong; i++) {
+        if (plan[i].sum == "掲載") {
+          h =
+            "<br>" +
+            plan[i].creator +
+            "  " +
+            plan[i].title +
+            " " +
+            plan[i].music +
+            " - " +
+            plan[i].credit +
+            "<br>作品:" +
+            plan[i].ylink +
+            "<br>本家:" +
+            plan[i].ymulink +
+            "<br><br>";
+          $("#testtext1").append(h);
+        } else {
+          h =
+            "<br>" +
+            plan[i].creator +
+            "  " +
+            plan[i].title +
+            " " +
+            plan[i].music +
+            " - " +
+            plan[i].credit +
+            "<br>作品:" +
+            plan[i].ylink +
+            "<br>";
+          $("#testtext2").append(h);
+        }
+        h =
+          "<br>" +
+          plan[i].creator +
+          "  " +
+          plan[i].title +
+          "<br>" +
+          plan[i].music +
+          " - " +
+          plan[i].credit +
+          "<br>";
+        $("#testtext3").append(h);
+      }
+    });
+    $("#button").on("click", function () {
+      var eventname = $("#i-eventname").val();
+      var date1 = $("#i-date1").val();
+      var date2 = $("#i-date2").val();
+      var font = $("#i-font").val();
+      var url = $("#i-url").val();
+      var tcolor = $("#i-tcolor").val();
+      var bcolor = $("#i-bcolor").val();
+      var ecolor = $("#i-ecolor").val();
+      var brow = $("#brow").val();
+      var srow = $("#srow").val();
+
+      var bframey = 2260;
+
+      console.log(
+        brow + eventname + date1 + date2 + font + url + tcolor + bcolor
+      );
+      var img04 = new Image();
+      img04.src = "https://i.gyazo.com/dac2c87ed435bcca1201f83c855f26ef.jpg";
+      img04.onload = () => {
+        contextb.drawImage(img04, 0, 0, 5760, 3240);
+        contexts1.drawImage(img04, -3840, 0, 7680, 4320);
+        contexts2.drawImage(img04, -3840, -2160, 7680, 4320);
+      };
+      let canvasb = document.querySelector("#btable");
+      let contextb = canvasb.getContext("2d");
+      let canvass1 = document.querySelector("#s1table");
+      let contexts1 = canvass1.getContext("2d");
+      let canvass2 = document.querySelector("#s2table");
+      let contexts2 = canvass2.getContext("2d");
+
+      contextb.beginPath();
+      contextb.fillStyle = bcolor;
+      contextb.fillRect(0, 0, canvasb.width, canvasb.height);
+      contexts1.beginPath();
+      contexts1.fillStyle = bcolor;
+      contexts1.fillRect(0, 0, canvass1.width, canvass1.height);
+      contexts2.beginPath();
+      contexts2.fillStyle = bcolor;
+      contexts2.fillRect(0, 0, canvass2.width, canvass2.height);
+
+      var img = new Image();
+      img.src = "img/w.png";
+
+      img.onload = () => {
+        contextb.drawImage(img, 2720, 3070, 115, 115);
+        contexts1.drawImage(img, 3630, 1950, 155, 155);
+        contexts2.drawImage(img, 3630, 1950, 155, 155);
+      };
+      contextb.fillStyle = tcolor;
+      contextb.font = "170px '" + font + "'";
+      contextb.textBaseline = "bottom";
+      contextb.textAlign = "right";
+      $.getJSON(url + "?p=(new Date()).getTime()", (plan) => {
+        var planlong = Object.keys(plan).length;
+        var day1 = 0;
+        var day2 = 0;
+        var betime = 0;
+        var frameday = 0;
+        var maxc = 0;
+        var maxc1r = 0;
+        var maxc2r = 0;
+        var maxcs = 0;
+        var timesee = [];
+        var sttime = 0;
+        var nowday = 0;
+        $.getJSON(url + "?p=(new Date()).getTime()", (plan) => {
+          contextb.fillStyle = tcolor;
+          contextb.font = "170px '" + font + "'";
+          contextb.textBaseline = "bottom";
+          contextb.textAlign = "right";
+          contextb.fillText(eventname, 1535, 333);
+          contextb.textAlign = "left";
+          contextb.font = "80px '" + font + "'";
+          contextb.fillText("投稿予定のご案内", 1635, 293);
+          var planlong = Object.keys(plan).length;
+          h =
+            "投稿予定<style>#testtext{ font-family: " +
+            font +
+            ",sans-serif;</style>";
+          $("#testtext").append(h);
+          for (let i = 0; i < planlong; i++) {
+            h =
+              plan[i].creator +
+              "" +
+              plan[i].title +
+              " " +
+              plan[i].music +
+              " - " +
+              plan[i].credit +
+              "<br><br>";
+            $("#testtext").append(h);
+          }
+        });
+        //日付カウント
+        for (let i = 0; i < planlong; i++) {
+          var ntime =
+            plan[i].time.slice(0, 2) * 60 + plan[i].time.slice(3, 5) * 1;
+          console.log("時間" + plan[i].time);
+          console.log("時間数値の値" + ntime);
+          if (plan[i].data == date1) {
+            day1++;
+          }
+          if (plan[i].data == date2) {
+            day2++;
+          }
+          maxc1r = day1;
+          if (day1 < day2) {
+            maxc1r = day2;
+            console.log("ここ" + maxc1r + "" + day2);
+          }
+          frameday++;
+
+          console.log("be" + bedate + betime + "n" + ntime);
+          if (ntime - betime >= 60 || plan[i].data != bedate) {
+            if (frameday > maxc2r) {
+              maxc2r = frameday;
+            }
+            timesee.push(i);
+            frameday = 0;
+            console.log("-----区切り");
+
+            console.log("maxc2r" + maxc2r);
+            console.log("timesee" + timesee);
+          }
+
+          var betime = ntime;
+          var bedate = plan[i].data;
+        }
+        timesee.push(planlong);
+
+        console.log("timesee" + timesee);
+
+        if (brow == 2) {
+          maxc = maxc1r;
+        } else {
+          maxc = maxc2r;
+        }
+        if (srow == 1) {
+          maxcs = maxc1r;
+        } else {
+          maxcs = maxc2r;
+        }
+        console.log("day1:" + day1 + "  day2:" + day2);
+        var allmovie = planlong - (day1 + day2);
+
+        var workcount = maxc + allmovie;
+        var b1frame = bframey / workcount;
+        var by = 740;
+        var nowday = 0;
+        var maxy = 0;
+        var betime = 0;
+        var bedate = 0;
+        var startm = 0;
+
+        //メイン画像生成
+        for (let i = 0; i < planlong; i++) {
+          var ntime =
+            plan[i].time.slice(0, 2) * 60 + plan[i].time.slice(3, 5) * 1;
+          var icon = plan[i].icon;
+          var iconurl = "https://drive.google.com/uc?id=" + icon.slice(33);
+          if (nowday == plan[i].data) {
+            if (brow == 4) {
+              if (ntime - betime >= 60 || plan[i].data != bedate) {
+                var bx = bx + 620;
+                by = 740;
+              }
+            }
+          } else {
+            var by = 740;
+            var nowday = plan[i].data;
+            fz = b1frame / 1.4;
+            contextb.font = fz + "px '" + font + "'";
+            contextb.textBaseline = "middle";
+            contextb.textAlign = "center";
+            if (plan[i].data == date1) {
+              var bx = 150;
+              contextb.fillText(
+                plan[i].data + "  出展者",
+                720,
+                by - b1frame * 1.2,
+                800
+              );
+            }
+            if (plan[i].data == date2) {
+              var bx = 1490;
+              contextb.fillText(
+                plan[i].data + "  出展者",
+                2160,
+                by - b1frame * 1.2,
+                800
+              );
+            }
+
+            var betime = ntime;
+          }
+
+          if (day1 + day2 <= i) {
+            if (startm == 0) {
+              by = maxy + 150;
+              startm = 1;
+            }
+
+            contextb.textBaseline = "middle";
+            contextb.textAlign = "left";
+            by = by + b1frame * 0.3;
+            console.log(plan[i].creator + maxy + "by" + by);
+            var bx = 100;
+            fz = b1frame / 4;
+            contextb.font = fz + "px '" + font + "'";
+            contextb.fillText(
+              "参加メンバー:" + plan[i].member,
+              bx + b1frame * 1.4,
+              by + b1frame * 0.6,
+              2300
+            );
+            fz = b1frame / 2;
+            contextb.font = fz + "px '" + font + "'";
+            contextb.fillText(plan[i].title, bx + b1frame * 2.4 + 550, by, 500);
+            contextb.fillText(plan[i].creator, bx + b1frame * 2.4, by, 500);
+            fz = b1frame / 3;
+            contextb.font = fz + "px '" + font + "'";
+            contextb.fillText(
+              plan[i].music + "-" + plan[i].credit,
+              bx + b1frame * 2.4 + 1100,
+              by,
+              500
+            );
+          } else {
+            if (maxy < by) {
+              maxy = by;
+            }
+            console.log(iconurl);
+            contextb.textBaseline = "middle";
+            contextb.textAlign = "left";
+            fz = b1frame / 2;
+            contextb.font = fz + "px '" + font + "'";
+            if (plan[i].type1 == "複数人") {
+              fz = b1frame / 3.4;
+              contextb.font = fz + "px '" + font + "'";
+              contextb.fillText(
+                plan[i].type1.slice(0, 1),
+                bx + b1frame * 2.4,
+                by - b1frame / 6
+              );
+              contextb.fillText(
+                plan[i].type1.slice(1, 2),
+                bx + b1frame * 2.4,
+                by + b1frame / 6
+              );
+
+              fz = b1frame / 2;
+              contextb.font = fz + "px '" + font + "'";
+              contextb.fillText(
+                plan[i].creator,
+                bx + b1frame * 2.4 + b1frame / 2.3,
+                by,
+                2480 - (2480 / brow) * (brow - 1) - b1frame * 2.7
+              );
+            } else {
+              contextb.fillText(
+                plan[i].creator,
+                bx + b1frame * 2.4,
+                by,
+                2480 - (2480 / brow) * (brow - 1) - b1frame * 2.7
+              );
+            }
+
+            contextb.fillText(plan[i].time, bx, by, b1frame);
+          }
+
+          by = by + b1frame;
+          eval(
+            "const icon" +
+              i +
+              " = new Image(); icon" +
+              i +
+              ".src = '" +
+              iconurl +
+              "'; icon" +
+              i +
+              ".onload = () => { contextb.drawImage(icon" +
+              i +
+              "," +
+              (bx + b1frame * 1.4) +
+              "," +
+              (by - b1frame * 1.43) +
+              "," +
+              b1frame / 1.3 +
+              "," +
+              b1frame / 1.3 +
+              ");}"
+          );
+
+          var betime = ntime;
+          var bedate = plan[i].data;
+        }
+        var sframex = 3120;
+        var sframey = 1700;
+        var s1frame = sframey / maxcs;
+        var startsy = 400;
+
+        var sy = startsy;
+        var sx = 160;
+        var textspace = sframex / srow - s1frame * 2.5 - 200;
+        var sy = startsy;
+        var sx = 360;
+        var ssy = 0;
+
+        var timeseecount = timesee[1] - timesee[0];
+        console.log(
+          "p1=" +
+            plan[timesee[1] - 1].creator +
+            plan[timesee[1] - 1].time +
+            "p2=" +
+            plan[timesee[0]].creator +
+            plan[timesee[0]].time
+        );
+        console.log(
+          plan[timesee[1] - 1].time.slice(0, 2) * 60 +
+            plan[timesee[1] - 1].time.slice(3, 5) * 1 +
+            "    " +
+            (plan[timesee[0]].time.slice(0, 2) * 60 +
+              plan[timesee[0]].time.slice(3, 5) * 1)
+        );
+
+        var timeseeally =
+          plan[timesee[1] - 1].time.slice(0, 2) * 60 +
+          plan[timesee[1] - 1].time.slice(3, 5) * 1 -
+          (plan[timesee[0]].time.slice(0, 2) * 60 +
+            plan[timesee[0]].time.slice(3, 5) * 1);
+        contexts1.fillStyle = tcolor;
+        contexts1.textBaseline = "top";
+        contexts1.textAlign = "left";
+        fz = 130;
+        contexts1.font = fz + "px '" + font + "'";
+        contexts1.fillText(
+          eventname + " " + date1 + "の投稿予定のご案内",
+          150,
+          130
+        );
+        var f4 = 0;
+        var f3 = 0;
+        var f2 = 0;
+        var f1 = 0;
+
+        console.log("これがさだ" + (timesee[1] - timesee[0]));
+        contexts1.beginPath();
+        contexts1.moveTo(sx - 200, sy);
+        contexts1.lineTo(sx - 200, (timeseecount - 1) * s1frame + sy);
+        contexts1.strokeStyle = ecolor;
+        contexts1.lineWidth = 10;
+        contexts1.stroke();
+
+        var timesee1min = ((timeseecount - 1) * s1frame) / timeseeally;
+        var timeseestart =
+          plan[timesee[0]].time.slice(0, 2) * 60 +
+          plan[timesee[0]].time.slice(3, 5) * 1;
+
+        console.log(
+          "timesee1min" +
+            timesee1min +
+            "timeseestart" +
+            timeseestart +
+            "timeseecount" +
+            timeseecount +
+            "timeseeally" +
+            timeseeally +
+            "  0=" +
+            timesee[0] +
+            "  1=" +
+            timesee[1] +
+            "  2=" +
+            timesee[2] +
+            "  3=" +
+            timesee[3] +
+            "  4=" +
+            timesee[4]
+        );
+
+        //一日目
+        timec = 0;
+        var timesee1min = 0;
+
+        for (let i = 0; i < day1; i++) {
+          var ntime =
+            plan[i].time.slice(0, 2) * 60 + plan[i].time.slice(3, 5) * 1;
+          if (nowday == plan[i].data) {
+            if (ntime - betime >= 60 || plan[i].data != bedate) {
+              if (srow == 2) {
+                var sx = 2120;
+                sy = startsy;
+              }
+              timec = timec + 1;
+              f1 = timec;
+              f2 = timec + 1;
+              f3 = timec + 2;
+
+              var timeseecount = timesee[f2] - timesee[f1];
+              console.log(
+                "timec" +
+                  timec +
+                  "f1=" +
+                  f1 +
+                  "f2=" +
+                  f2 +
+                  "f3=" +
+                  f3 +
+                  "f4=" +
+                  f4
+              );
+
+              var timeseeally =
+                plan[timesee[f2] - 1].time.slice(0, 2) * 60 +
+                plan[timesee[f2] - 1].time.slice(3, 5) * 1 -
+                (plan[timesee[f1]].time.slice(0, 2) * 60 +
+                  plan[timesee[f1]].time.slice(3, 5) * 1);
+              contexts1.beginPath();
+              contexts1.moveTo(sx - 200, sy);
+              contexts1.lineTo(sx - 200, (timeseecount - 1) * s1frame + sy);
+              contexts1.strokeStyle = ecolor;
+              contexts1.lineWidth = 10;
+              contexts1.stroke();
+              console.log(
+                "tsc" +
+                  timeseecount +
+                  "s1flame=" +
+                  s1frame +
+                  "timeseeally=" +
+                  timeseeally
+              );
+              var timesee1min = ((timeseecount - 1) * s1frame) / timeseeally;
+              var timeseestart =
+                plan[timesee[f1]].time.slice(0, 2) * 60 +
+                plan[timesee[f1]].time.slice(3, 5) * 1;
+              var ssy = sy - startsy;
+              console.log(
+                "timesee1min" +
+                  timesee1min +
+                  "timeseestart" +
+                  timeseestart +
+                  "timeseecount" +
+                  timeseecount +
+                  "timeseeally" +
+                  timeseeally +
+                  "  0=" +
+                  timesee[0] +
+                  "  1=" +
+                  timesee[1] +
+                  "  2=" +
+                  timesee[2] +
+                  "  3=" +
+                  timesee[3] +
+                  "  4=" +
+                  timesee[4]
+              );
+              console.log("sssyyyy" + ssy);
+            }
+          } else {
+            var nowday = plan[i].data;
+          }
+
+          console.log(
+            "timec" + timec + "f1=" + f1 + "f2=" + f2 + "f3=" + f3 + "f4=" + f4
+          );
+          console.log("2-" + plan[i].data + plan[i].time + plan[i].creator);
+          contexts1.fillStyle = tcolor;
+          contexts1.textBaseline = "middle";
+          contexts1.textAlign = "left";
+          fz = s1frame / 2;
+          contexts1.font = fz + "px '" + font + "'";
+
+          if (plan[i].type1 == "複数人") {
+            fz = s1frame / 3.4;
+            contexts1.font = fz + "px '" + font + "'";
+            contexts1.fillText(
+              plan[i].type1.slice(0, 1),
+              sx + s1frame * 2.4,
+              sy - s1frame / 6
+            );
+            contexts1.fillText(
+              plan[i].type1.slice(1, 2),
+              sx + s1frame * 2.4,
+              sy + s1frame / 6
+            );
+
+            fz = b1frame / 5;
+            contexts1.font = fz + "px '" + font + "'";
+            contexts1.fillText(
+              "参加メンバー：" + plan[i].member,
+              sx + s1frame * 2.5 + s1frame / 3,
+              sy + s1frame / 4,
+              textspace * 1
+            );
+
+            fz = s1frame / 2;
+            contexts1.font = fz + "px '" + font + "'";
+            contexts1.fillText(
+              plan[i].creator,
+              sx + s1frame * 2.5 + s1frame / 3,
+              sy - s1frame / 7,
+              textspace * 0.25
+            );
+            contexts1.fillText(
+              plan[i].title,
+              sx + s1frame * 2.5 + textspace * 0.3,
+              sy - s1frame / 7,
+              textspace * 0.7
+            );
+          } else {
+            contexts1.fillText(
+              plan[i].creator,
+              sx + s1frame * 2.5,
+              sy,
+              textspace * 0.25
+            );
+            contexts1.fillText(
+              plan[i].title,
+              sx + s1frame * 2.5 + textspace * 0.3,
+              sy,
+              textspace * 0.7
+            );
+          }
+
+          fz = s1frame / 2.5;
+          if (isNaN(timesee1min)) {
+            timesee1min = 0;
+          }
+          contexts1.font = fz + "px '" + font + "'";
+          contexts1.fillText(
+            plan[i].time,
+            sx - 160,
+            (ntime - timeseestart) * timesee1min + startsy + ssy,
+            500
+          );
+          console.log(
+            "timedowm" +
+              plan[i].data +
+              plan[i].time +
+              plan[i].creator +
+              " ntime" +
+              ntime +
+              " timeseestart" +
+              timeseestart +
+              " timesee1min" +
+              timesee1min +
+              " startsy" +
+              startsy +
+              " ssy" +
+              ssy
+          );
+
+          contexts1.globalAlpha = 0.5;
+          contexts1.beginPath();
+          contexts1.moveTo(
+            sx - 20,
+            (ntime - timeseestart) * timesee1min + startsy + ssy - 3
+          );
+          contexts1.lineTo(sx + 170, sy);
+          contexts1.strokeStyle = tcolor;
+          contexts1.lineWidth = 5;
+          contexts1.stroke();
+          contexts1.globalAlpha = 1;
+
+          fz = s1frame / 4;
+          contexts1.font = fz + "px '" + font + "'";
+          contexts1.fillStyle = ecolor;
+          contexts1.fillText(
+            "●",
+            sx - 205,
+            (ntime - timeseestart) * timesee1min + startsy + ssy,
+            500
+          );
+
+          sy = sy + s1frame;
+          var icon = plan[i].icon;
+          var iconurl = "https://drive.google.com/uc?id=" + icon.slice(33);
+
+          eval(
+            "const icon" +
+              i +
+              " = new Image(); icon" +
+              i +
+              ".src = '" +
+              iconurl +
+              "'; icon" +
+              i +
+              ".onload = () => { contexts1.drawImage(icon" +
+              i +
+              "," +
+              (sx + s1frame * 1.4) +
+              "," +
+              (sy - s1frame * 1.43) +
+              "," +
+              s1frame / 1.3 +
+              "," +
+              s1frame / 1.3 +
+              ");}"
+          );
+          console.log("sx=" + sx + "sy=" + sy + "s1frame=" + s1frame);
+          var betime = ntime;
+          var bedate = plan[i].data;
+        }
+
+        var sy = startsy;
+        var sx = 360;
+        var ssy = 0;
+
+        var timeseecount = timesee[f3] - timesee[f2];
+        console.log("timesee" + timeseecount);
+        console.log(
+          "p1=" +
+            plan[timesee[f3] - 1].creator +
+            plan[timesee[f3] - 1].time +
+            "p2=" +
+            plan[timesee[f2]].creator +
+            plan[timesee[f2]].time
+        );
+        console.log(
+          plan[timesee[f3] - 1].time.slice(0, 2) * 60 +
+            plan[timesee[f3] - 1].time.slice(3, 5) * 1 +
+            "    " +
+            (plan[timesee[f2]].time.slice(0, 2) * 60 +
+              plan[timesee[f2]].time.slice(3, 5) * 1)
+        );
+
+        var timeseeally =
+          plan[timesee[f3] - 1].time.slice(0, 2) * 60 +
+          plan[timesee[f3] - 1].time.slice(3, 5) * 1 -
+          (plan[timesee[f2]].time.slice(0, 2) * 60 +
+            plan[timesee[f2]].time.slice(3, 5) * 1);
+
+        console.log("これがさだ" + (timesee[3] - timesee[2]));
+        contexts2.beginPath();
+        contexts2.moveTo(sx - 200, sy);
+        contexts2.lineTo(sx - 200, (timeseecount - 1) * s1frame + sy);
+        contexts2.strokeStyle = ecolor;
+        contexts2.lineWidth = 10;
+        contexts2.stroke();
+
+        contexts2.fillStyle = tcolor;
+        contexts2.textBaseline = "top";
+        contexts2.textAlign = "left";
+        fz = 130;
+        contexts2.font = fz + "px '" + font + "'";
+        contexts2.fillText(
+          eventname + " " + date2 + "の投稿予定のご案内",
+          150,
+          130
+        );
+        console.log(
+          "timec" + timec + "f1=" + f1 + "f2=" + f2 + "f3=" + f3 + "f4=" + f4
+        );
+        f3 = timec;
+        f4 = timec + 1;
+
+        var timesee1min = ((timeseecount - 1) * s1frame) / timeseeally;
+        var timeseestart =
+          plan[timesee[f2]].time.slice(0, 2) * 60 +
+          plan[timesee[f2]].time.slice(3, 5) * 1;
+
+        console.log(
+          "timesee1min" +
+            timesee1min +
+            "timeseestart" +
+            timeseestart +
+            "timeseecount" +
+            timeseecount +
+            "timeseeally" +
+            timeseeally +
+            "  0=" +
+            timesee[0] +
+            "  1=" +
+            timesee[1] +
+            "  2=" +
+            timesee[2] +
+            "  3=" +
+            timesee[3] +
+            "  4=" +
+            timesee[4]
+        );
+
+        //二日目
+        timec = timec + 1;
+        f2 = timec - 1;
+        f3 = timec;
+        f4 = timec + 1;
+
+        for (let i = day1; i < day1 + day2; i++) {
+          var ntime =
+            plan[i].time.slice(0, 2) * 60 + plan[i].time.slice(3, 5) * 1;
+          if (nowday == plan[i].data) {
+            if (ntime - betime >= 60 || plan[i].data != bedate) {
+              if (srow == 2) {
+                var sx = 2120;
+                sy = startsy;
+              }
+              timec = timec + 1;
+              f2 = timec - 1;
+              f3 = timec;
+              f4 = timec + 1;
+
+              console.log(
+                "timec" +
+                  timec +
+                  "f1=" +
+                  f1 +
+                  "f2=" +
+                  f2 +
+                  "f3=" +
+                  f3 +
+                  "f4=" +
+                  f4
+              );
+
+              var timeseecount = timesee[f4] - timesee[f3];
+              var timeseeally =
+                plan[timesee[f4] - 1].time.slice(0, 2) * 60 +
+                plan[timesee[f4] - 1].time.slice(3, 5) * 1 -
+                (plan[timesee[f3]].time.slice(0, 2) * 60 +
+                  plan[timesee[f3]].time.slice(3, 5) * 1);
+              contexts2.beginPath();
+              contexts2.moveTo(sx - 200, sy);
+              contexts2.lineTo(sx - 200, (timeseecount - 1) * s1frame + sy);
+              contexts2.strokeStyle = ecolor;
+              contexts2.lineWidth = 10;
+              contexts2.stroke();
+              if (timeseeally == 0) {
+                var timesee1min = 1;
+              } else {
+                var timesee1min = ((timeseecount - 1) * s1frame) / timeseeally;
+              }
+              if (timeseecount == 1) {
+                var timesee1min = 0;
+              }
+
+              var timeseestart =
+                plan[timesee[f3]].time.slice(0, 2) * 60 +
+                plan[timesee[f3]].time.slice(3, 5) * 1;
+              var ssy = sy - startsy;
+              console.log("sssyyyy" + ssy);
+              console.log(
+                "timesee1min" +
+                  timesee1min +
+                  "timeseestart" +
+                  timeseestart +
+                  "timeseecount" +
+                  timeseecount +
+                  "timeseeally" +
+                  timeseeally +
+                  "  0=" +
+                  timesee[0] +
+                  "  1=" +
+                  timesee[1] +
+                  "  2=" +
+                  timesee[2] +
+                  "  3=" +
+                  timesee[3] +
+                  "  4=" +
+                  timesee[4]
+              );
+            }
+          } else {
+            var nowday = plan[i].data;
+          }
+          console.log(
+            "timec" + timec + "f1=" + f1 + "f2=" + f2 + "f3=" + f3 + "f4=" + f4
+          );
+          console.log("2-" + plan[i].data + plan[i].time + plan[i].creator);
+          contexts2.fillStyle = tcolor;
+          contexts2.textBaseline = "middle";
+          contexts2.textAlign = "left";
+          fz = s1frame / 2;
+          contexts2.font = fz + "px '" + font + "'";
+
+          if (plan[i].type1 == "複数人") {
+            fz = s1frame / 3.4;
+            contexts2.font = fz + "px '" + font + "'";
+            contexts2.fillText(
+              plan[i].type1.slice(0, 1),
+              sx + s1frame * 2.4,
+              sy - s1frame / 6
+            );
+            contexts2.fillText(
+              plan[i].type1.slice(1, 2),
+              sx + s1frame * 2.4,
+              sy + s1frame / 6
+            );
+            fz = b1frame / 5;
+            contexts2.font = fz + "px '" + font + "'";
+            contexts2.fillText(
+              "参加メンバー：" + plan[i].member,
+              sx + s1frame * 2.5 + s1frame / 3,
+              sy + s1frame / 4,
+              textspace * 1
+            );
+
+            fz = s1frame / 2;
+            contexts2.font = fz + "px '" + font + "'";
+            contexts2.fillText(
+              plan[i].creator,
+              sx + s1frame * 2.5 + s1frame / 3,
+              sy - s1frame / 7,
+              textspace * 0.25
+            );
+            contexts2.fillText(
+              plan[i].title,
+              sx + s1frame * 2.5 + textspace * 0.3,
+              sy - s1frame / 7,
+              textspace * 0.7
+            );
+          } else {
+            contexts2.fillText(
+              plan[i].creator,
+              sx + s1frame * 2.5,
+              sy,
+              textspace * 0.25
+            );
+            contexts2.fillText(
+              plan[i].title,
+              sx + s1frame * 2.5 + textspace * 0.3,
+              sy,
+              textspace * 0.7
+            );
+          }
+
+          fz = s1frame / 2.5;
+          if (isNaN(timesee1min)) {
+            timesee1min = 0;
+          }
+          contexts2.font = fz + "px '" + font + "'";
+          contexts2.fillText(
+            plan[i].time,
+            sx - 160,
+            (ntime - timeseestart) * timesee1min + startsy + ssy,
+            500
+          );
+          console.log(
+            "timedowm" +
+              plan[i].data +
+              plan[i].time +
+              plan[i].creator +
+              " ntime" +
+              ntime +
+              " timeseestart" +
+              timeseestart +
+              " timesee1min" +
+              timesee1min +
+              " startsy" +
+              startsy +
+              " ssy" +
+              ssy
+          );
+
+          contexts2.globalAlpha = 0.5;
+          contexts2.beginPath();
+          contexts2.moveTo(
+            sx - 20,
+            (ntime - timeseestart) * timesee1min + startsy + ssy - 3
+          );
+          contexts2.lineTo(sx + 170, sy);
+          contexts2.strokeStyle = tcolor;
+          contexts2.lineWidth = 5;
+          contexts2.stroke();
+          contexts2.globalAlpha = 1;
+
+          fz = s1frame / 4;
+          contexts2.font = fz + "px '" + font + "'";
+          contexts2.fillStyle = ecolor;
+          contexts2.fillText(
+            "●",
+            sx - 205,
+            (ntime - timeseestart) * timesee1min + startsy + ssy,
+            500
+          );
+          sy = sy + s1frame;
+          var icon = plan[i].icon;
+          var iconurl = "https://drive.google.com/uc?id=" + icon.slice(33);
+
+          eval(
+            "const icon" +
+              i +
+              " = new Image(); icon" +
+              i +
+              ".src = '" +
+              iconurl +
+              "'; icon" +
+              i +
+              ".onload = () => { contexts2.drawImage(icon" +
+              i +
+              "," +
+              (sx + s1frame * 1.4) +
+              "," +
+              (sy - s1frame * 1.43) +
+              "," +
+              s1frame / 1.3 +
+              "," +
+              s1frame / 1.3 +
+              ");}"
+          );
+          console.log("sx=" + sx + "sy=" + sy + "s1frame=" + s1frame);
+          var betime = ntime;
+          var bedate = plan[i].data;
+        }
+      });
+    });
+  });
+</script>

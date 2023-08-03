@@ -29,8 +29,14 @@ export default function Releases(data) {
         <meta name="twitter:site" content="@pvscreeningfes" />
         <meta name="twitter:creator" content="@coroke3" />
         <meta property="og:url" content="pvsf.jp" />
-        <meta property="og:title" content="投稿予定のご案内 - オンライン映像イベント / PVSF" />
-        <meta property="og:description" content="PVSFにて投稿予定の作品です。ぜひご覧ください。" />
+        <meta
+          property="og:title"
+          content="投稿予定のご案内 - オンライン映像イベント / PVSF"
+        />
+        <meta
+          property="og:description"
+          content="PVSFにて投稿予定の作品です。ぜひご覧ください。"
+        />
         <meta
           property="og:image"
           content="https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg"
