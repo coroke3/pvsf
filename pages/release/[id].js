@@ -18,8 +18,10 @@ export const getStaticProps = async (context) => {
   const releases = await res.json();
   const works = await res2.json();
 
-  const timestamp = Number(context.params.id); // 文字列を数値に変換する
-  const release = releases.find((release) => release.timestamp === timestamp);
+  const timestamp = context.params.id;
+  const release = releases.find(
+    (release) => release.timestamp.toString() === timestamp
+  );
 
   return {
     props: { release, works },
@@ -41,7 +43,7 @@ export const getStaticPaths = async () => {
   };
 };
 
-export default function Releases({ release, works }) {
+export default function Releases({ release }) {
   const showComment = release.comment !== undefined && release.comment !== "";
   const showIcon = release.icon !== undefined && release.icon !== "";
   const showCreator = release.creator !== undefined && release.creator !== "";
