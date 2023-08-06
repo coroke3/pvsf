@@ -593,13 +593,17 @@
 
         //一日目
         timec = 0;
-        var timesee1min = 0;
+        if (timeseecount == 1) {
+          var timesee1min = 0;
+        }
 
         for (let i = 0; i < day1; i++) {
           var ntime =
             plan[i].time.slice(0, 2) * 60 + plan[i].time.slice(3, 5) * 1;
           if (nowday == plan[i].data) {
+            //console.log("🟨1");
             if (ntime - betime >= 60 || plan[i].data != bedate) {
+              //console.log("🟦2");
               if (srow == 2) {
                 var sx = 2120;
                 sy = startsy;
@@ -667,12 +671,16 @@
                   "  4=" +
                   timesee[4]
               );
+              console.log("timesee1min" + timesee1min);
+
               console.log("sssyyyy" + ssy);
             }
           } else {
+            console.log("timesee1min" + timesee1min);
+
             var nowday = plan[i].data;
           }
-
+          console.log("timesee1min" + timesee1min);
           console.log(
             "timec" + timec + "f1=" + f1 + "f2=" + f2 + "f3=" + f3 + "f4=" + f4
           );
@@ -720,7 +728,10 @@
               sy - s1frame / 7,
               textspace * 0.7
             );
+            console.log("timesee1min" + timesee1min);
           } else {
+            console.log("timesee1min" + timesee1min);
+
             contexts1.fillText(
               plan[i].creator,
               sx + s1frame * 2.5,
@@ -737,8 +748,11 @@
 
           fz = s1frame / 2.5;
           if (isNaN(timesee1min)) {
-            timesee1min = 0;
+            var timesee1min = 0;
+            console.log("作動");
           }
+          console.log("timesee1min" + timesee1min);
+
           contexts1.font = fz + "px '" + font + "'";
           contexts1.fillText(
             plan[i].time,
