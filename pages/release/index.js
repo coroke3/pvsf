@@ -55,6 +55,11 @@ export default function Releases(data) {
                     }}
                   >
                     <div className={styles.releases2}>
+                    <div
+                        className={styles.r0}
+                      >
+                        {release.data}
+                      </div>
                       <div
                         className={styles.r1}
                         id="generated-id-1690476115475-vx3fsggdf"
@@ -130,6 +135,11 @@ export default function Releases(data) {
                 ) : (
                   <div className={styles.releases1}>
                     <div className={styles.releases2}>
+                    <div
+                        className={styles.r0}
+                      >
+                        {release.data}
+                      </div>
                       <div
                         className={styles.r1}
                         id="generated-id-1690476115475-vx3fsggdf"

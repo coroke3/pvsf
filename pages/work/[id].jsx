@@ -96,6 +96,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
               )}
               {showTime && <p className={styles.time}>{formattedDate}</p>}
             </div>
+
             {showComment && (
               <p>
                 <div dangerouslySetInnerHTML={{ __html: `${work.comment}` }} />

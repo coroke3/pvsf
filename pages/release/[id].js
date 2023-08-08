@@ -50,6 +50,8 @@ export default function Releases({ release, works }) {
   const showTwitter = release.tlink !== undefined && release.tlink !== "";
   const showYoutube = release.ylink !== undefined && release.ylink !== "";
   const showMember = release.member !== undefined && release.member !== "";
+  const showMusic = release.music !== undefined && release.music !== ""  && release.credit !== undefined && release.credit !== "";
+
   return (
     <div>
       <Head>
@@ -189,6 +191,15 @@ export default function Releases({ release, works }) {
               {"出展  "}
               {release.type2}の部
             </p>
+            {showMusic && (
+              <p>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: `楽曲:${release.music} - ${release.credit}<br> `,
+                  }}
+                />
+              </p>
+            )}
             {showComment && (
               <p>
                 <div

@@ -28,7 +28,7 @@
     width: 100%;
     height: 100%;
     margin: 0;
-    padding: 33px 28px;
+    padding: 29px 28px;
     border-radius: 0;
     border: 0 solid #fff;
     color: #fff;
@@ -90,6 +90,16 @@
     font-size: 2rem;
     letter-spacing: 2px;
     box-sizing: border-box;
+}
+.r0 {
+    font-weight: 500;
+	font-style: normal;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    width: 100%;
+    height: 17px;
+    opacity: 1;
+    transition: all 0.5s;
 }
 
 .r1 {
@@ -213,6 +223,9 @@
 .releases2:hover .r2,
 .releases2:hover .r3 {
     height: 30px;
+}
+.releases2:hover .r0 {
+    font-size: 0.4rem;
 }
 
 .releases2:hover .r1 {
