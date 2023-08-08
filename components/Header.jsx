@@ -91,7 +91,7 @@ function Header() {
               <Link href="../../../../page/hv8gfp0jdji">参加する</Link>
             </div>
             <div className="menubars ms1">
-              <Link href="../../../../release ">投稿予定のご案内</Link>
+              <Link href="../../../../release">投稿予定のご案内</Link>
             </div>
             <div className="menubars ms1">
               <Link href="../../../../work">過去の投稿作品</Link>
