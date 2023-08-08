@@ -107,7 +107,6 @@ export default function Releases({ release, works }) {
           <div className={styles.s3f}>
             {works.map((work) => {
               const showIcon2 = work.icon !== undefined && work.icon !== "";
-
               return (
                 <Link href={`../release/${work.timestamp}`} key={work.id}>
                   <div className={styles.works}>
@@ -124,7 +123,7 @@ export default function Releases({ release, works }) {
                     <div className={styles.w2}>{work.title}</div>
                   </div>
                 </Link>
-              ); // 修正: work.id を使用する
+              );
             })}
           </div>
           <div className={styles.s1f}>
