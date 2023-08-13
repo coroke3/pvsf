@@ -240,6 +240,13 @@ table th {
   overflow: visible;
   vertical-align: -0.125em;
 }
+figure{
+  margin: 20px;
+}
+figure img {
+  width: 50%;
+  height:auto;
+}
 
 @media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
@@ -339,6 +346,10 @@ table th {
   padding-right: 23px;
 }
 @media screen and (max-width: 900px) {
+  figure img {
+    width: 100%;
+    height:auto;
+  }
   .content {
     width: 95%;
     margin: 120px 2.5%;

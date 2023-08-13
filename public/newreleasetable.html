@@ -456,11 +456,19 @@
                 bx + b1frame * 2.4,
                 by - b1frame / 6
               );
-              contextb.fillText(
-                plan[i].type1.slice(1, 2),
-                bx + b1frame * 2.4,
-                by + b1frame / 6
-              );
+              if (plan[i].type2 == "ビギナー") {
+                contextb.fillText(
+                  plan[i].type2.slice(0, 1),
+                  bx + b1frame * 2.4,
+                  by + b1frame / 6
+                );
+              } else {
+                contextb.fillText(
+                  plan[i].type1.slice(1, 2),
+                  bx + b1frame * 2.4,
+                  by + b1frame / 6
+                );
+              }
 
               fz = b1frame / 2;
               contextb.font = fz + "px '" + font + "'";
@@ -471,12 +479,36 @@
                 2480 - (2480 / brow) * (brow - 1) - b1frame * 2.7
               );
             } else {
-              contextb.fillText(
-                plan[i].creator,
-                bx + b1frame * 2.4,
-                by,
-                2480 - (2480 / brow) * (brow - 1) - b1frame * 2.7
-              );
+              if (plan[i].type2 == "ビギナー") {
+                fz = b1frame / 3.4;
+                contextb.font = fz + "px '" + font + "'";
+                contextb.fillText(
+                  plan[i].type2.slice(0, 1),
+                  bx + b1frame * 2.4,
+                  by - b1frame / 6
+                );
+                contextb.fillText(
+                  plan[i].type2.slice(1, 2),
+                  bx + b1frame * 2.4,
+                  by + b1frame / 6
+                );
+
+                fz = b1frame / 2;
+                contextb.font = fz + "px '" + font + "'";
+                contextb.fillText(
+                  plan[i].creator,
+                  bx + b1frame * 2.4 + b1frame / 2.3,
+                  by,
+                  2480 - (2480 / brow) * (brow - 1) - b1frame * 2.7
+                );
+              } else {
+                contextb.fillText(
+                  plan[i].creator,
+                  bx + b1frame * 2.4,
+                  by,
+                  2480 - (2480 / brow) * (brow - 1) - b1frame * 2.7
+                );
+              }
             }
 
             contextb.fillText(plan[i].time, bx, by, b1frame);
@@ -699,11 +731,19 @@
               sx + s1frame * 2.4,
               sy - s1frame / 6
             );
-            contexts1.fillText(
-              plan[i].type1.slice(1, 2),
-              sx + s1frame * 2.4,
-              sy + s1frame / 6
-            );
+            if (plan[i].type2 == "ビギナー") {
+              contexts1.fillText(
+                plan[i].type2.slice(0, 1),
+                sx + s1frame * 2.4,
+                sy + s1frame / 6
+              );
+            } else {
+              contexts1.fillText(
+                plan[i].type1.slice(1, 2),
+                sx + s1frame * 2.4,
+                sy + s1frame / 6
+              );
+            }
 
             fz = b1frame / 5;
             contexts1.font = fz + "px '" + font + "'";
@@ -732,12 +772,35 @@
           } else {
             console.log("timesee1min" + timesee1min);
 
-            contexts1.fillText(
-              plan[i].creator,
-              sx + s1frame * 2.5,
-              sy,
-              textspace * 0.25
-            );
+            if (plan[i].type2 == "ビギナー") {
+              fz = s1frame / 3.4;
+              contexts1.font = fz + "px '" + font + "'";
+              contexts1.fillText(
+                plan[i].type2.slice(0, 1),
+                sx + s1frame * 2.4,
+                sy - s1frame / 6
+              );
+              contexts1.fillText(
+                plan[i].type2.slice(1, 2),
+                sx + s1frame * 2.4,
+                sy + s1frame / 6
+              );
+              fz = s1frame / 2;
+              contexts1.font = fz + "px '" + font + "'";
+              contexts1.fillText(
+                plan[i].creator,
+                sx + s1frame * 2.5 + s1frame / 3,
+                sy,
+                textspace * 0.25
+              );
+            } else {
+              contexts1.fillText(
+                plan[i].creator,
+                sx + s1frame * 2.5,
+                sy,
+                textspace * 0.25
+              );
+            }
             contexts1.fillText(
               plan[i].title,
               sx + s1frame * 2.5 + textspace * 0.3,
@@ -1008,11 +1071,19 @@
               sx + s1frame * 2.4,
               sy - s1frame / 6
             );
-            contexts2.fillText(
-              plan[i].type1.slice(1, 2),
-              sx + s1frame * 2.4,
-              sy + s1frame / 6
-            );
+            if (plan[i].type2 == "ビギナー") {
+              contexts2.fillText(
+                plan[i].type2.slice(0, 1),
+                sx + s1frame * 2.4,
+                sy + s1frame / 6
+              );
+            } else {
+              contexts2.fillText(
+                plan[i].type1.slice(1, 2),
+                sx + s1frame * 2.4,
+                sy + s1frame / 6
+              );
+            }
             fz = b1frame / 5;
             contexts2.font = fz + "px '" + font + "'";
             contexts2.fillText(
@@ -1037,12 +1108,35 @@
               textspace * 0.7
             );
           } else {
-            contexts2.fillText(
-              plan[i].creator,
-              sx + s1frame * 2.5,
-              sy,
-              textspace * 0.25
-            );
+            if (plan[i].type2 == "ビギナー") {
+              fz = s1frame / 3.4;
+              contexts2.font = fz + "px '" + font + "'";
+              contexts2.fillText(
+                plan[i].type2.slice(0, 1),
+                sx + s1frame * 2.4,
+                sy - s1frame / 6
+              );
+              contexts2.fillText(
+                plan[i].type2.slice(1, 2),
+                sx + s1frame * 2.4,
+                sy + s1frame / 6
+              );
+              fz = s1frame / 2;
+              contexts2.font = fz + "px '" + font + "'";
+              contexts2.fillText(
+                plan[i].creator,
+                sx + s1frame * 2.5 + s1frame / 3,
+                sy,
+                textspace * 0.25
+              );
+            } else {
+              contexts2.fillText(
+                plan[i].creator,
+                sx + s1frame * 2.5,
+                sy,
+                textspace * 0.25
+              );
+            }
             contexts2.fillText(
               plan[i].title,
               sx + s1frame * 2.5 + textspace * 0.3,
