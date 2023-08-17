@@ -1,11 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { client } from "../../libs/client";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/works.module.css";
 import Head from "next/head";
-import { createClient } from "microcms-js-sdk";
 
 export default function Home({ work }) {
   // -9時間を引く関数
@@ -38,8 +36,11 @@ export default function Home({ work }) {
       <div className="content">
         <div className={styles.work}>
           {work.map((work) => (
-            <div className={styles.works} key={work.id}>
-              <Link href={`../work/${work.id}`}>
+            <div className={styles.works} key={work.ylink}>
+              <Link href={`../work/${work.ylink.slice(
+                    17,
+                    28
+                  )}`}>
                 <img
                   src={`https://i.ytimg.com/vi/${work.ylink.slice(
                     17,
@@ -62,16 +63,14 @@ export default function Home({ work }) {
   );
 }
 
-// データをテンプレートに受け渡す部分の処理を記述します
+
 export const getStaticProps = async () => {
-  const data = await client.get({
-    endpoint: "work",
-    queries: { offset: 0, limit: 999 },
-  });
+  const res = await fetch(
+    "https://script.google.com/macros/s/AKfycbyEph6zXb1IWFRLpTRLNLtxU4Kj7oe10bt2ifiyK09a6nM13PASsaBYFe9YpDj9OEkKTw/exec"
+  );
+  const work = await res.json();
 
   return {
-    props: {
-      work: data.contents,
-    },
+    props: { work },
   };
 };

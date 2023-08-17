@@ -3,7 +3,6 @@ import Link from "next/link";
 import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { client } from "../../libs/client";
 import styles from "../../styles/work.module.css";
 import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -27,7 +26,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
     <div>
       <Head>
         <title>
-          {work.title}{' '}-{' '}{work.creator}{' '}-{' '}オンライン映像イベント{' '}/{' '}PVSF{' '}archive
+          {work.title} - {work.creator} - オンライン映像イベント / PVSF archive
         </title>
         <meta
           name="description"
@@ -37,8 +36,14 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
         <meta name="twitter:site" content="@pvscreeningfes" />
         <meta name="twitter:creator" content="@coroke3" />
         <meta property="og:url" content="pvsf.jp" />
-        <meta property="og:title" content={`${work.title} - ${work.creator} / PVSF archive`} />
-        <meta property="og:description" content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`} />
+        <meta
+          property="og:title"
+          content={`${work.title} - ${work.creator} / PVSF archive`}
+        />
+        <meta
+          property="og:description"
+          content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`}
+        />
         <meta
           property="og:image"
           content={`https://i.ytimg.com/vi/${work.ylink.slice(
@@ -111,9 +116,15 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
           <div className={styles.s2f}>
             <div className={styles.navLinks}>
               {previousWorks.map((prevWork) => (
-                <div className={styles.ss1} key={prevWork.id}>
+                <div className={styles.ss1} key={prevWork.ylink.slice(
+                  17,
+                  28
+                )}>
                   <div className={styles.ss12}>
-                    <Link href={`/work/${prevWork.id}`}>
+                    <Link href={`/work/${prevWork.ylink.slice(
+                          17,
+                          28
+                        )}`}>
                       <img
                         src={`https://i.ytimg.com/vi/${prevWork.ylink.slice(
                           17,
@@ -131,9 +142,15 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                 </div>
               ))}
               {nextWorks.map((nextWork) => (
-                <div className={styles.ss1} key={nextWork.id}>
+                <div className={styles.ss1} key={nextWork.ylink.slice(
+                  17,
+                  28
+                )}>
                   <div className={styles.ss12}>
-                    <Link href={`/work/${nextWork.id}`}>
+                    <Link href={`/work/${nextWork.ylink.slice(
+                          17,
+                          28
+                        )}`}>
                       <img
                         src={`https://i.ytimg.com/vi/${nextWork.ylink.slice(
                           17,
@@ -159,37 +176,38 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
   );
 }
 
-export async function getStaticPaths() {
-  const data = await client.get({
-    endpoint: "work",
-    queries: { offset: 0, limit: 9999 },
-  });
 
-  const paths = data.contents.map((content) => `/work/${content.id}`);
+export async function getStaticPaths() {
+  const res = await fetch(
+    "https://script.google.com/macros/s/AKfycbyEph6zXb1IWFRLpTRLNLtxU4Kj7oe10bt2ifiyK09a6nM13PASsaBYFe9YpDj9OEkKTw/exec"  // JSON ファイルのURLを指定
+  );
+  const data = await res.json();
+
+  const paths = data.map((content) => `/work/${content.ylink.slice(17, 28)}`);
+  
   return { paths, fallback: false };
 }
 
 export async function getStaticProps(context) {
   const id = context.params.id;
-  const data = await client.get({ endpoint: "work", contentId: id });
 
-  const allWork = await client.get({
-    endpoint: "work",
-    queries: { offset: 0, limit: 9999 },
-  });
-  const currentIndex = allWork.contents.findIndex(
-    (content) => content.id === id
+  const res = await fetch(
+    "https://script.google.com/macros/s/AKfycbyEph6zXb1IWFRLpTRLNLtxU4Kj7oe10bt2ifiyK09a6nM13PASsaBYFe9YpDj9OEkKTw/exec"  // JSON ファイルのURLを指定
   );
+  const allWork = await res.json();
 
-  const previousWorks = allWork.contents.slice(
+  const currentIndex = allWork.findIndex(
+    (content) => content.ylink.slice(17, 28).toString() === id
+  );
+  const previousWorks = allWork.slice(
     Math.max(currentIndex - 5, 0),
     currentIndex
   );
-  const nextWorks = allWork.contents.slice(currentIndex + 1, currentIndex + 6);
+  const nextWorks = allWork.slice(currentIndex + 1, currentIndex + 6);
 
   return {
     props: {
-      work: data,
+      work: allWork.find(content => content.ylink.slice(17, 28) === id),
       previousWorks,
       nextWorks,
     },

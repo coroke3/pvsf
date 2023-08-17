@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
+    <title>PVSF各作者の投稿予定表</title>
+    <link rel="shortcut icon" href="img/web.ico" type="image/vnd.microsoft.icon" />
+    <meta property="og:url" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="各作者の投稿予定表 PVSF" />
+    <meta property="og:description" content="PVSFの各作者の投稿予定表です。ぜひクリエイターたちが頑張った作品たちをご覧ください。" />
+    <meta property="og:site_name" content="" />
+    <meta property="og:image" content="" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@pvsf" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+    <link href="releasetable.css" rel="stylesheet" type="text/css" />
+    <meta name="google-site-verification" content="kQeOdyUSC-Mx7OnAqeHUMkZXOOw52MdQ-qi9yMQSucM" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&family=Open+Sans:wght@700&display=swap" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@299;400;800&display=swap" rel="stylesheet">
+    <script>
+        (function(d) {
+          var config = {
+            kitId: 'qgy2nus',
+            scriptTimeout: 3000,
+            async: true
+          },
+          h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+        })(document);
+      </script>
+</head>
+<style>
+    #canvas2 {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    p{
+        font-family: fot-cezanne-pron, sans-serif;
+        font-weight: 500;
+        font-style: normal;
+    }
+    body{
+        background-color: black;
+    }
+</style>
+
+<body>
+    <div id="img"></div>
+
+    </canvas>
+    <input id="button1" type="button" value="画像生成" onclick="Button()">
+    <div id="koji"></div>
+    <div id="dan"></div>
+    <div id="kon"></div>
+
+    <div id="canvas2"></div>
+</body>
+
+</html>
+<script type="text/javascript" charset="utf-8">
+    $(function() {
+        $.getJSON('https://script.google.com/macros/s/AKfycbwLlksHijR4r_B0R8OiKto3l-2ruBHr1hz5Lcm9Cw5_7YHcaiUNwsTfPrYTvuOS9eY/exec?p=(new Date()).getTime()', plan => {
+            var planlong = Object.keys(plan).length;
+            var data = planlong;
+
+            for (var i = 0; i < data; i++) {
+                var h = '';
+                console.log('planlong' + planlong)
+                if(plan[i].sum == '掲載'){
+                h = '<div class="tx"><canvas id="can' + i + '" width="3840" height="2160" style="width:960px; height:540px;"></canvas>' +
+                    '<p>' + plan[i].creator + plan[i].sumsoft+ plan[i].sumcomment + plan[i].title
+                $('#canvas2').append(h);
+            }
+
+
+            }
+        })
+    })
+</script>
+<script type="text/javascript" charset="utf-8">
+    var img01 = new Image();
+    img01.src = "../img/sky.jpg";
+    var img02 = new Image();
+    img02.src = "../img/toukou.png";
+    $(function Button() {
+        $.getJSON('https://script.google.com/macros/s/AKfycbwLlksHijR4r_B0R8OiKto3l-2ruBHr1hz5Lcm9Cw5_7YHcaiUNwsTfPrYTvuOS9eY/exec?p=(new Date()).getTime()', plan => {
+                var planlong = Object.keys(plan).length;
+
+                var cssh =
+                    '<style>.works{width:' +
+                    1500 / yoko +
+                    'px; margin-right:4%;}.work{width:' +
+                    (1500 / yoko - 5) +
+                    'px; height:' +
+                    (790 / tate - 30) +
+                    'px; font-size:' +
+                    123 / tate +
+                    'px;}</style>'
+                $('head').append(cssh);
+                console.log(cssh);
+
+                var h = '';
+                var h2 = '';
+
+
+
+
+                var xw = 4250;
+                var yh = 2620;
+                var tate = 9;
+                var yoko = 5;
+
+                var gx = 4650;
+
+                var gsize = 200;
+                var gnt = 0;
+                var gny = 250;
+                var ikkai = 0;
+
+                var data = planlong;
+
+                for (let step = 0; step < data / tate; step++) {
+                    var x = (xw / yoko) * step + 300
+                    for (let i1 = step * tate + 0; i1 < (step + 1) * tate && i1 < data; i1++) {
+                        var i = i1;
+                        var y = ((yh / tate) * (i1 - step * tate)) + 570
+
+                        var icon = plan[i].icon;
+                        var iconurl = 'https://drive.google.com/uc?id=' + icon.slice(33);
+                        console.log(iconurl);
+                        if (plan[i].type == "" || plan[i].type == "混合") {
+                            if (plan[i].teamtype == "まとめ動画にて初公開(参加10人以上のみ)") {
+                                if (ikkai == 0) {
+                                    var ikkai = 1;
+                                    var gny = 2730;
+                                }
+                            }
+
+                            var tw1 = 0;
+                            var tw2 = 0;
+                            var tw3 = 0;
+                        }
+                        if (plan[i].teamtype == "まとめ動画にて初公開(参加10人以上のみ)") {} else {
+                            if (plan[i].sum == "掲載") {
+                                var img03 = new Image();
+                                img03.src = 'img/toukou.png';
+                                var imglogo = new Image();
+                                imglogo.src = "";
+                                eval("var can" + i1 + " = document.getElementById('can" + i1 + "');" + "var cont" + i1 + " = can" + i1 + ".getContext('2d')");
+                                eval("const im" + i1 + " = " + 'new Image()' + ";" + 'im' + i1 + '.src = "' + iconurl + '";' + "im" + i1 + ".onload = () => {cont" + i1 + ".drawImage(im" + i1 + ",30,1620,520,520)};" + "cont" + i1 + ".drawImage(imglogo, 30, 70, 500, 500);");
+
+
+
+                                eval(
+                                    "imglogo.onload = () => { cont" + i1 + ".drawImage(imglogo, 30, 60, 500, 500);};" +
+
+
+                                    "cont" + i1 + ".font = '400 80px tbudgothic-std';" +
+                                    "cont" + i1 + ".textAlign = 'left';" +
+                                    "cont" + i1 + ".textBaseline = 'top';" +
+                                    "cont" + i1 + ".fillStyle = 'white';" +
+                                    "cont" + i1 + ".font = '500 60px fot-cezanne-pron';" +
+                                    "if(plan[i].type1 == '複数人'){"+
+                                    "cont" + i1 + ".fillText(plan[i].sumcomment + '      メンバー:' + plan[i].member, 580, 2080,3260);" +
+                                    "}else{"+
+                                    "cont" + i1 + ".fillText(plan[i].sumcomment, 580, 2080,3260);" +
+                                    "}"+
+                                    "cont" + i1 + ".font = 'normal 500 180px fot-cezanne-pron';" +
+                                    "cont" + i1 + ".fillText(plan[i].creator, 580, 1870,1850);" +
+
+
+
+                                    "cont" + i1 + ".textAlign ='right';" +
+                                    "cont" + i1 + ".font = 'normal 500 34px fot-cezanne-pron';" +
+                                    "cont" + i1 + ".fillText('#PVSF2023S 春のPV連続投稿祭 '+plan[i].type2+'出展 '+plan[i].type1+'の部 参加作品', 3830, 1860,1850);" +
+                                    "cont" + i1 + ".font = '500 100px fot-cezanne-pron';" +
+                                    "cont" + i1 + ".fillText(plan[i].music +' | '+ plan[i].credit, 3830, 1930,1850);" +
+
+                                    "cont" + i1 + ".font = '400 30px tbudgothic-std';" +
+                                    "cont" + i1 + ".moveTo(580, 2060);" +
+                                    "cont" + i1 + ".lineTo(3840, 2060);" +
+                                    "cont" + i1 + ".strokeStyle = 'white';" +
+                                    "cont" + i1 + ".lineWidth = 3;" +
+                                    "cont" + i1 + ".stroke();" +
+
+
+                                    "cont" + i1 + ".moveTo(2800, 1900);" +
+                                    "cont" + i1 + ".lineTo(3840, 1900);" +
+                                    "cont" + i1 + ".stroke();" +
+                                    "cont" + i1 + ".textAlign = 'left';" +
+                                    "cont" + i1 + ".textBaseline = 'bottom';" +
+                                    "cont" + i1 + ".font = '500 40px fot-cezanne-pron';" +
+
+                                    " const softcount = [-1]; " +
+                                    "var softlong = plan[i].sumsoft.length; " +
+
+                                    "for (let n = 0; n < softlong; n++) { " +
+                                    "if (plan[i].sumsoft.substr(n, 1) == ',') { " +
+                                    "softcount.push(n);" +
+                                    " }" +
+                                    " }" +
+                                    "var softy =  1130-(softcount.length * 50);" +
+                                    "for (let n = 0; n < softcount.length; n++) {" +
+                                    "var softy= softy + 100;" +
+                                    "cont" + i1 + ".font = 'normal 500 60px fot-cezanne-pron';" +
+                                    "cont" + i1 + ".textAlign = 'center';" +
+                                    "cont" + i1 + ".fillText(plan[i].sumsoft.substring(softcount[n] + 1, softcount[n + 1]), 280, softy ,500);" +
+
+                                    "}" +
+                                    "cont" + i1 + ".textAlign = 'center';" +
+                                    "cont" + i1 + ".font = 'normal 600 80px acumin-pro';" +
+                                    "cont" + i1 + ".fillText('#PVSF2023S', 280, 700 ,500);" +
+
+                                    "cont" + i1 + ".textAlign = 'left';" +
+
+                                 
+                                    "cont" + i1 + ".textAlign = 'left';" +
+
+                                    "cont" + i1 + ".font = 'italic 500 500px fot-cezanne-pron';" +
+                                    "cont" + i1 + ".textBaseline = 'top';" +
+
+                                    "cont" + i1 + ".globalAlpha = 0.1;" +
+
+                                    "cont" + i1 + ".globalAlpha = 1;" +
+                                    "cont" + i1 + ".font = 'normal 500 30px fot-cezanne-pron';" +
+                                    "cont" + i1 + ".textAlign = 'left';" +
+                                    "cont" + i1 + ".drawImage(imglogo, 30, 70, 500, 500);" 
+
+                
+
+                                )
+
+                            } else {
+
+                            }
+                        }
+
+
+                        eval("$('#h2n" + i1 + "').append(h)")
+                        console.log('gny' + gny)
+
+
+
+                    }
+
+
+
+                }
+                $('#right').append(h2)
+                for (var i2 = 0; i2 < planlong; i2++) {
+
+
+                };
+
+
+
+            })
+            // canvasを画像で保存
+
+
+    })
+</script>
+<script>
+</script>
