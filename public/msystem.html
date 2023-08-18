@@ -65,7 +65,7 @@
 </html>
 <script type="text/javascript" charset="utf-8">
     $(function() {
-        $.getJSON('https://script.google.com/macros/s/AKfycbwLlksHijR4r_B0R8OiKto3l-2ruBHr1hz5Lcm9Cw5_7YHcaiUNwsTfPrYTvuOS9eY/exec?p=(new Date()).getTime()', plan => {
+        $.getJSON('https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec?p=(new Date()).getTime()', plan => {
             var planlong = Object.keys(plan).length;
             var data = planlong;
 
@@ -89,7 +89,7 @@
     var img02 = new Image();
     img02.src = "../img/toukou.png";
     $(function Button() {
-        $.getJSON('https://script.google.com/macros/s/AKfycbwLlksHijR4r_B0R8OiKto3l-2ruBHr1hz5Lcm9Cw5_7YHcaiUNwsTfPrYTvuOS9eY/exec?p=(new Date()).getTime()', plan => {
+        $.getJSON('https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec?p=(new Date()).getTime()', plan => {
                 var planlong = Object.keys(plan).length;
 
                 var cssh =
@@ -134,7 +134,7 @@
                         var icon = plan[i].icon;
                         var iconurl = 'https://drive.google.com/uc?id=' + icon.slice(33);
                         console.log(iconurl);
-                        if (plan[i].type == "" || plan[i].type == "混合") {
+                        if (plan[i].type1 == "" || plan[i].type1 == "複数人") {
                             if (plan[i].teamtype == "まとめ動画にて初公開(参加10人以上のみ)") {
                                 if (ikkai == 0) {
                                     var ikkai = 1;
@@ -178,7 +178,7 @@
 
                                     "cont" + i1 + ".textAlign ='right';" +
                                     "cont" + i1 + ".font = 'normal 500 34px fot-cezanne-pron';" +
-                                    "cont" + i1 + ".fillText('#PVSF2023S 春のPV連続投稿祭 '+plan[i].type2+'出展 '+plan[i].type1+'の部 参加作品', 3830, 1860,1850);" +
+                                    "cont" + i1 + ".fillText('#PVSF2023S 夏のPV連続投稿祭 '+plan[i].type2+'出展 '+plan[i].type1+'の部 参加作品', 3830, 1860,1850);" +
                                     "cont" + i1 + ".font = '500 100px fot-cezanne-pron';" +
                                     "cont" + i1 + ".fillText(plan[i].music +' | '+ plan[i].credit, 3830, 1930,1850);" +
 
