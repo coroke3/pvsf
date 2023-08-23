@@ -89,6 +89,13 @@
   color: #696969;
   font-size: 0.6rem;
 }
+@media screen and (max-width: 1300px) {
+
+.contentr {
+  width: 95%;
+  margin: 10px 2.5%;
+}
+}
 @media screen and (max-width: 1000px) {
   .s1f {
     width: 100%;
@@ -99,7 +106,14 @@
     margin: 24px 0;
   }
 }
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 900px) {
+
+  .contentr {
+    width: 95%;
+    margin: 69px 2.5%;
+  }
+  }
+@media screen and (max-width: 700px) {
   .s1f p,
   .s1f div,
   .s1f h2 {
@@ -150,7 +164,7 @@
   .contentr {
     width: 100%;
     margin: 75px 0%;
-    margin-left: 5px;
+    margin-left: 0px;
   }
   @media (max-aspect-ratio: 9 / 14) {
     .yf {
