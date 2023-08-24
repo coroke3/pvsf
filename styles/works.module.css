@@ -33,7 +33,7 @@
     	line-height: 0.5rem;
     	margin: 7px 0px 24px 0px;
     	font-size: 0.6rem;
-    	color: #424242;
+		opacity: 0.8;
     	text-overflow: ellipsis;
 	}
 	.works img{

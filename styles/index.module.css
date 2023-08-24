@@ -46,8 +46,9 @@
   border-bottom: solid 0px;
 }
 .topms1 h2 span {
-  color: #fff;
-  background-color: #191919;
+  color: #ffffff;
+  background-color: #000000;
+  border: solid 1px var(--foreground);
   padding: 5px;
 }
 .topms1 h3 {
@@ -61,7 +62,7 @@
   font-style: normal;
   font-size: 6rem;
   font-style: normal;
-  color: #000;
+  color: var(--foreground);
   z-index: -10;
   border: 0px;
 }

@@ -3,13 +3,35 @@ import { faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import Image from 'next/image'
+import { useTheme } from 'next-themes'
 function Footer() {
+  const { resolvedTheme } = useTheme()
+  let src
+
+  switch (resolvedTheme) {
+    case "light":
+      src = "https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png";
+      break;
+    case "dark":
+      src = "https://i.gyazo.com/f736d6fc965df51b682ccc29bc842eaf.png";
+      break;
+    default:
+      src = "https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png";
+      break;
+  }
+
   return (
     <footer>
       <div className="menufooters">
         <div class="mf1">
           <div class="mf1-1">
-            <img src="https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png" />
+          <Image
+            src={src}
+            width={400}
+            height={400}
+            alt="logo"
+          />
           </div>
           <div class="mf1-2">
             <p class="t">PVSF</p>
