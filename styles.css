@@ -258,7 +258,63 @@ figure img {
   width: 50%;
   height:auto;
 }
+/* トグルボタンのスタイル */
+.custom-switch {
+  display: block;
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color 0.3s;
+}
+.custom-switch svg {
+  width: 15px;
+  height: 15px;
+  margin: 5px;
 
+}
+/* チェックボックス（非表示） */
+.custom-switch input[type="checkbox"] {
+  display: none;
+}
+
+/* トグルボタンの点（ライトモード） */
+.custom-switch::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  display: block;
+  height: 20px;
+  background-color: #000000;
+  border-radius: 50%;
+  transition: all 0.3s;
+  top: 2px;
+  left: 2px;
+}
+
+/* ダークモードのトグルボタンの点 */
+[data-theme="dark"] .custom-switch::before {
+  left: calc(100% - 22px);
+  background-color: #ffffff;
+}
+
+/* チェックボックスがONの場合、トグルボタンの点を移動（ダークモード） */
+.custom-switch input[type="checkbox"]:checked + .custom-switch::before {
+  transform: translateX(calc(100% - 22px));
+}
+
+/* ライトモードのスタイル */
+[data-theme="light"] .custom-switch {
+  background-color: #ccc;
+}
+
+/* ダークモードのスタイル */
+[data-theme="dark"] .custom-switch {
+  background-color: #333;
+}
 @media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
     .menu-items {
