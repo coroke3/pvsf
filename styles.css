@@ -8,7 +8,7 @@
 }
 
 [data-theme='dark'] {
-  --background: black;
+  --background: rgb(20, 20, 20);
   --foreground: white;
 }
 
