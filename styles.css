@@ -315,8 +315,18 @@ figure img {
 [data-theme="dark"] .custom-switch {
   background-color: #333;
 }
+a{
+  color: #39a0b3;
+  text-decoration: none;
+}
+.justify-end{
+  margin: auto 0;
+}
 @media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
+    .justify-end{
+      margin: 20px 0;
+    }
     .menu-items {
       position: fixed;
       top: 0;
@@ -434,13 +444,21 @@ figure img {
   .open .menu-btn__burger {
     background-color: #ececec;
   }
-  .menu-items {
+  .hamburger-menu{
+    width: 0;
+  }
+  .hea , .menubar {
     display: none;
-
+  }
+  .menu-items{
+    width: 0;
+    height: 0;
+    padding: 0;
   }
   .open .menu-items {
     width: 300px;
     height: 400px;
+    padding: 10px;
     display: flex;
     flex-wrap: wrap-reverse;
     position: fixed;
@@ -450,6 +468,9 @@ figure img {
     padding: calc(50vh - 200px) calc(50% - 150px);
     margin: 0;
     box-sizing: content-box;
+  }
+  .open .hea ,.open .menubar {
+    display: flex;
   }
   .menubar {
     flex-wrap: wrap;
@@ -547,6 +568,13 @@ figure img {
       display: none;
       opacity: 0;
     }
+  }
+  .justify-end {
+    display: block;
+    position: fixed;
+    z-index: 9999;
+    top: 26px;
+    right: 85px;
   }
 }
 
