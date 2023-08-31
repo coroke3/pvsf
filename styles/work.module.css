@@ -171,6 +171,7 @@
       top: 75px;
       left: 0px;
       position: fixed;
+      z-index: 99999;
     }
     .bf::before {
       content: "";
