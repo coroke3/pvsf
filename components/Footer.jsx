@@ -84,11 +84,11 @@ function Footer() {
                   class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-403 current_page_item menu-item-452"
                 >
                   <a
-                    href="../../../../page/5s_i_h_ir"
+                    href="../../../../page/x_oezj2-_j2"
                     aria-current="page"
                     id="generated-id-1690357356137-ug4l8muy2"
                   >
-                    PVSF2023S
+                    PVSF2023R
                   </a>
                 </li>
                 <li
@@ -96,23 +96,13 @@ function Footer() {
                   class="menu-item menu-item-type-post_type menu-item-object-page menu-item-455"
                 >
                   <a
-                    href="../../../../page/hv8gfp0jdji"
+                    href="../../../../page/g6j4xiibusht"
                     id="generated-id-1690357356137-lnb7f578m"
                   >
                     参加する
                   </a>
                 </li>
-                <li
-                  id="menu-item-456"
-                  class="menu-item menu-item-type-post_type menu-item-object-post menu-item-456"
-                >
-                  <a
-                    href="../../../../blog/87kjrtyxn2"
-                    id="generated-id-1690357356137-62hu2b0ft"
-                  >
-                    PVSF Share
-                  </a>
-                </li>
+              
               </ul>
             </li>
             <li

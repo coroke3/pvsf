@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 import styles from "../../styles/releases.module.css";
 import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 
 export const getStaticProps = async (context) => {
@@ -174,7 +174,7 @@ export default function Releases({ release, works }) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <FontAwesomeIcon icon={faTwitter} />
+                      <FontAwesomeIcon icon={faXTwitter} />
                     </a>
                   )}
                 </h3>

@@ -6,7 +6,7 @@ import Footer from "../../components/Footer";
 import styles from "../../styles/work.module.css";
 import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 
 export default function WorkId({ work, previousWorks, nextWorks }) {
@@ -94,7 +94,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <FontAwesomeIcon icon={faTwitter} />
+                      <FontAwesomeIcon icon={faXTwitter} />
                     </a>
                   )}
                 </h3>
