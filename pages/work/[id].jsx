@@ -105,7 +105,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
               <p>
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: `楽曲:${release.music} - ${release.credit}<br> `,
+                    __html: `楽曲:${work.music} - ${work.credit}<br> `,
                   }}
                 />
               </p>
