@@ -16,7 +16,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
   const showTwitter = work.tlink !== undefined && work.tlink !== "";
   const showYoutube = work.ylink !== undefined && work.ylink !== "";
   const showMenber = work.member !== undefined && work.member !== "";
-
+  const showMusic = work.music !== undefined && work.music !== ""  && work.credit !== undefined && work.credit !== "";
   const originalDate = new Date(work.time);
   const modifiedDate = new Date(originalDate.getTime() - 9 * 60 * 60 * 1000);
   const formattedDate = modifiedDate.toLocaleString();
@@ -101,7 +101,15 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
               )}
               {showTime && <p className={styles.time}>{formattedDate}</p>}
             </div>
-
+            {showMusic && (
+              <p>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: `楽曲:${release.music} - ${release.credit}<br> `,
+                  }}
+                />
+              </p>
+            )}
             {showComment && (
               <p>
                 <div dangerouslySetInnerHTML={{ __html: `${work.comment}` }} />
