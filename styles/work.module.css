@@ -26,7 +26,7 @@
   padding-left: 0px;
 }
 .creator a {
-  color: #000;
+  color: var(--foreground);
   text-decoration: none;
   margin: auto 0px auto 5px;
 }
