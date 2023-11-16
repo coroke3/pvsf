@@ -30,7 +30,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
         </title>
         <meta
           name="description"
-          content={`PVSF 出展作品  ${work.title} - ${work.creator}  music:${work.music} - ${work.credit}`}
+          content={`PVSFへの出展作品です。  ${work.title} - ${work.creator}`}
         />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@pvscreeningfes" />
@@ -67,7 +67,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
               allowFullScreen
               className={styles.yf}
             ></iframe>
-            <h2 className={styles.title}>{work.title}</h2>
+            <h1 className={styles.title}>{work.title}</h1>
             <div className={styles.userinfo}>
               {showIcon && (
                 <img
