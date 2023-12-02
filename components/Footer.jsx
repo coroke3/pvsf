@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
@@ -25,14 +25,7 @@ function Footer() {
     <footer>
       <div className="menufooters">
         <div class="mf1">
-          <div class="mf1-1">
-          <Image
-            src={src}
-            width={400}
-            height={400}
-            alt="logo"
-          />
-          </div>
+ 
           <div class="mf1-2">
             <p class="t">PVSF</p>
             <p>みんなで成長しよう</p>
@@ -42,7 +35,7 @@ function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <FontAwesomeIcon icon={faTwitter} />
+                <FontAwesomeIcon icon={faXTwitter} />
               </a>
               ・
               <a

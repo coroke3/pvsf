@@ -75,7 +75,7 @@ th {
 .menusns {
   font-size: 1rem;
   letter-spacing: 0px;
-  margin: auto 25px;
+  margin: auto 0px;
 }
 
 strong {
@@ -148,9 +148,9 @@ strong {
   text-decoration: none;
 }
 .menufooters {
-  width: 1080px;
+  width:auto;
   display: flex;
-  margin: 150px auto 0 auto;
+  margin: 150px 0 0 0;
   flex-wrap: wrap;
   padding: 0;
   font-size: 0.7rem;
@@ -416,12 +416,10 @@ a{
 }
 @media screen and (max-width: 1150px) {
 }
-.menufooters {
-  width: 96%;
-}
+.menufooters {}
 .mf1,
 .menu-footer-container {
-  margin: 20px auto;
+  margin: 20px 0;
   padding-right: 23px;
 }
 @media screen and (max-width: 900px) {

@@ -1,163 +1,184 @@
 <head>
-    <meta charset="UTF-8">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script>
-        (function(d) {
-          var config = {
-            kitId: 'qgy2nus',
-            scriptTimeout: 3000,
-            async: true
-          },
-          h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
-        })(document);
-      </script>
+  <meta charset="UTF-8" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>
+    (function (d) {
+      var config = {
+          kitId: "qgy2nus",
+          scriptTimeout: 3000,
+          async: true,
+        },
+        h = d.documentElement,
+        t = setTimeout(function () {
+          h.className =
+            h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+        }, config.scriptTimeout),
+        tk = d.createElement("script"),
+        f = false,
+        s = d.getElementsByTagName("script")[0],
+        a;
+      h.className += " wf-loading";
+      tk.src = "https://use.typekit.net/" + config.kitId + ".js";
+      tk.async = true;
+      tk.onload = tk.onreadystatechange = function () {
+        a = this.readyState;
+        if (f || (a && a != "complete" && a != "loaded")) return;
+        f = true;
+        clearTimeout(t);
+        try {
+          Typekit.load(config);
+        } catch (e) {}
+      };
+      s.parentNode.insertBefore(tk, s);
+    })(document);
+  </script>
 </head>
 <body>
-<div id="table">
-    <div id="t1">
-    </div>
-</div>
+  <div id="table">
+    <div id="t1"></div>
+  </div>
 </body>
 <style>
-    body{
-        font-family: din-2014,mamelon, sans-serif;
-        font-weight: 400;
-        font-style: normal;
-
-    }
-    #table{
-        width: 1920px;
-        height: 1080px;
-        border: solid 0px;
-    }
-    h1{
-        text-align: center;
-    }
-    #t1{
-        width: 96%;
-        height: 80%;
-        margin: 0% 2%;
-    }
-    #t2{
-        width: 99%;
-        height: 10%;
-        margin: 4% 0;
-        display: flex;
-        flex-wrap: wrap;
-        font-size: 2.5rem;
-        padding: 0px 0.5%;
-        text-align: center;
-    }
-    #t2{
-        background: rgba(0, 0, 0, 0.407);
-        color: #fff;
-        width: 99%;
-        height: 8%;
-        margin: 2.6% 0;
-		position: relative;
-	}
-	#t2:before,
-	#t2:after{
-		width: calc(100% - 20px);
-		height: 0;
-		display: block;
-		position: absolute;
-		left: 0;
-		content: "";
-        z-index: -100;
-	}
-	#t2:before{
-		border-bottom: solid 20px rgba(0, 0, 0, 0.407);
-		border-right: solid 20px transparent;
-		bottom: 100%;
-	}
-	#t2:after{
-		border-top: solid 20px rgba(0, 0, 0, 0.407);
-		border-left: solid 20px transparent;
-		top: 100%;
-	}
-    #t3-1{
-        display: flex;
-        font-size: 1rem;
-        width: 6%;
-        text-align: center;
-        margin-right: 1%;
-        margin: auto 1% auto 0;
-        padding: 0.5%;
-
-    }
-    #t3-2{
-        width: 6%;
-        margin: auto 0.5%;
-        max-height: 100%;
-        padding: auto 0.5%;
-        font-size: 3.1rem;
-    }
-    #t3-3{
-        width: 5%;
-        margin: auto 0.5%;
-        max-height: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        box-sizing: border-box;
-    }
-    #t3-4{
-        width: 20%;
-        margin: auto 0.5%;
-        max-height: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        box-sizing: border-box;
-        padding: auto 0.5%;
-
-
-    }
-    #t3-5{
-        width: 56%;
-        margin: auto 0.5%;
-        max-height: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        box-sizing: border-box;
-        padding: auto 0.5%;
-
-    }
-    #t3-1-1{
-        font-size: 3rem;
-        width: 55%;
-    }
-    #t3-1-2{
-        font-size: 1.5rem;
-        line-height: 1.7rem;
-        width: 100%;
-    }
-    .icon{
-        height: 100%;
-        border-radius: 50%;
-    }
+  body {
+    font-family: din-2014, mamelon, sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+  }
+  #table {
+    width: 100%;
+    height: 100vh;
+    border: solid 0px;
+    position: fixed;
+    top: 0;
+  }
+  h1 {
+    text-align: center;
+  }
+  #t1 {
+    width: 96%;
+    height: 96vh;
+    height: 96svh;
+    margin: 2%;
+  }
+  #t2 {
+    width: 99%;
+    height: 7.8vh;
+    margin: 4% 0;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 2.5rem;
+    padding: 0px 0.5%;
+    text-align: center;
+  }
+  #t2 {
+    background: rgba(0, 0, 0, 0.407);
+    color: #fff;
+    width: 99%;
+    height: 7.6vh;
+    margin: 4.5vh 0;
+    position: relative;
+  }
+  #t2:before,
+  #t2:after {
+    width: calc(100% - 20px);
+    height: 0;
+    display: block;
+    position: absolute;
+    left: 0;
+    content: "";
+    z-index: -100;
+  }
+  #t2:before {
+    border-bottom: solid 20px rgba(0, 0, 0, 0.407);
+    border-right: solid 20px transparent;
+    bottom: 100%;
+  }
+  #t2:after {
+    border-top: solid 20px rgba(0, 0, 0, 0.407);
+    border-left: solid 20px transparent;
+    top: 100%;
+  }
+  #t3-1 {
+    display: flex;
+    font-size: 1rem;
+    width: 6%;
+    text-align: center;
+    margin-right: 1%;
+    margin: auto 1% auto 0;
+    padding: 0.5%;
+  }
+  #t3-2 {
+    width: 6%;
+    margin: auto 0.5%;
+    max-height: 100%;
+    padding: auto 0.5%;
+    font-size: 3.1rem;
+  }
+  #t3-3 {
+    width: 5%;
+    margin: auto 0.5%;
+    max-height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+  #t3-4 {
+    width: 20%;
+    margin: auto 0.5%;
+    max-height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+    padding: auto 0.5%;
+  }
+  #t3-5 {
+    width: 56%;
+    margin: auto 0.5%;
+    max-height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+    padding: auto 0.5%;
+  }
+  #t3-1-1 {
+    font-size: 3rem;
+    width: 55%;
+  }
+  #t3-1-2 {
+    font-size: 1.5rem;
+    line-height: 1.7rem;
+    width: 100%;
+  }
+  .icon {
+    height: 100%;
+    border-radius: 50%;
+  }
 </style>
 
 <script>
-            var now = new Date();
+  var now = new Date();
 
-$(function() {
+  $(function () {
+    console.log("aaaaaa");
 
-   
-    console.log('aaaaaa');
-    
-    setInterval('showPassage()',10000);
+    setInterval("showPassage()", 10000);
+  });
+  function showPassage() {
+    var databace =
+      "https://script.google.com/macros/s/AKfycbw-S0MruPFNbv0Pqw18oCvIEQrtm_bDDsyz5yPCal9vhCNdd-pV7VmD1Gc7RzfYvctFxw/exec";
+    $.getJSON(databace + "?p=(new Date()).getTime()", (data) => {
+        console.log(data[0].spread);
+      var url = data[0].spread;
 
-});
-function showPassage() {
-    var url = 'https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec';
-    $.getJSON( url +'?p=(new Date()).getTime()', plan => {
+      $.getJSON(url + "?p=(new Date()).getTime()", (plan) => {
         var now = new Date();
         var target = document.getElementById("DateTimeDisp");
         var nYear = now.getFullYear();
-        var nMonth = now.getMonth()+1;
+        var nMonth = now.getMonth() + 1;
         var nDate = now.getDate();
         //var nDate = 17;
         //var nMonth = 12;
@@ -165,110 +186,151 @@ function showPassage() {
         var nHour = now.getHours();
         //var nHour = 18;
         var nMin = now.getMinutes();
-        //var nMin = 8;
+        //var nMin = 35;
         var nMinp3 = nMin - 3;
         var nSec = now.getSeconds();
-        if (nMonth < 10){ var nMonth = '0'+ nMonth; }
-        if (nDate < 10){ var nDate = '0'+ nDate; }
-        if (nHour < 10){ var nHour = '0'+ nHour; }
-        if (nMin < 10){ var nMin = '0'+ nMin; }
-        if (nMinp3 < 10){ var nMinp3 = '0'+ nMinp3; }
+        if (nMonth < 10) {
+          var nMonth = "0" + nMonth;
+        }
+        if (nDate < 10) {
+          var nDate = "0" + nDate;
+        }
+        if (nHour < 10) {
+          var nHour = "0" + nHour;
+        }
+        if (nMin < 10) {
+          var nMin = "0" + nMin;
+        }
+        if (nMinp3 < 10) {
+          var nMinp3 = "0" + nMinp3;
+        }
 
-        var nowday = nMonth + '-' + nDate;
-        var nowtime = nHour + ':' + nMin;
-        var nowtimep3 = nHour + ':' + nMinp3;
+        var nowday = nMonth + "/" + nDate;
+        var nowtime = nHour + ":" + nMin;
+        var nowtimep3 = nHour + ":" + nMinp3;
         var long = Object.keys(plan).length;
         var forstop = 0;
-        for (let i = 0; i<long; i++){
-            console.log(nowtimep3);
-        if(forstop == 0){
-            if (plan[i].data > nowday){
-                var start = i;
-                forstop = 1;
-            }else{
-                console.log(plan[i].data +'  '+nowday)
-                if (plan[i].data == nowday){
-                    if (plan[i].time > nowtimep3){
-                        var start = i;
-                        forstop = 1;
-                    }else{
-                    }
-                }else{}
+        for (let i = 0; i < long; i++) {
+          console.log(nowtimep3);
+          if (forstop == 0) {
+            if (plan[i].data > nowday) {
+              var start = i;
+              forstop = 1;
+            } else {
+              console.log(plan[i].data + "  " + nowday);
+              if (plan[i].data == nowday) {
+                if (plan[i].time > nowtimep3) {
+                  var start = i;
+                  forstop = 1;
+                } else {
+                }
+              } else {
+              }
             }
-
-        }}
-        if(8 > (long - start)){
-            var loop = (long - start);
-        }else{
-            var loop = 8;
+          }
         }
-        var h = '';
-        for (let i1 =start; i1 < (start + loop); i1++){
-            console.log( (plan[i1].data) - (nowday) + '  ' + nowday.substr(0,2) + '  ' +  nowday.substr(3,2))
-            console.log('現在時刻:'+ nowday + '/' + nowtime);
-
-
-                var time11 = nowtime.substr(0,2) * 1;
-                var time12 = nowtime.substr(3,2) * 1;
-                var time21 = plan[i1].time.substr(0,2) * 1;
-                var time22 = plan[i1].time.substr(3,2) * 1;
-                var date11 = nowday.substr(0,2) - 1;
-                var date12 = nowday.substr(3,2) * 1;
-                var date21 = plan[i1].data.substr(0,2) - 1;
-                var date22 = plan[i1].data.substr(3,2) * 1;
-                var date1 = new Date(2023, date11, date12 ,time11 ,time12,nSec);
-                var date2 = new Date(2023, date21, date22 ,time21 ,time22);
-                if ((date2 - date1) < 0){
-                    var term = '';
-                    var term = term + '公開';
-                    var termunit = '0';
-                }else{
-                if ((date2 - date1) < 60000){
-                    var term = (date2 - date1) / 100;
-                    var termunit = '秒';
-                    term = Math.trunc(term);
-                    term = term * 2;
-                }else{
-                if ((date2 - date1) < 3600000){
-                    var term = (date2 - date1) / 60000;
-                    var termunit = '分';
-                }else{
-                    if ((date2 - date1) < 86400000){
-                        var term = (date2 - date1) / 3600000;
-                        var termunit = '時間';
-                    }else{
-                        var term = (date2 - date1) / 86400000;
-                        var termunit = '日';
-                    }
-                }
-                }
-                }
-                
-                term = Math.trunc(term);
-                console.log ('1='+date1+'2='+date2);
-
-                console.log ('残り'+term);
-
-
-            h = h + '<div id="t2"><div id="t3-1">';
-            if (plan[i1].teamtype == '(通常扱い)まとめ動画にて初公開'){
-                h = h + '<div id="t3-1-2">'+ 'まとめで<br>公開' +'</div>' +'</div>';
-            }else{
-            if (termunit == 0){
-                h = h + '<div id="t3-1-2">'+ 'プレミア<br>公開中' +'</div>' +'</div>';
-            }else{
-            h = h + 'あと<div id="t3-1-1">'+term+'</div>'+ termunit +'</div>';}}
-            h = h +'<div id="t3-2">'+ plan[i1].time +'</div><div id="t3-3"> <img src = "https://drive.google.com/uc?id=' + plan[i1].icon.slice(33) + '"class = "icon"></div><div id="t3-4">'+ plan[i1].creator +'</div><div id="t3-5">'+ plan[i1].title +'</div></div>';
+        if (8 > long - start) {
+          var loop = long - start;
+        } else {
+          var loop = 8;
         }
-        
-        for (let i3=0; i3 < 8; i3++){
-            $('#t2').remove();
+        var h = "";
+        for (let i1 = start; i1 < start + loop; i1++) {
+          console.log(
+            plan[i1].data -
+              nowday +
+              "  " +
+              nowday.substr(0, 2) +
+              "  " +
+              nowday.substr(3, 2)
+          );
+          console.log("現在時刻:" + nowday + "/" + nowtime);
+
+          var time11 = nowtime.substr(0, 2) * 1;
+          var time12 = nowtime.substr(3, 2) * 1;
+          var time21 = plan[i1].time.substr(0, 2) * 1;
+          var time22 = plan[i1].time.substr(3, 2) * 1;
+          var date11 = nowday.substr(0, 2) - 1;
+          var date12 = nowday.substr(3, 2) * 1;
+          var date21 = plan[i1].data.substr(0, 2) - 1;
+          var date22 = plan[i1].data.substr(3, 2) * 1;
+          var date1 = new Date(2023, date11, date12, time11, time12, nSec);
+          var date2 = new Date(2023, date21, date22, time21, time22);
+          if (date2 - date1 < 0) {
+            var term = "";
+            var term = term + "公開";
+            var termunit = "0";
+          } else {
+            if (date2 - date1 < 60000) {
+              var term = (date2 - date1) / 1800;
+              var termunit = "秒";
+              term = Math.trunc(term);
+              term = term * 2;
+            } else {
+              if (date2 - date1 < 3600000) {
+                var term = (date2 - date1) / 60000;
+                var termunit = "分";
+              } else {
+                if (date2 - date1 < 86400000) {
+                  var term = (date2 - date1) / 3600000;
+                  var termunit = "時間";
+                } else {
+                  var term = (date2 - date1) / 86400000;
+                  var termunit = "日";
+                }
+              }
+            }
+          }
+
+          term = Math.trunc(term);
+          console.log("1=" + date1 + "2=" + date2);
+
+          console.log("残り" + term);
+
+          h = h + '<div id="t2"><div id="t3-1">';
+          if (plan[i1].teamtype == "(通常扱い)まとめ動画にて初公開") {
+            h =
+              h +
+              '<div id="t3-1-2">' +
+              "まとめで<br>公開" +
+              "</div>" +
+              "</div>";
+          } else {
+            if (termunit == 0) {
+              h =
+                h +
+                '<div id="t3-1-2">' +
+                "プレミア<br>公開中" +
+                "</div>" +
+                "</div>";
+            } else {
+              h =
+                h +
+                'あと<div id="t3-1-1">' +
+                term +
+                "</div>" +
+                termunit +
+                "</div>";
+            }
+          }
+          h =
+            h +
+            '<div id="t3-2">' +
+            plan[i1].time +
+            '</div><div id="t3-3"> <img src = "https://drive.google.com/uc?id=' +
+            plan[i1].icon.slice(33) +
+            '"class = "icon"></div><div id="t3-4">' +
+            plan[i1].creator +
+            '</div><div id="t3-5">' +
+            plan[i1].title +
+            "</div></div>";
         }
-        $('#t1').append(h);
-        
-    }
-    )
-};
 
-
+        for (let i3 = 0; i3 < 8; i3++) {
+          $("#t2").remove();
+        }
+        $("#t1").append(h);
+      });
+    });
+  }
 </script>
