@@ -6,7 +6,7 @@ export default function Home() {
     <div className={styles.main}>
       <Header />
       <div className={styles.main3}>
-        <iframe className={styles.main2} src="newreleasetable.html" />
+        <iframe className={styles.main2} src="releasetable.html" />
       </div>
     </div>
   );
