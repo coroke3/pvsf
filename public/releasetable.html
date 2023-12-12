@@ -2,9 +2,12 @@
   <title>PVSF システム部運営ツール 投稿予定表作成</title>
   <meta charset="UTF-8" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@500&family=Noto+Sans+JP:wght@500&family=Shippori+Mincho+B1:wght@500&family=Zen+Maru+Gothic:wght@500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@500&family=Noto+Sans+JP:wght@500&family=Shippori+Mincho+B1:wght@500&family=Zen+Maru+Gothic:wght@500&display=swap"
+    rel="stylesheet"
+  />
   <script>
     (function (d) {
       var config = {
@@ -91,7 +94,9 @@
       var VoH = data[0].VoH;
       var span = data[0].span;
 
+
       $.getJSON(url, (plan) => {
+
         var planlong = Object.keys(plan).length;
         var dates = [];
         var collabo = 0;
@@ -203,6 +208,7 @@
         } else {
           var max = cutspot + 1;
         }
+
         console.log("max " + max);
         let canvasb = document.querySelector("#btable");
         let contextb = canvasb.getContext("2d");
@@ -210,6 +216,7 @@
         let contexts1 = canvass1.getContext("2d");
         let canvass2 = document.querySelector("#s2table");
         let contexts2 = canvass2.getContext("2d");
+
 
         contextb.beginPath();
         contextb.fillStyle = bcolor;
@@ -321,24 +328,23 @@
               var ix = x + b1width * 0.075;
               var ty = y + b1height * 0.75;
               contextb.fillText(
-              plan[i].creator,
-              x + b1width * 0.5,
-              ty,
-              b1width * 0.8
-            );
+                plan[i].creator,
+                x + b1width * 0.5,
+                ty,
+                b1width * 0.8
+              );
             } else {
               var imagesize = b1width * 0.85;
               var ix = x + b1width * 0.07;
               var ty = y + b1width * 0.88;
               contextb.fillText(
-              plan[i].creator,
-              x + b1width * 0.5,
-              ty,
-              b1width * 0.8
-            );
+                plan[i].creator,
+                x + b1width * 0.5,
+                ty,
+                b1width * 0.8
+              );
             }
 
-   
             var icon = plan[i].icon;
 
             var iconurl = "https://drive.google.com/uc?id=" + icon.slice(33);
@@ -592,7 +598,7 @@
             contexts1.textBaseline = "top";
             contexts1.textAlign = "left";
             contexts1.fillText(
-              eventname +" "+ plan[i].data + " 投稿予定のご案内",
+              eventname + " " + plan[i].data + " 投稿予定のご案内",
               x,
               y + s1height * 0.5,
               s1width
@@ -804,7 +810,7 @@
             contexts2.textBaseline = "top";
             contexts2.textAlign = "left";
             contexts2.fillText(
-              eventname +" "+plan[i].data + " 投稿予定のご案内",
+              eventname + " " + plan[i].data + " 投稿予定のご案内",
               x,
               y + s1height * 0.5,
               s1width

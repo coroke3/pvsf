@@ -4,7 +4,6 @@ import Header from "../../components/Header";
 export default function Home() {
   return (
     <div className={styles.main}>
-      <Header />
       <div className={styles.main3}>
         <iframe className={styles.main2} src="releasetable.html" />
       </div>
