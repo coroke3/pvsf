@@ -179,21 +179,21 @@
         console.log(top4WithIndices[0].index + " " + planlong + "");
         if (
           Math.abs(top4WithIndices[0].index + 1) > planlong / 3 &&
-          Math.abs(top4WithIndices[0].index + 1) < (planlong * 3) / 2
+          Math.abs(top4WithIndices[0].index + 1) < (planlong * 2) / 3
         ) {
           var cutspot = Math.abs(top4WithIndices[0].index);
         } else {
           console.log("誤差範囲外1");
           if (
             Math.abs(top4WithIndices[1].index + 1) > planlong / 3 &&
-            Math.abs(top4WithIndices[1].index + 1) < (planlong * 3) / 2
+            Math.abs(top4WithIndices[1].index + 1) < (planlong * 2) / 3
           ) {
             var cutspot = Math.abs(top4WithIndices[1].index);
           } else {
             console.log("誤差範囲外2");
             if (
               Math.abs(top4WithIndices[2].index + 1) > planlong / 3 &&
-              Math.abs(top4WithIndices[2].index + 1) < (planlong * 3) / 2
+              Math.abs(top4WithIndices[2].index + 1) < (planlong * 2) / 3
             ) {
               var cutspot = Math.abs(top4WithIndices[2].index);
             } else {
@@ -252,7 +252,7 @@
                   var tc = 3;
                   var yc = 6;
                 } else {
-                  if (planlong < 21) {
+                  if (planlong < 22) {
                     var tc = 3;
                     var yc = 7;
                   } else {
