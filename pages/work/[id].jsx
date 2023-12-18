@@ -137,7 +137,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                         src={`https://i.ytimg.com/vi/${prevWork.ylink.slice(
                           17,
                           28
-                        )}/maxresdefault.jpg`}
+                        )}/mqdefault.jpg`}
                         width={`100%`}
                         alt={`${prevWork.title} - ${prevWork.creater} | PVSF archive`}
                       />
@@ -163,7 +163,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                         src={`https://i.ytimg.com/vi/${nextWork.ylink.slice(
                           17,
                           28
-                        )}/maxresdefault.jpg`}
+                        )}/mqdefault.jpg`}
                         width={`100%`}
                         alt={`${nextWork.title} - ${nextWork.creater} | PVSF archive`}
                       />
