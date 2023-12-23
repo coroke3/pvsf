@@ -575,6 +575,11 @@ a{
     right: 85px;
   }
 }
+@media screen and (max-width: 700px) {
+  .mf1{
+    padding: 0 38px;
+  }
+}
 
 @media screen and (max-width: 600px) {
   h2 {
