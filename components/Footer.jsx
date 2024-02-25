@@ -70,7 +70,7 @@ function Footer() {
               id="menu-item-453"
               class="menu-item menu-item-type-custom menu-item-object-custom current-menu-ancestor current-menu-parent menu-item-has-children menu-item-453"
             >
-              <a id="generated-id-1690357356137-52cy6kfnc">開催中</a>
+              <a id="generated-id-1690357356137-52cy6kfnc">前回企画</a>
               <ul class="sub-menu">
                 <li
                   id="menu-item-452"
@@ -93,6 +93,17 @@ function Footer() {
                     id="generated-id-1690357356137-lnb7f578m"
                   >
                     参加する
+                  </a>
+                </li>
+                <li
+                  id="menu-item-455"
+                  class="menu-item menu-item-type-post_type menu-item-object-page menu-item-455"
+                >
+                  <a
+                    href="../../../../release"
+                    id="generated-id-1690357356137-lnb7f578m"
+                  >
+                    投稿予定のご案内
                   </a>
                 </li>
               
