@@ -112,7 +112,7 @@ export default function Releases({ release, works }) {
                   <div className={styles.works}>
                     {showIcon2 && (
                       <img
-                        src={`https://drive.google.com/uc?id=${work.icon.slice(
+                        src={`https://lh3.googleusercontent.com/d/${work.icon.slice(
                           33
                         )}`}
                         className={styles.icon}
@@ -149,9 +149,9 @@ export default function Releases({ release, works }) {
             <div className={styles.userinfo}>
               {showIcon && (
                 <img
-                  src={`https://drive.usercontent.google.com/download?id=${release.icon.slice(
+                  src={`https://lh3.googleusercontent.com/d/${release.icon.slice(
                     33
-                  )}&authuser=0`}
+                  )}`}
                   className={styles.icon}
                   alt={`${release.creator} アイコン`} 
                 />

@@ -71,7 +71,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
             <div className={styles.userinfo}>
               {showIcon && (
                 <img
-                  src={`https://drive.usercontent.google.com/download?id=${work.icon.slice(33)}&authuser=0`}
+                  src={`https://lh3.googleusercontent.com/d/${work.icon.slice(33)}`}
                   className={styles.icon}
                   alt={`${work.creator} アイコン`}
                 />
