@@ -73,7 +73,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                 <img
                   src={`https://drive.google.com/uc?id=${work.icon.slice(33)}`}
                   className={styles.icon}
-                  alt={`${work.creater} アイコン`}
+                  alt={`${work.creator} アイコン`}
                 />
               )}
               {showCreator && (
