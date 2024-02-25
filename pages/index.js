@@ -7,7 +7,9 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import styles from "../styles/index.module.css";
 
+
 export default function Home({ blog }) {
+  
   return (
     <div>
       <Head>
