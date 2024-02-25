@@ -153,7 +153,7 @@ export default function Releases({ release, works }) {
                     33
                   )}`}
                   className={styles.icon}
-                  alt={`${release.title} - ${release.creator} | PVSF archive`} // 修正: release.creater を release.creator に変更
+                  alt={`${release.creator} アイコン`} 
                 />
               )}
               {showCreator && (

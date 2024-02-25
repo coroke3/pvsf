@@ -73,7 +73,7 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
                 <img
                   src={`https://drive.google.com/uc?id=${work.icon.slice(33)}`}
                   className={styles.icon}
-                  alt={`${work.title} - ${work.creater} | PVSF archive`}
+                  alt={`${work.creater} アイコン`}
                 />
               )}
               {showCreator && (
