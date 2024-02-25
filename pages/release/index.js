@@ -167,9 +167,9 @@ export default function Releases(data) {
                           <div
                             className={styles.r31}
                             style={{
-                              backgroundImage: `url(https://drive.google.com/uc?id=${release.icon.slice(
+                              backgroundImage: `url(https://drive.usercontent.google.com/download?id=${release.icon.slice(
                                 33
-                              )})`,
+                              )}&authuser=0)`,
                             }}
                           >
                             <img src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" />
