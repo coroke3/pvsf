@@ -1,11 +1,11 @@
-// next-sitemap.config.js
-
+/** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: "https://pvsf.jp/",
+  siteUrl: "https://pvsf.com",
   generateRobotsTxt: true,
-  // これより以下が追加項目
-  exclude: ["/server-sitemap.xml"],
+  exclude: ["/server-sitemap-index.xml"], // <= exclude here
   robotsTxtOptions: {
-    additionalSitemaps: ["https://pvsf.jp/server-sitemap.xml"],
+    additionalSitemaps: [
+      "https://pvsf.com/server-sitemap-index.xml", // <==== Add here
+    ],
   },
 };
