@@ -1,5 +1,3 @@
-// pages/server-sitemap.xml.ts
-
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,12 +12,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // サイトマップをレスポンスとして返す
   res.setHeader('Content-Type', 'application/xml');
-  res.write(xml);
-  res.end();
+  res.end(xml); // レスポンスにXMLデータを直接書き込む
 }
 
 // サイトマップデータをXML形式に変換する関数
-function buildSitemapXml(sitemapData: { url: string, lastmod: string }[]) {
+function buildSitemapXml(sitemapData) {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
   
