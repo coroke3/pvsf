@@ -32,7 +32,7 @@ export default function Home({ blog }) {
       </Head>
       <div className={styles.videobg}>
         <iframe
-          src="https://www.youtube.com/embed/kImrqwPXeH4?autoplay=1&vq=highres&start=0&mute=1&showinfo=1&playsinline=1&loop=1&controls=0&playlist=kImrqwPXeH4&disablekb=1"
+          src="https://www.youtube.com/embed/5ZhHfVIUS98?autoplay=1&vq=highres&start=0&mute=1&showinfo=1&playsinline=1&loop=1&controls=0&playlist=5ZhHfVIUS98&disablekb=1"
           frameborder="0"
           allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
