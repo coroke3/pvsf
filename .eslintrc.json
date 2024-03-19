@@ -1,6 +1,3 @@
 {
-  "rules": {
-  "extends": "next/core-web-vitals",
-  "ignorePatterns": ["*.config.js"]
-  }
+  "extends": ["next", "next/core-web-vitals"]
 }

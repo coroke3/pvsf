@@ -7,9 +7,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import styles from "../styles/index.module.css";
 
-
 export default function Home({ blog }) {
-  
   return (
     <div>
       <Head>
@@ -31,7 +29,6 @@ export default function Home({ blog }) {
           property="og:image"
           content="https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg"
         />
-  
       </Head>
       <div className={styles.videobg}>
         <iframe
@@ -122,9 +119,13 @@ export default function Home({ blog }) {
         </div>
         <h2>今後の開催見込みにつきまして</h2>
         <p>
-          諸事情により、少なくとも本年は例年開催している3~4月の開催が難しい状況です。<br />
-          ゴールデンウイークでの開催を検討中ですが、今の所は未定となっております。<br />
-          参加をご検討いただいている方には申し訳ありませんが、続報をお待ちください。<br /><br />
+          諸事情により、少なくとも本年は例年開催している3~4月の開催が難しい状況です。
+          <br />
+          ゴールデンウイークでの開催を検討中ですが、今の所は未定となっております。
+          <br />
+          参加をご検討いただいている方には申し訳ありませんが、続報をお待ちください。
+          <br />
+          <br />
           要望やご意見等ありましたら、「Q＆A」ページより、「匿名お問い合わせフォーム」に頂けますと嬉しいです。
           <br />
         </p>
