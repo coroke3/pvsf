@@ -23,6 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "pages/blog/[ID].js", "pages/index.js", "pages/_app.js", "components/ThemeSwitcher.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "pages/blog/[ID].js", "pages/index.js", "pages/_app.js", "components/ThemeSwitcher.jsx", "pages/sitemap.xml/index.js"],
   "exclude": ["node_modules"]
 }
