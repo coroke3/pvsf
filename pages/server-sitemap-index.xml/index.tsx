@@ -1,6 +1,7 @@
 // pages/server-sitemap-index.xml/index.tsx
 import { getServerSideSitemapIndexLegacy } from "next-sitemap";
 import { GetServerSideProps } from "next";
+export const runtime = 'edge';
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // Method to source urls from cms
