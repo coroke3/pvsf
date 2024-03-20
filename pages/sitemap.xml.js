@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { getAllWorkIds } from '../libs/work';
 import { getAllPageIds } from '../libs/page'; 
 import { getAllBlogIds } from '../libs/blog'; 
