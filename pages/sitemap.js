@@ -1,3 +1,4 @@
+export const runtime = 'experimental-edge';
 
 import SitemapComponent from '../components/Sitemap';
 import { getAllWorkIds } from "../libs/work";
