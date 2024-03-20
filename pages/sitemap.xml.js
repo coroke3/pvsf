@@ -1,4 +1,4 @@
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 
 import { getAllWorkIds } from '../libs/work';
 import { getAllPageIds } from '../libs/page'; 
