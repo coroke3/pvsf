@@ -1,3 +1,5 @@
+export const runtime = 'experimental-edge';
+
 import { client } from "./client";
 
 export async function getAllBlogIds() {

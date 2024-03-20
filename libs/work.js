@@ -1,4 +1,5 @@
 // lib/work.js
+export const runtime = 'experimental-edge';
 
 export async function getAllWorkIds() {
     try {
