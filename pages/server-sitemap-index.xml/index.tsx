@@ -23,6 +23,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }));
   
   const sitemapUrls = sitemapItems.map((item) => item.loc);
+  console.log(sitemapUrls);
 
   return getServerSideSitemapIndexLegacy(ctx, sitemapUrls);
 };
