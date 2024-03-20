@@ -7,13 +7,16 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const response = await fetch(
     "https://script.google.com/macros/s/AKfycbyEph6zXb1IWFRLpTRLNLtxU4Kj7oe10bt2ifiyK09a6nM13PASsaBYFe9YpDj9OEkKTw/exec"
   );
-  const jsonData = await response.json(); // レスポンスデータをjsonDataとして格納
+  const jsonData: any[] = await response.json(); // jsonData の型を any[] として明示的に指定
 
-  const sitemapItems = jsonData.map((item) => ({
+  const sitemapItems = jsonData.map((item: any) => ({ // item の型を any として明示的に指定
     loc: `https://pvsf.jp/work/${item.ylink.slice(17, 28)}`,
   }));
   
-  return getServerSideSitemapIndexLegacy(ctx, sitemapItems);
+  const sitemapUrls = sitemapItems.map((item) => item.loc); // loc プロパティを抽出して新しい配列を作成
+
+  return getServerSideSitemapIndexLegacy(ctx, sitemapUrls);
+  
   
 };
 
