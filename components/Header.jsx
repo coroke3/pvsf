@@ -121,10 +121,10 @@ function Header() {
           </div>
           <div className="menubar">
           <div className="menubars ms2">
-              <Link href="../../../../page/4el3kd3o8etu">PVSF2024GW</Link>
+              <Link href="../../../../page/dsrwx41xu">PVSF2024GW</Link>
             </div>
             <div className="menubars ms2">
-              <Link href="../../../../page/dsrwx41xu">参加する</Link>
+              <Link href="../../../../page/4el3kd3o8etu">参加する</Link>
             </div>
             <div className="menubars ms2">
               <Link href="../../../../work">過去の投稿作品</Link>
