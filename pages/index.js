@@ -117,16 +117,14 @@ export default function Home({ blog }) {
             </p>
           </div>
         </div>
-        <h2>今後の開催見込みにつきまして</h2>
+        <h2>PVSF2024GW 開催決定！</h2>
+        <p>来たるゴールデンウイークに、PVSF2024GW開催決定！！<br />ぜひご参加ください。 <br /><br />参加表明ボタンです。戒めとしてぜひご活用を。<br />
+        <a href="https://twitter.com/intent/tweet?button_hashtag=PVSF2024GW参加&ref_src=twsrc%5Etfw" class="twitter-hashtag-button" data-size="large" data-text="#PVSF2024GW に参加します！" data-url="https://pvsf.jp/2024gw" data-related="pvscreeningfes" data-show-count="false">Tweet #PVSF2024GW参加</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> <br /></p>
         <p>
-          諸事情により、少なくとも本年は例年開催している3~4月の開催が難しい状況です。
-          <br />
-          ゴールデンウイークでの開催を検討中ですが、今の所は未定となっております。
-          <br />
-          参加をご検討いただいている方には申し訳ありませんが、続報をお待ちください。
+        <Link href={"https://pvsf.jp/page/dsrwx41xu"}>企画詳細</Link> / <Link href={"https://pvsf.jp/page/4el3kd3o8etu"}>参加方法</Link>
           <br />
           <br />
-          要望やご意見等ありましたら、「Q＆A」ページより、「匿名お問い合わせフォーム」に頂けますと嬉しいです。
+        <Link href={"https://pvsf.jp/blog/0i5xrxhk5vv"}>プレスリリース</Link>　PVSF2023GW開催/今後の開催予定について
           <br />
         </p>
 
