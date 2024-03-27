@@ -127,6 +127,9 @@ function Header() {
               <Link href="../../../../page/4el3kd3o8etu">参加する</Link>
             </div>
             <div className="menubars ms1">
+              <Link href="../../../../release">投稿予定のご案内</Link>
+            </div>
+            <div className="menubars ms1">
               <Link href="../../../../work">過去の投稿作品</Link>
             </div>
             <div className="menubars ms1">
