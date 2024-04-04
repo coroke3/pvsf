@@ -49,6 +49,7 @@ export default function Releases({ release, works }) {
   const showCreator = release.creator !== undefined && release.creator !== "";
   const showTwitter = release.tlink !== undefined && release.tlink !== "";
   const showYoutube = release.ylink !== undefined && release.ylink !== "";
+  const showYoutubeCH = release.ychlink !== undefined && release.ychlink !== "";
   const showMember = release.member !== undefined && release.member !== "";
   const showMusic = release.music !== undefined && release.music !== ""  && release.credit !== undefined && release.credit !== "";
 
@@ -159,9 +160,9 @@ export default function Releases({ release, works }) {
               {showCreator && (
                 <h3 className={styles.creator}>
                   {release.creator}
-                  {showYoutube && (
+                  {showYoutubeCH && (
                     <a
-                      href={`${release.ylink}`}
+                      href={`${release.ychlink}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
