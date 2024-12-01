@@ -120,25 +120,14 @@ function Header() {
             </div>
           </div>
           <div className="menubar">
-          <div className="menubars ms2">
-              <Link href="../../../../page/dsrwx41xu">PVSF2024GW</Link>
-            </div>
-            <div className="menubars ms1">
-              <Link href="../../../../page/4el3kd3o8etu">参加する</Link>
-            </div>
-            <div className="menubars ms1">
-              <Link href="../../../../release">投稿予定のご案内</Link>
-            </div>
-            <div className="menubars ms1">
+            <div className="menubars ms2">
               <Link href="../../../../work">過去の投稿作品</Link>
             </div>
             <div className="menubars ms1">
               <Link href="../../../../page/25ta926vp">Q＆A</Link>
             </div>
-
           </div>
           <ThemeSwitcher />
-
         </div>
       </div>
     </header>
