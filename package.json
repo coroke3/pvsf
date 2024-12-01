@@ -47,6 +47,15 @@
     "next-sitemap": "^4.2.3"
   },
   "engines": {
-    "node": ">= 18.17.1"
-  }
+    "node": ">=18.18.0"
+  },
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "nodeVersion": "18.18.0"
+      }
+    }
+  ]
 }
