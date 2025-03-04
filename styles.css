@@ -11,10 +11,7 @@
   --font-title: "Unbounded", cursive;
 }
 
-[data-theme="dark"] {
-  --background: rgb(20, 20, 20);
-  --foreground: white;
-}
+
 
 body {
   margin: 0;
