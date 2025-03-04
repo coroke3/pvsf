@@ -51,7 +51,11 @@ export default function Releases({ release, works }) {
   const showYoutube = release.ylink !== undefined && release.ylink !== "";
   const showYoutubeCH = release.ychlink !== undefined && release.ychlink !== "";
   const showMember = release.member !== undefined && release.member !== "";
-  const showMusic = release.music !== undefined && release.music !== ""  && release.credit !== undefined && release.credit !== "";
+  const showMusic =
+    release.music !== undefined &&
+    release.music !== "" &&
+    release.credit !== undefined &&
+    release.credit !== "";
 
   return (
     <div>
@@ -102,7 +106,6 @@ export default function Releases({ release, works }) {
           sizes="260x260"
         />
       </Head>
-      <Header />
       <div className={styles.contentr}>
         <div className={styles.bf}>
           <div className={styles.s3f}>
@@ -154,7 +157,7 @@ export default function Releases({ release, works }) {
                     33
                   )}`}
                   className={styles.icon}
-                  alt={`${release.creator} アイコン`} 
+                  alt={`${release.creator} アイコン`}
                 />
               )}
               {showCreator && (

@@ -65,7 +65,7 @@ function Footer() {
           </div>
         </div>
         <div class="menu-footer-container">
-          <ul id="menu-footer" class="menu">
+          <ul id="menu-footer" class="fmenu">
             <li
               id="menu-item-453"
               class="menu-item menu-item-type-custom menu-item-object-custom current-menu-ancestor current-menu-parent menu-item-has-children menu-item-453"

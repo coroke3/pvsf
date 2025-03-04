@@ -72,7 +72,265 @@
 .topml2 {
   flex-flow: row-reverse;
 }
+.wrapper {
+  margin-left: 0; /* 320pxから0に変更 */
+  font-family: var(--font-en), var(--font-jp);
+  font-weight: 700;
+  transition: margin-left 0.6s ease-out;
+}
 
+.wrapper.header-visible {
+  margin-left: 320px;
+}
+
+/* ヒーローセクション（最初の全画面表示部分） */
+.hero {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  top: 0px;
+  z-index: 1;
+  position: absolute;
+  background-color: var(--color-bg-hero);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.heroFrame {
+  position: absolute;
+  inset: 2rem;
+  border: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  z-index: 1; /* コンテンツを背景より前面に */
+}
+
+.heroHeader {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.logo svg {
+  width: 40px;
+  aspect-ratio: 40/95;
+  margin: 10px 20px;
+  height: auto; /* アスペクト比を維持 */
+  fill: currentColor;
+}
+
+.logo .cls-1 {
+  fill: none;
+  stroke: currentColor;
+  stroke-miterlimit: 10;
+  stroke-width: 166px;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.titleArea h1 {
+  font-family: var(--font-title);
+  font-size: 3rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  margin: 20px 0 0;
+  line-height: 1;
+}
+
+.titleArea p {
+  font-family: var(--font-jp);
+  font-size: 0.875rem;
+  letter-spacing: 0.76em;
+  margin: 0;
+}
+
+.scheduleArea {
+  align-self: flex-end;
+  text-align: right;
+}
+
+.scheduleArea h2 {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.scheduleJp {
+  font-family: var(--font-jp);
+  font-size: 0.75rem;
+  position: absolute;
+  top: 0.5rem;
+  right: -3em;
+}
+
+.dates {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dateRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.day {
+  font-family:var(--font-title);
+  font-size: 0.875rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.25rem 1rem;
+}
+
+.dateGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.dateNumber {
+  font-family: var(--font-title);
+  font-size: 6rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.year {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.content.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.content h2 {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+.aboutcontainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.aboutitem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.abouttitle {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.title-box {
+  border: 2px solid #000;
+  padding: 1rem;
+  background: #fff;
+}
+
+.title-box h2 {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.about-arrow {
+  position: relative;
+  width: 60px;
+  height: 2px;
+  background: #000;
+  margin: 0 1rem;
+}
+
+.about-arrow::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #000;
+  border-right: 2px solid #000;
+  transform: rotate(45deg);
+}
+
+.about-text {
+  max-width: 400px;
+  font-family: var(--font-jp);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 768px) {
+  .about-item,
+  .about-item.reverse {
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 4rem;
+  }
+
+  .about-title {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .about-en {
+    position: relative;
+    top: 0;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .about-item.reverse .about-en {
+    text-align: left;
+  }
+
+  .title-box {
+    display: inline-block;
+  }
+
+  .about-arrow {
+    width: 60px;
+    margin: 1rem 0;
+  }
+
+  .about-text {
+    padding-top: 1rem;
+  }
+} 
 @media screen and (max-width: 900px) {
   .topms1,
   .topms1 h2,

@@ -42,7 +42,6 @@ export default function Releases(data) {
           content="https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg"
         />
       </Head>
-      <Header />
       <div className="content">
         <div className={styles.table}>
           {data.release.map((release) => {
@@ -61,11 +60,7 @@ export default function Releases(data) {
                     }}
                   >
                     <div className={styles.releases2}>
-                    <div
-                        className={styles.r0}
-                      >
-                        {release.data}
-                      </div>
+                      <div className={styles.r0}>{release.data}</div>
                       <div
                         className={styles.r1}
                         id="generated-id-1690476115475-vx3fsggdf"
@@ -141,11 +136,7 @@ export default function Releases(data) {
                 ) : (
                   <div className={styles.releases1}>
                     <div className={styles.releases2}>
-                    <div
-                        className={styles.r0}
-                      >
-                        {release.data}
-                      </div>
+                      <div className={styles.r0}>{release.data}</div>
                       <div
                         className={styles.r1}
                         id="generated-id-1690476115475-vx3fsggdf"
