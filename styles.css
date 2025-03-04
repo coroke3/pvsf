@@ -11,8 +11,6 @@
   --font-title: "Unbounded", cursive;
 }
 
-
-
 body {
   margin: 0;
   background-color: var(--background);
@@ -325,26 +323,13 @@ figure img {
   left: 2px;
 }
 
-/* ダークモードのトグルボタンの点 */
-[data-theme="dark"] .custom-switch::before {
-  left: calc(100% - 22px);
-  background-color: #ffffff;
-}
-
 /* チェックボックスがONの場合、トグルボタンの点を移動（ダークモード） */
 .custom-switch input[type="checkbox"]:checked + .custom-switch::before {
   transform: translateX(calc(100% - 22px));
 }
 
 /* ライトモードのスタイル */
-[data-theme="light"] .custom-switch {
-  background-color: #ccc;
-}
 
-/* ダークモードのスタイル */
-[data-theme="dark"] .custom-switch {
-  background-color: #333;
-}
 a {
   color: #39a0b3;
   text-decoration: none;

@@ -11,7 +11,6 @@ import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/router";
 
 const menuItems = [
@@ -24,21 +23,23 @@ const menuItems = [
 ];
 
 function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const [imageSrc, setImageSrc] = useState("");
-  const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       // トップページの場合のみスクロール監視
       if (router.pathname === "/") {
+        // 一画面分スクロールしたら表示
         if (window.scrollY > window.innerHeight) {
           setIsVisible(true);
         } else {
+          // スクロール位置が一画面分未満の場合、少し遅延させてから非表示にする
           setIsVisible(false);
         }
+        // スクロールの認識状態をコンソールに表示
+        console.log("スクロール位置:", window.scrollY, "isVisible:", window.scrollY > window.innerHeight);
       }
     };
 
@@ -50,6 +51,9 @@ function Header() {
       if (router.pathname !== "/") {
         // トップページ以外では常時表示
         setIsVisible(true);
+      } else {
+        // トップページの場合は必ず非表示から始める
+        setIsVisible(false);
       }
     };
 
@@ -60,8 +64,8 @@ function Header() {
     // トップページの場合のみスクロールイベントを監視
     if (router.pathname === "/") {
       window.addEventListener('scroll', handleScroll);
-      // 初期表示時のスクロール位置をチェック
-      handleScroll();
+      // 初期表示時は必ず非表示
+      setIsVisible(false);
     } else {
       // その他のページでは常時表示
       setIsVisible(true);
@@ -76,23 +80,6 @@ function Header() {
     };
   }, [router.pathname]);
 
-  useEffect(() => {
-    let src;
-    switch (resolvedTheme) {
-      case "light":
-        src = "https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png";
-        break;
-      case "dark":
-        src = "https://i.gyazo.com/f736d6fc965df51b682ccc29bc842eaf.png";
-        break;
-      default:
-        src = "https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png";
-        break;
-    }
-    setImageSrc(src);
-    console.log("Theme changed to:", resolvedTheme);
-  }, [resolvedTheme]);
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -100,7 +87,7 @@ function Header() {
   return (
     <header className={`site-header ${isVisible ? "visible" : ""}`}>
       <div className="header-content">
-        <div className={`logo-area ${isMenuOpen ? "visible" : ""}`}>
+        <div className={`logo-area `}>
         <a href={"../../../"}>
 
           <p className="event-type">movie event</p>
@@ -151,7 +138,7 @@ function Header() {
           </a>
         </div>
 
-        <nav className={`menu ${isMenuOpen ? "visible" : ""}`}>
+        <nav className={`menu `}>
           <ul>
             {menuItems.map((item, index) => (
               <li key={index}>
