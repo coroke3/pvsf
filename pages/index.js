@@ -111,7 +111,7 @@ export default function Home({ blog }) {
           <div className={styles.aboutcontainer}>
             <div className={styles.aboutitem}>
               <div className={styles.abouttitle}>
-                <span className={styles.abouten}>what's pvsf?</span>
+                <span className={styles.abouten}>what&#39;s pvsf?</span>
                 <div className={styles.titlebox}>
                   <h2>PVSFってなに？</h2>
                 </div>
@@ -126,7 +126,7 @@ export default function Home({ blog }) {
 
             <div className={styles.aboutitem}>
               <div className={styles.abouttitle}>
-                <span className={styles.abouten}>what's event?</span>
+                <span className={styles.abouten}>what&#39;s event?</span>
                 <div className={styles.titlebox}>
                   <h2>何をやってる？</h2>
                 </div>
@@ -141,7 +141,7 @@ export default function Home({ blog }) {
 
             <div className={styles.aboutitem}>
               <div className={styles.abouttitle}>
-                <span className={styles.abouten}>what's join?</span>
+                <span className={styles.abouten}>what&#39;s join?</span>
                 <div className={styles.titlebox}>
                   <h2>どう参加する？</h2>
                 </div>
