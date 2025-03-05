@@ -6,8 +6,9 @@ import { createClient } from "microcms-js-sdk";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
-import { ThemeProvider } from "next-themes";
-import Header from "../components/Header";
+
+import Layout from "@/components/Layout";
+
 
 function MyApp({ Component, pageProps }, AppProps) {
   const router = useRouter();
@@ -41,12 +42,11 @@ function MyApp({ Component, pageProps }, AppProps) {
     `,
         }}
       />
+    <Layout>
 
-      <ThemeProvider disableTransitionOnChange>
-        <Header />
+      <Component {...pageProps} />
+    </Layout>
 
-        <Component {...pageProps} />
-      </ThemeProvider>
     </>
   );
 }

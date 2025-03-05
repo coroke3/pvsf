@@ -87,7 +87,7 @@ function Header() {
     router.events.on('routeChangeComplete', handleRouteChangeComplete);
 
     // スクロールイベントを監視するパスを指定
-    const shouldWatchScroll = ["/" , "/release"].includes(router.pathname);
+    const shouldWatchScroll = ["/" ].includes(router.pathname);
     if (shouldWatchScroll) {
       window.addEventListener('scroll', handleScroll);
       // 初期表示時の状態を設定
