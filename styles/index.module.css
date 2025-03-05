@@ -2,7 +2,7 @@
 
 .videobg {
   width: 100%;
-  height: calc(100vh - 90px);
+  height: calc(100vh);
   overflow: hidden;
   position: relative;
   z-index: -10;
@@ -91,7 +91,7 @@
   top: 0px;
   z-index: 1;
   position: absolute;
-  background-color: var(--color-bg-hero);
+  background-color: #ffffff2b;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -103,7 +103,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 2rem;
   z-index: 1; /* コンテンツを背景より前面に */
 }
 
@@ -111,6 +110,7 @@
   display: flex;
   gap: 1rem;
   align-items: flex-start;
+  margin: 30px;
 }
 
 .logo svg {
@@ -157,11 +157,13 @@
 
 .scheduleArea h2 {
   font-family: var(--font-title);
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 400;
-  letter-spacing: 0.1em;
+
+  letter-spacing: 0em;
   margin-bottom: 2rem;
   position: relative;
+  border: none;
 }
 
 .scheduleJp {
@@ -169,13 +171,16 @@
   font-size: 0.75rem;
   position: absolute;
   top: 0.5rem;
-  right: -3em;
+ width: auto;
 }
 
 .dates {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  right: -7px;
+  bottom: -16px;
+  position: relative;
 }
 
 .dateRow {
@@ -190,6 +195,7 @@
   font-size: 0.875rem;
   border: 1px solid currentColor;
   border-radius: 999px;
+  width: 30px;
   padding: 0.25rem 1rem;
 }
 
@@ -197,20 +203,26 @@
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
+  justify-content: end;
 }
 
 .dateNumber {
   font-family: var(--font-title);
-  font-size: 6rem;
+  font-size: 9rem;
   font-weight: 400;
   letter-spacing: 0.1em;
   line-height: 1;
+  letter-spacing: 0px;
+
 }
 
 .year {
   font-family: var(--font-title);
-  font-size: 1.5rem;
+  font-size: 2.5rem;
+  top: 20px;
+  right: 5px;
   font-weight: 400;
+  position: relative;
 }
 
 

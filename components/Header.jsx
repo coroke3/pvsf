@@ -12,6 +12,7 @@ import { Button } from "@nextui-org/button";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useTheme } from "next-themes";
 
 const menuItems = [
   { title: "PVSF2025Sp", subtitle: "企画概要", href: "../../page/du2txgs-yyt" },
@@ -26,6 +27,8 @@ function Header() {
   const router = useRouter();
   const [isHide, setIsHide] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const [imageSrc, setImageSrc] = useState("");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,23 +51,47 @@ function Header() {
       }
     };
 
+    const handleRouteChange = (url) => {
+      console.log("現在のパス:", url); // URLをログに出力
+    };
 
     // スクロールイベントを監視するパスを指定
     const shouldWatchScroll = ["/" ].includes(router.pathname);
     if (shouldWatchScroll) {
       window.addEventListener('scroll', handleScroll);
-
     } else {
       // その他のページでは常に表示
       setIsHide(false);
     }
 
+    // ルート変更イベントを監視
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    // 初回レンダリング時に現在のパスをログに出力
+    console.log("初期パス:", router.pathname);
+    switch (router.pathname) {
+      case "/":
+        // トップページ: 1画面分スクロールで表示/非表示
+        if (window.scrollY > window.innerHeight) {
+          setIsHide(false);
+        } else {
+          setIsHide(true);
+        }
+        break;
+
+     
+      default:
+        // その他のページ: 常に表示
+        setIsHide(false);
+        break;
+    }
+
     // クリーンアップ
     return () => {
       window.removeEventListener('scroll', handleScroll);
-
+      router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, [router.pathname]);
+  }, [router.pathname, router.events]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

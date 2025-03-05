@@ -5,11 +5,32 @@ import { client } from "../libs/client";
 import { createClient } from "microcms-js-sdk";
 import Footer from "../components/Footer";
 import styles from "../styles/index.module.css";
+import { useState, useEffect } from "react";
+
 const nextDates = [
   { date: "03/29", year: "2025", day: "Sat" },
   { date: "03/30", year: "2025", day: "Sun" },
 ];
+
 export default function Home({ blog }) {
+  const [isHide, setIsHide] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > window.innerHeight) {
+        setIsHide(false);
+      } else {
+        setIsHide(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <div>
       <Head>
@@ -44,7 +65,7 @@ export default function Home({ blog }) {
         <div className={styles.heroFrame}>
           <div className={styles.heroHeader}>
             <div className={styles.logo}>
-              <svg
+            <svg
                 viewBox="0 0 803.48 1905.69"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -56,7 +77,7 @@ export default function Home({ blog }) {
                     height="497.73"
                   ></rect>
                   <path
-                    class="cls-1"
+                    className="cls-1"
                     d="m83,311.78c0-126.35,102.43-228.78,228.78-228.78s228.78,102.43,228.78,228.78-102.43,228.78-228.78,228.78"
                   ></path>
                 </g>
@@ -85,20 +106,22 @@ export default function Home({ blog }) {
             <div className={styles.titleArea}>
               <h1>PVSF</h1>
               <p>映像連続投稿祭</p>
+              
             </div>
           </div>
 
           <div className={styles.scheduleArea}>
+          <span className={styles.scheduleJp}>次の開催</span>
             <h2>
-              Next Schedule<span className={styles.scheduleJp}>次の開催</span>
+              Next Schedule
             </h2>
             <div className={styles.dates}>
               {nextDates.map(({ date, year, day }, index) => (
                 <div key={index} className={styles.dateRow}>
-                  <div className={styles.day}>{day}</div>
+                  
                   <div className={styles.dateGroup}>
-                    <div className={styles.dateNumber}>{date}</div>
-                    <div className={styles.year}>{year}</div>
+                    <div className={styles.dateNumber}><div className={styles.year}>{year}</div><div className={styles.day}>{day}</div>{date} </div>
+                   
                   </div>
                 </div>
               ))}
@@ -106,7 +129,7 @@ export default function Home({ blog }) {
           </div>
         </div>
       </section>
-      <div className="content">
+      <div className={`content ${isHide ? "Hide" : ""}`}>
         <section id="about" className={styles.content}>
           <div className={styles.aboutcontainer}>
             <div className={styles.aboutitem}>
