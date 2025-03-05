@@ -1,7 +1,6 @@
 // pages/blog/[id].js
 import Link from "next/link";
 import { client } from "../../libs/client";
-import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
@@ -29,7 +28,6 @@ export default function PageId({ page }) {
           content="https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg"
         />
       </Head>
-      <Header />
       <div className="content">
         <h2>{page.title}</h2>
 

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/works.module.css";
 import Head from "next/head";
@@ -32,7 +31,6 @@ export default function Home({ work }) {
           content="https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg"
         />
       </Head>
-      <Header />
       <div className="content">
         <div className={styles.work}>
           {work.map((work) => (

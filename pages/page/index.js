@@ -2,13 +2,11 @@
 import Link from "next/link";
 import { client } from "../../libs/client";
 import { createClient } from 'microcms-js-sdk';
-import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 export default function Home({ page }) {
   return (
     <div>
-        <Header />
         <div className="content">
           <ul>
             {page.map((page) => (

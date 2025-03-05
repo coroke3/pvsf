@@ -29,31 +29,56 @@ function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // トップページの場合のみスクロール監視
-      if (router.pathname === "/") {
-        // 一画面分スクロールしたら表示
-        if (window.scrollY > window.innerHeight) {
-          setIsVisible(true);
-        } else {
-          // スクロール位置が一画面分未満の場合、少し遅延させてから非表示にする
+      // パスに応じて異なるスクロール動作を設定
+      switch (router.pathname) {
+        case "/":
+          // トップページ: 1画面分スクロールで表示/非表示
+          if (window.scrollY > window.innerHeight) {
+            setIsVisible(true);
+          } else {
+            setIsVisible(false);
+          }
+          break;
+
+        case "/page/[id]":
+        case "/page":
+          // 通常ページ: 常に表示
           setIsVisible(false);
-        }
-        // スクロールの認識状態をコンソールに表示
-        console.log("スクロール位置:", window.scrollY, "isVisible:", window.scrollY > window.innerHeight);
+          break;
+
+        case "/release":
+          // リリースページ: スクロール位置に応じて表示/非表示
+          if (window.scrollY > 100) {  // 100pxスクロールしたら表示
+            setIsVisible(true);
+          } else {
+            setIsVisible(false);
+          }
+          break;
+
+        default:
+          // その他のページ: 常に表示
+          setIsVisible(false);
+          break;
       }
     };
 
     const handleRouteChangeStart = () => {
-      setIsVisible(false); // ページ遷移開始時は非表示
+      // ページ遷移開始時は表示
+      setIsVisible(false);
     };
 
     const handleRouteChangeComplete = () => {
-      if (router.pathname !== "/") {
-        // トップページ以外では常時表示
-        setIsVisible(true);
-      } else {
-        // トップページの場合は必ず非表示から始める
-        setIsVisible(false);
+      // パスに応じて初期状態を設定
+      switch (router.pathname) {
+        case "/":
+          setIsVisible(window.scrollY > window.innerHeight);
+          break;
+        case "/release":
+          setIsVisible(window.scrollY > 100);
+          break;
+        default:
+          setIsVisible(false);
+          break;
       }
     };
 
@@ -61,20 +86,20 @@ function Header() {
     router.events.on('routeChangeStart', handleRouteChangeStart);
     router.events.on('routeChangeComplete', handleRouteChangeComplete);
 
-    // トップページの場合のみスクロールイベントを監視
-    if (router.pathname === "/") {
+    // スクロールイベントを監視するパスを指定
+    const shouldWatchScroll = ["/" , "/release"].includes(router.pathname);
+    if (shouldWatchScroll) {
       window.addEventListener('scroll', handleScroll);
-      // 初期表示時は必ず非表示
-      setIsVisible(false);
+      // 初期表示時の状態を設定
+      handleRouteChangeComplete();
     } else {
-      // その他のページでは常時表示
-      setIsVisible(true);
+      // その他のページでは常に表示
+      setIsVisible(false);
     }
 
+    // クリーンアップ
     return () => {
-      if (router.pathname === "/") {
-        window.removeEventListener('scroll', handleScroll);
-      }
+      window.removeEventListener('scroll', handleScroll);
       router.events.off('routeChangeStart', handleRouteChangeStart);
       router.events.off('routeChangeComplete', handleRouteChangeComplete);
     };

@@ -1,7 +1,6 @@
 // pages/work/[id].jsx
 import Link from "next/link";
 import Head from "next/head";
-import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/work.module.css";
 import { css } from "@emotion/react";
@@ -52,7 +51,6 @@ export default function WorkId({ work, previousWorks, nextWorks }) {
           )}/maxresdefault.jpg`}
         />
       </Head>
-      <Header />
       <div className={styles.contentr}>
         <div className={styles.bf}>
           <div className={styles.s1f}>
