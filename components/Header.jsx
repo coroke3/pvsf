@@ -24,7 +24,7 @@ const menuItems = [
 
 function Header() {
   const router = useRouter();
-  const [isVisible, setIsVisible] = useState(false);
+  const [isHide, setIsHide] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -34,74 +34,35 @@ function Header() {
         case "/":
           // トップページ: 1画面分スクロールで表示/非表示
           if (window.scrollY > window.innerHeight) {
-            setIsVisible(true);
+            setIsHide(false);
           } else {
-            setIsVisible(false);
+            setIsHide(true);
           }
           break;
 
-        case "/page/[id]":
-        case "/page":
-          // 通常ページ: 常に表示
-          setIsVisible(false);
-          break;
-
-        case "/release":
-          // リリースページ: スクロール位置に応じて表示/非表示
-          if (window.scrollY > 100) {  // 100pxスクロールしたら表示
-            setIsVisible(true);
-          } else {
-            setIsVisible(false);
-          }
-          break;
-
+       
         default:
           // その他のページ: 常に表示
-          setIsVisible(false);
+          setIsHide(false);
           break;
       }
     };
 
-    const handleRouteChangeStart = () => {
-      // ページ遷移開始時は表示
-      setIsVisible(false);
-    };
-
-    const handleRouteChangeComplete = () => {
-      // パスに応じて初期状態を設定
-      switch (router.pathname) {
-        case "/":
-          setIsVisible(window.scrollY > window.innerHeight);
-          break;
-        case "/release":
-          setIsVisible(window.scrollY > 100);
-          break;
-        default:
-          setIsVisible(false);
-          break;
-      }
-    };
-
-    // イベントリスナーの設定
-    router.events.on('routeChangeStart', handleRouteChangeStart);
-    router.events.on('routeChangeComplete', handleRouteChangeComplete);
 
     // スクロールイベントを監視するパスを指定
     const shouldWatchScroll = ["/" ].includes(router.pathname);
     if (shouldWatchScroll) {
       window.addEventListener('scroll', handleScroll);
-      // 初期表示時の状態を設定
-      handleRouteChangeComplete();
+
     } else {
       // その他のページでは常に表示
-      setIsVisible(false);
+      setIsHide(false);
     }
 
     // クリーンアップ
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      router.events.off('routeChangeStart', handleRouteChangeStart);
-      router.events.off('routeChangeComplete', handleRouteChangeComplete);
+
     };
   }, [router.pathname]);
 
@@ -110,7 +71,7 @@ function Header() {
   };
 
   return (
-    <header className={`site-header ${isVisible ? "visible" : ""}`}>
+    <header className={`site-header ${isHide ? "Hide" : ""}`}>
       <div className="header-content">
         <div className={`logo-area `}>
         <a href={"../../../"}>
@@ -196,41 +157,3 @@ function Header() {
 
 export default Header;
 
-// 追加: ヘッダーの表示制御スクリプト
-if (typeof window !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => {
-    const header = document.querySelector(".site-header");
-    const hero = document.querySelector(".hero");
-    const wrapper = document.querySelector(".wrapper");
-
-    const isHomePage = window.location.pathname === "/";
-
-    if (header && hero && wrapper && isHomePage) {
-      const handleHeroVisibility = (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            requestAnimationFrame(() => {
-              header.classList.remove("visible");
-              wrapper.classList.remove("header-visible");
-            });
-          } else {
-            requestAnimationFrame(() => {
-              header.classList.add("visible");
-              wrapper.classList.add("header-visible");
-            });
-          }
-        });
-      };
-
-      const heroObserver = new IntersectionObserver(handleHeroVisibility, {
-        threshold: 0.1,
-      });
-
-      heroObserver.observe(hero);
-    } else {
-      if (header) {
-        header.classList.add("visible");
-      }
-    }
-  });
-}
