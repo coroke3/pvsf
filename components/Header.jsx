@@ -36,7 +36,7 @@ function Header() {
       switch (router.pathname) {
         case "/":
           // トップページ: 1画面分スクロールで表示/非表示
-          if (window.scrollY > window.innerHeight) {
+          if (window.scrollY > (window.innerHeight*0.75)) {
             setIsHide(false);
           } else {
             setIsHide(true);

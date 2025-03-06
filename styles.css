@@ -15,7 +15,7 @@ body {
   margin: 0;
   background-color: var(--background);
   font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
-  font-weight: 300;
+  font-weight: 500;
   font-style: normal;
   color: var(--foreground);
 }

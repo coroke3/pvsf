@@ -17,7 +17,7 @@ export default function Home({ blog }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > window.innerHeight) {
+      if (window.scrollY > (window.innerHeight*0.75)) {
         setIsHide(false);
       } else {
         setIsHide(true);
@@ -135,12 +135,13 @@ export default function Home({ blog }) {
             <div className={styles.aboutitem}>
               <div className={styles.abouttitle}>
                 <span className={styles.abouten}>what&#39;s pvsf?</span>
-                <div className={styles.titlebox}>
-                  <h2>PVSFってなに？</h2>
-                </div>
+
               </div>
               <div className={styles.abouarrow}></div>
               <div className={styles.abouttext}>
+              <div className={styles.titlebox}>
+                  <h2>PVSFってなに？</h2>
+                </div>
                 <p>
                   PVSFはノンジャンルのオンライン映像イベントです。さらに映像を頑張ろうと思えるきっかけになるような機会を設けることを目的に行われています。順位付けはありません。
                 </p>
@@ -150,12 +151,13 @@ export default function Home({ blog }) {
             <div className={styles.aboutitem}>
               <div className={styles.abouttitle}>
                 <span className={styles.abouten}>what&#39;s event?</span>
-                <div className={styles.titlebox}>
-                  <h2>何をやってる？</h2>
-                </div>
+
               </div>
               <div className={styles.abouarrow}></div>
               <div className={styles.abouttext}>
+              <div className={styles.titlebox}>
+                  <h2>何をやってる？</h2>
+                </div>
                 <p>
                   現在は概ね年三回、映像連続投稿祭「PVSF」や、その関連企画を開催しています。
                 </p>
@@ -165,12 +167,12 @@ export default function Home({ blog }) {
             <div className={styles.aboutitem}>
               <div className={styles.abouttitle}>
                 <span className={styles.abouten}>what&#39;s join?</span>
-                <div className={styles.titlebox}>
-                  <h2>どう参加する？</h2>
-                </div>
               </div>
               <div className={styles.abouarrow}></div>
               <div className={styles.abouttext}>
+                <div className={styles.titlebox}>
+                  <h2>どう参加する？</h2>
+                </div>
                 <p>
                   参加は簡単。Discordサーバーに入って作品情報を登録。あとはいつも通りYouTubeに投稿するだけ。
                 </p>
@@ -178,9 +180,9 @@ export default function Home({ blog }) {
             </div>
           </div>
         </section>
-        <h2>次回にご期待ください</h2>
+        <h2>#PVSF2025S 参加者募集中</h2>
         <p>
-          次回は3月下旬の開催です。再出発。新しくなったPVSFにご期待ください。
+          
         </p>
         <p></p>
 
