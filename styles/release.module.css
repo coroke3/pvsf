@@ -100,6 +100,9 @@
     height: 17px;
     opacity: 1;
     transition: all 0.5s;
+    font-family: var(--font-title);
+    font-weight:400;
+
 }
 
 .r1 {
@@ -110,6 +113,8 @@
     height: 35px;
     opacity: 1;
     transition: 0.5s;
+    font-family: var(--font-title);
+    font-weight:400;
 }
 
 .r2 {
@@ -224,10 +229,13 @@
 }
 .releases2:hover .r0 {
     font-size: 0.4rem;
+    font-weight: 900;
+
 }
 
 .releases2:hover .r1 {
     font-size: 1.4rem;
+    font-weight: 900;
 }
 
 .releases2:hover .r3 img,
@@ -357,4 +365,198 @@ a.btn--blue {
     .tab {
         width: 100%;
     }
+}
+
+/* 表示切り替えボタン */
+.viewToggle {
+  text-align: right;
+  margin: 20px 0;
+}
+
+.toggleButton {
+  padding: 8px 16px;
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: opacity 0.3s;
+}
+
+.toggleButton:hover {
+  opacity: 0.8;
+}
+
+/* リスト表示のスタイル */
+.table.listView {
+  display: block;
+  max-width: 1000px;
+  margin: 20px auto;
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 20px;
+  color: white;
+}
+
+.listItem {
+  margin: 0;
+  width: 100% !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.listContent {
+  background: transparent;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 40px 80px 60px 200px minmax(200px, 1fr) ;
+  align-items: center;
+  gap: 16px;
+  transition: background-color 0.3s;
+}
+
+.listContent:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.date {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+}
+
+.type {
+  font-size: 0.65rem;
+  padding: 0px 8px;
+  margin: 3px 0;
+  background: #474747;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.type.複数人 {
+  background: #3e4ecd;
+}
+
+.type.ビギナー {
+  background: #00cc3a;
+}
+
+
+
+.listTitle {
+  font-size: 1rem;
+  margin: 0;
+  color: #fff;
+}
+
+.listCreator {
+  font-size: 0.9rem;
+  color: #fff;
+  margin: 0;
+}
+
+.listActions {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  justify-content: flex-end;
+}
+
+.listActions a {
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.listActions a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+
+/* レスポンシブ対応 */
+@media screen and (max-width: 768px) {
+  .listContent {
+    grid-template-columns: 60px 1fr;
+    grid-template-rows: auto auto;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .date {
+    font-size: 1rem;
+  }
+
+  .type {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .listTitle {
+    grid-column: 1 / -1;
+  }
+
+  .listCreator {
+    grid-column: 1 / -1;
+  }
+
+  .listActions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+/* 日付グループのスタイル */
+.dateGroup {
+  margin-bottom: 32px;
+}
+
+.dateHeader {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  color: #fff;
+  padding: 16px;
+  margin: 0 -20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* リスト表示のスタイル調整 */
+.table.listView {
+  padding: 20px 20px 0;
+}
+
+.listItem:last-child {
+  border-bottom: none;
+}
+
+/* 日付グループ間の区切り */
+.dateGroup:not(:last-child) {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* カード表示時の日付グループ */
+.dateGroup:not(.listView) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.members {
+  font-size: 0.9rem;
+  color: #fff;
+  margin-top: 5px;
 }
