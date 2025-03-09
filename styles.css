@@ -361,8 +361,11 @@ a {
     font-size: 0.9rem;
   }
 }
-
-@media screen and (max-width: 1100px) {
+@media screen and (max-width: 1400px) {
+  .content{
+    width: 95%;
+    margin: auto;
+  }
   .menu-btn {
     display: block;
   }
@@ -420,6 +423,9 @@ a {
     opacity: 0;
     height: 0;
   }
+}
+@media screen and (max-width: 1100px) {
+
 }
 
 @media screen and (min-width: 1101px) {

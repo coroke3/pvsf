@@ -370,10 +370,8 @@ border: solid 0px;
   }
   .videobg {
     width: 100%;
-    margin-top: 75px;
-    height: auto;
+    height: 100vh;
     aspect-ratio: 16 / 9;
-    margin-bottom: -70px;
   }
 }
 @media screen and (max-width: 600px) {
