@@ -1,10 +1,11 @@
 @charset "utf-8";
 
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Unbounded:wght@200..900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Unbounded:wght@200..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap");
 
 :root {
   --background: #ececec;
   --foreground: rgb(12, 12, 12);
+  --color-bg-hero2: rgb(40, 40, 40);
   --color-bg-hero: #f5f5f5;
   /* 薄いグレー */
   --font-en: "Plus Jakarta Sans", sans-serif;
@@ -48,6 +49,7 @@ h2 {
   padding: 8px 0;
 }
 
+
 h3 {
   font-weight: 500;
   font-style: normal;
@@ -68,7 +70,7 @@ p,
 li,
 td,
 th {
-  font-weight: 700;
+  font-weight: 500;
   font-style: normal;
   line-height: 1.4rem;
   margin: 10px 0;
@@ -78,10 +80,52 @@ strong {
   font-weight: 700;
 }
 
+.top-content h2 {
+  font-family: var(--font-title);
+  border: none;
+  text-align: center;
+  font-size: 2.2rem;
+  margin: 0;
+  margin-top: 30px;
+  background: linear-gradient(180deg, var(--custom-color) 0%, 40%, #b5b5b5 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.top-content p {
+  font-family: var(--font-jp);
+  border: none;
+  letter-spacing: 2px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 400;
+  margin: 0;
+  margin-bottom: 30px;
+  color: var(--custom-color);
+}
+
+.topsvg {
+  margin: auto calc(50% - 30px);
+  width: 60px;
+  aspect-ratio: 40 / 95;
+  height: auto;
+  fill: var(--custom-color);
+}
+
 .content {
   width: 1000px;
   margin: 5% calc(50% - 300px);
   transition: all 0.6s cubic-bezier(0.68, 0.18, 0.22, 0.8);
+  animation-name: start;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  animation-delay: 0s;
+  animation-iteration-count: 1;
+  animation-direction: alternate;
+  animation-fill-mode: none;
+  animation-play-state: running;
+  position: relative;
+
 }
 
 .content.Hide {
@@ -285,7 +329,8 @@ table th {
 .menu-subtitle {
   font-family: var(--font-jp);
   font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.2em;
+  font-weight: 400;
 }
 
 .logo svg {
@@ -375,19 +420,21 @@ a {
 }
 
 
-/* イベント管理セクションのスタイル */
+/* イベント管理者のレイアウト */
 .event-manage {
-  margin: 2rem 0;
+  width: 100%;
+  margin: 20px 0;
 }
 
 .manager {
   display: flex;
   align-items: flex-start;
   gap: 1.5rem;
-  margin: 1.5rem 0;
+  margin: 0px 0;
   padding: 1.5rem;
   border-radius: 8px;
-  background: var(--background);
+  background: var(--color-bg-hero2);
+  color: var(--background);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -403,14 +450,17 @@ a {
 }
 
 .manager h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
+  margin: 0 0 0 0;
+  font-size: 1.4rem;
+  font-family: var(--font-title);
 }
 
 .ja-name {
   margin: 0.25rem 0;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   opacity: 0.8;
+  font-family: var(--font-jp);
+  font-weight: 400;
 }
 
 .manager-types {
@@ -419,23 +469,34 @@ a {
   margin: 0.5rem 0;
 }
 
-.type-badge {
-  padding: 0.25rem 0.75rem;
+.manager.manager-col-2 .manager-types {
+  margin: 0.4rem 0;
+}
+
+.manager.manager-col-3 .manager-types {
+  margin: 0.3rem 0;
+}
+
+.type-badgeen {
   border-radius: 4px;
-  background: var(--foreground);
-  color: var(--background);
+  font-family: var(--font-title);
   font-size: 0.8rem;
+}
+
+.type-badgeja {
+  border-radius: 4px;
+  font-family: var(--font-jp);
+  font-size: 0.6rem;
 }
 
 .social-links {
   display: flex;
   gap: 1rem;
-  margin-top: 0.75rem;
 }
 
 .social-links a {
-  color: var(--foreground);
-  font-size: 1.2rem;
+  color: var(--background);
+  font-size: 0.9rem;
   transition: opacity 0.2s ease;
 }
 
@@ -443,14 +504,226 @@ a {
   opacity: 0.7;
 }
 
-/* トップコンテンツのスタイル */
-.top-content {
-  margin: 2rem 0;
+.manager-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
 }
 
-.top-content img {
-  margin: 1rem 0;
-  border-radius: 8px;
+/* 1列レイアウト */
+.manager.manager-col-1 {
+  width: 100%;
+}
+
+/* 2列レイアウト */
+.manager.manager-col-2 {
+  width: calc(50% - 60px);
+}
+
+/* 3列レイアウト */
+.manager.manager-col-3 {
+  width: calc(33.333% - 65px);
+}
+
+.manager.manager-col-2 h4 {
+  font-size: 1.2rem;
+}
+
+.manager.manager-col-3 h4 {
+  font-size: 0.8rem;
+}
+
+.manager.manager-col-2 .ja-name,
+.manager.manager-col-2 .type-badgeen,
+.manager.manager-col-2 .social-links a {
+  font-size: 0.8rem;
+}
+
+.manager.manager-col-3 .ja-name,
+.manager.manager-col-3 .type-badgeen,
+.manager.manager-col-3 .social-links a {
+  font-size: 0.6rem;
+}
+
+.manager.manager-col-2 img {
+  width: 70px;
+  height: 70px;
+}
+
+.manager.manager-col-3 img {
+  width: 55px;
+  height: 55px;
+}
+
+/* レスポンシブ対応 */
+@media screen and (max-width: 1000px) {
+  .manager.manager-col-3 {
+    width: calc(50% - 10px);
+  }
+}
+
+@media screen and (max-width: 768px) {
+
+  .manager.manager-col-2,
+  .manager.manager-col-3 {
+    width: 100%;
+  }
+}
+
+
+
+/* トップコンテンツのスタイル */
+.top-content {
+  position: relative;
+  margin: 40px 0;
+}
+
+/* 画像スクロールエリア */
+.top-images {
+  position: relative;
+  width: 100vw;
+  height: 650px;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  display: flex;
+  overflow: hidden;
+  /* はみ出た部分を隠す */
+}
+
+/* 画像コンテナ */
+.top-images-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  gap: 0;
+  min-width: 100%;
+}
+
+.top-images-container:active {
+  cursor: grabbing;
+  transition: none;
+  /* ドラッグ中はアニメーションを無効化 */
+}
+
+/* 画像スタイル */
+.top-images img {
+  height: 100%;
+  width: auto;
+  object-fit: cover;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* スクロールボタン */
+.scroll-button-left,
+.scroll-button-right {
+  position: absolute;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  border: none;
+  background: var(--color-bg-hero);
+  color: var(--foreground);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+  opacity: 0.7;
+  z-index: 2;
+}
+
+.scroll-button-left {
+  left: 0;
+}
+
+.scroll-button-right {
+  right: 0;
+}
+
+/* レスポンシブ対応 */
+@media screen and (min-width: 1401px) {
+  .top-images {
+    margin-left: calc(50% - 50vw + 188px);
+    width: calc(100vw - 396px);
+  }
+}
+
+/* モーダル */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.image-modal.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  position: relative;
+  width: 95vw;
+  height: 95vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.image-modal.open .modal-content {
+  transform: scale(1);
+}
+
+.modal-content img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  animation: fadeIn 0.3s ease;
+}
+
+.close-modal {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 10px;
+  transition: transform 0.3s ease;
+}
+
+.close-modal:hover {
+  transform: rotate(90deg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* デバッグ用コンテンツのスタイル */
@@ -601,10 +874,23 @@ a {
   }
 }
 
+@keyframes start {
+  from {
+    top: 200px;
+    opacity: 0;
+  }
+
+  to {
+    top: 0px;
+    opacity: 1;
+  }
+}
+
 @media screen and (max-width: 1400px) {
   .content {
     width: 95%;
     margin: auto;
+    margin-top: 120px;
   }
 
   /* ヘッダーの基本スタイル */
@@ -612,7 +898,7 @@ a {
     display: block;
     width: 100%;
     height: 75px;
-    padding: 0 20px;
+    padding: 0 22px;
     transform: none;
     align-items: center;
     justify-content: space-between;
@@ -673,7 +959,7 @@ a {
 
   .logo svg {
     width: auto;
-    height: 55px;
+    height: 45px;
     margin: 5px;
   }
 
@@ -687,14 +973,19 @@ a {
     transform: translateY(0em);
   }
 
+
+
   .title h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    line-height: 1.8rem;
 
   }
 
   .title p {
-    font-size: 0.64rem;
-    letter-spacing: 5px;
+    font-size: 0.6rem;
+    line-height: 1rem;
+
+    letter-spacing: 4px;
     margin: auto;
   }
 
