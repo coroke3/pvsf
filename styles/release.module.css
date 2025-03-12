@@ -328,23 +328,6 @@ a.btn--blue {
 }
 
 
-@media screen and (max-width: 1680px) {
-    .table {
-        width: 1320px;
-    }
-}
-
-@media screen and (max-width: 1350px) {
-    .table {
-        width: 990px;
-    }
-}
-
-@media screen and (max-width: 1020px) {
-    .table {
-        width: 660px;
-    }
-}
 
 @media screen and (max-width: 690px) {
     .table {

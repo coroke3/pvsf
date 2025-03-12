@@ -7,6 +7,7 @@ import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
+import WorksSidebar from "../../components/WorksSidebar";
 
 export const getStaticProps = async (context) => {
   const res = await fetch(
@@ -106,30 +107,9 @@ export default function Releases({ release, works }) {
           sizes="260x260"
         />
       </Head>
-      <div className={styles.contentr}>
+      <div className={`content ${styles.contentr}`}>
         <div className={styles.bf}>
-          <div className={styles.s3f}>
-            {works.map((work) => {
-              const showIcon2 = work.icon !== undefined && work.icon !== "";
-              return (
-                <Link href={`../release/${work.timestamp}`} key={work.id}>
-                  <div className={styles.works}>
-                    {showIcon2 && (
-                      <img
-                        src={`https://lh3.googleusercontent.com/d/${work.icon.slice(
-                          33
-                        )}`}
-                        className={styles.icon}
-                        alt={`${work.creator} | PVSF archive`}
-                      />
-                    )}
-                    <div className={styles.w1}>{work.creator}</div>
-                    <div className={styles.w2}>{work.title}</div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <WorksSidebar works={works} currentId={release.timestamp.toString()} />
           <div className={styles.s1f}>
             {showYoutube ? (
               <iframe

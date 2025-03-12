@@ -16,8 +16,9 @@
   border-radius: 50%;
 }
 .creator {
-  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
-  font-weight: 300;
+  font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
+  font-weight: 500;
+  font-style: normal;
   width: calc(100% - 240px);
   border: 0px;
   font-style: normal;
@@ -31,8 +32,8 @@
   margin: auto 0px auto 5px;
 }
 .title {
-  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
-  font-weight: 300;
+  font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
+  font-weight: 500;
   font-style: normal;
   font-size: 2rem;
   margin: 6px auto 10px auto;
@@ -54,12 +55,22 @@
   flex-wrap: wrap;
 }
 .s1f {
-  width: calc(97% - 350px);
-  margin: 0 0.5%;
+  width: calc(100%);
+  margin: 0 auto;
 }
 .s3f {
-  width: 350px;
-  margin: 24px 1%;
+  width: 400px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--background);
+  scrollbar-width: thin;
+  scrollbar-color: var(--foreground) transparent;
+  padding: 100px 20px 20px;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
 .s3f a {
   text-decoration: none;
@@ -68,6 +79,7 @@
   display: flex;
   font-size: 0.8rem;
   margin: 10px 0;
+  transition: background-color 0.3s ease;
 }
 .works div {
   text-decoration: none;
@@ -114,21 +126,123 @@
   font-size: 0.6rem;
 }
 .contentr {
-  width: 90%;
-  margin: 50px 5%;
+  max-width: 1400px;
+  margin: 50px auto !important;
+  padding: 0 20px;
+  position: relative;
 }
 
+.works.active  {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.works.active .w1,
+.works.active .w2 {
+  color: var(--background);
+}
+
+/* Webkit用スクロールバーカスタマイズ */
+.s3f::-webkit-scrollbar {
+  width: 6px;
+}
+
+.s3f::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.s3f::-webkit-scrollbar-thumb {
+  background-color: var(--foreground);
+  border-radius: 3px;
+}
+
+@media screen and (max-width: 1850px) {
+  .s3f {
+    transform: translateX(400px);
+  }
+
+  .s3f.open {
+    transform: translateX(0);
+  }
+
+  .sidebarToggle {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 80px;
+    background: var(--foreground);
+    color: var(--background);
+    border: none;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .s1f {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .contentr {
+    margin: 5% calc(50% - 300px) !important;
+    padding: 0 20px;
+    position: relative;
+  }
+}
 @media screen and (max-width: 1000px) {
   .s3f {
     width: 100%;
-    margin: 30px 0;
+    max-width: 400px;
+    transform: translateX(100%);
+    right: 0;
+    z-index: 1000;
   }
+
+  .s3f.open {
+    transform: translateX(0);
+  }
+
+  .sidebarToggle {
+    width: 40px;
+    height: 60px;
+    top: 120px;
+    right: 0;
+    transform: none;
+  }
+
   .s1f {
     width: 100%;
     margin: 24px 0;
+    padding: 0 20px;
   }
-  .bf {
-    flex-wrap: wrap-reverse;
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+  }
+
+  .overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .contentr {
+    margin: 30px auto !important;
   }
 }
 @media screen and (max-width: 600px) {
@@ -147,6 +261,7 @@
   .s3f {
     width: 93%;
     margin: 30px auto;
+    padding-top: 80px;
   }
   .yf {
     margin-top: 0px;
@@ -186,8 +301,28 @@
     height: 32px;
   }
   .contentr {
-    width: 100%;
-    margin: 75px 0%;
+    margin: 20px auto !important;
+    padding: 0 10px;
+  }
+  .sidebarToggle {
+    width: 32px;
+    height: 50px;
+    top: 85px;
+  }
+  .works {
+    padding: 8px;
+  }
+  .works img {
+    width: 24px;
+    height: 24px;
+  }
+  .w1 {
+    width: calc(40% - 32px);
+    font-size: 0.7rem;
+  }
+  .w2 {
+    width: 60%;
+    font-size: 0.7rem;
   }
   @media (max-aspect-ratio: 9 / 14) {
     .yf {
