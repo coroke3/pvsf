@@ -1,4 +1,5 @@
 import "../styles/styles.css";
+import "../styles/worksSidebar.css";
 import Head from "next/head";
 import Script from "next/script";
 import * as gtag from "../libs/gtag";
@@ -7,7 +8,6 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
-import WorksSidebar from "@/components/WorksSidebar";
 
 // microCMSクライアントの作成
 const client = createClient({
@@ -90,13 +90,8 @@ function MyApp({ Component, pageProps }, AppProps) {
           `,
         }}
       />
-      <Layout>
-        <div style={{}}>
-          <Component {...pageProps} />
-          {isReleasePage && (
-            <WorksSidebar works={works} currentId={pageProps.release?.timestamp?.toString()} />
-          )}
-        </div>
+      <Layout works={works}>
+        <Component {...pageProps} />
       </Layout>
     </>
   );
