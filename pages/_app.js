@@ -20,7 +20,7 @@ function MyApp({ Component, pageProps }, AppProps) {
   const [works, setWorks] = useState([]);
 
   useEffect(() => {
-    const handleRouterChange = (url, any) => {
+    const handleRouterChange = (url) => {
       gtag.pageview(url);
     };
     router.events.on("routeChangeComplete", handleRouterChange);
@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }, AppProps) {
   }, [router.events]);
 
   useEffect(() => {
-    // データを取得してworksにセット
+    // データを一度だけ取得してworksにセット
     const fetchWorks = async () => {
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec");
@@ -70,7 +70,7 @@ function MyApp({ Component, pageProps }, AppProps) {
         }}
       />
       <Layout>
-        <div style={{}}>
+        <div style={{  }}>
           <Component {...pageProps} />
           {isReleasePage && <WorksSidebar works={works} currentId={pageProps.release?.timestamp?.toString()} />}
         </div>
