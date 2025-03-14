@@ -18,10 +18,12 @@ const client = createClient({
 function MyApp({ Component, pageProps }, AppProps) {
   const router = useRouter();
   const [works, setWorks] = useState([]);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   useEffect(() => {
     const handleRouterChange = (url) => {
       gtag.pageview(url);
+      setIsSidebarVisible(true); // ページ遷移後にサイドバーを表示
     };
     router.events.on("routeChangeComplete", handleRouterChange);
     return () => {
@@ -70,9 +72,11 @@ function MyApp({ Component, pageProps }, AppProps) {
         }}
       />
       <Layout>
-        <div style={{  }}>
+        <div style={{ }}>
           <Component {...pageProps} />
-          {isReleasePage && <WorksSidebar works={works} currentId={pageProps.release?.timestamp?.toString()} />}
+          {isReleasePage && isSidebarVisible && (
+            <WorksSidebar works={works} currentId={pageProps.release?.timestamp?.toString()} />
+          )}
         </div>
       </Layout>
     </>
