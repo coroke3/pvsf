@@ -4,10 +4,12 @@ import Script from "next/script";
 import * as gtag from "../libs/gtag";
 import { createClient } from "microcms-js-sdk";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, lazy } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
-import WorksSidebar from "@/components/WorksSidebar";
+
+// WorksSidebarを遅延ロード
+const WorksSidebar = lazy(() => import("@/components/WorksSidebar"));
 
 // microCMSクライアントの作成
 const client = createClient({
@@ -18,12 +20,10 @@ const client = createClient({
 function MyApp({ Component, pageProps }, AppProps) {
   const router = useRouter();
   const [works, setWorks] = useState([]);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   useEffect(() => {
     const handleRouterChange = (url) => {
       gtag.pageview(url);
-      setIsSidebarVisible(true); // ページ遷移後にサイドバーを表示
     };
     router.events.on("routeChangeComplete", handleRouterChange);
     return () => {
@@ -74,8 +74,10 @@ function MyApp({ Component, pageProps }, AppProps) {
       <Layout>
         <div style={{ }}>
           <Component {...pageProps} />
-          {isReleasePage && isSidebarVisible && (
-            <WorksSidebar works={works} currentId={pageProps.release?.timestamp?.toString()} />
+          {isReleasePage && (
+            <Suspense fallback={<div>Loading...</div>}>
+              <WorksSidebar works={works} currentId={pageProps.release?.timestamp?.toString()} />
+            </Suspense>
           )}
         </div>
       </Layout>

@@ -3,8 +3,9 @@ import Link from "next/link";
 import styles from "../styles/releases.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import React from 'react';
 
-export default function WorksSidebar({ works = [], currentId }) {
+const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }) {
     const [isOpen, setIsOpen] = useState(false);
 
     // ESCキーでサイドバーを閉じる
@@ -80,4 +81,6 @@ export default function WorksSidebar({ works = [], currentId }) {
             </div>
         </>
     );
-} 
+});
+
+export default WorksSidebar; 
