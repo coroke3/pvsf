@@ -4,9 +4,17 @@ import Header from './Header';
 import { useRouter } from 'next/router';
 import WorksSidebar from './WorksSidebar';
 
+interface Work {
+    id: string;
+    timestamp: string;
+    creator: string;
+    title: string;
+    icon?: string;
+}
+
 interface LayoutProps {
     children: ReactNode;
-    works?: any[];
+    works?: Work[];
 }
 
 export default function Layout({ children, works }: LayoutProps) {
