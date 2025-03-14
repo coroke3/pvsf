@@ -21,7 +21,7 @@ const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }:
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        const handleEsc = (event) => {
+        const handleEsc = (event: KeyboardEvent): void => {
             if (event.key === 'Escape') {
                 setIsOpen(false);
             }
@@ -67,7 +67,6 @@ const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }:
                         <Link
                             href={`/release/${work.timestamp}`}
                             key={work.id}
-                            scroll={false}
                             onClick={() => {
                                 if (window.innerWidth <= 1000) {
                                     setIsOpen(false);
