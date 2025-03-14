@@ -4,7 +4,7 @@ import styles from "../styles/releases.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-export default function WorksSidebar({ works, currentId }) {
+export default function WorksSidebar({ works = [], currentId }) {
     const [isOpen, setIsOpen] = useState(false);
 
     // ESCキーでサイドバーを閉じる

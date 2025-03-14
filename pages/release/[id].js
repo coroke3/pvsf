@@ -3,20 +3,17 @@ import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/releases.module.css";
-import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faYoutube } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter, faYoutube, faUser } from "@fortawesome/free-brands-svg-icons";
 
 export const getStaticProps = async (context) => {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const res2 = await fetch(
-    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
-  );
   const releases = await res.json();
-  const works = await res2.json();
+
+  const resUsers = await fetch("https://pvsf-cash.vercel.app/api/users");
+  const users = await resUsers.json();
 
   const timestamp = context.params.id;
   const release = releases.find(
@@ -24,7 +21,7 @@ export const getStaticProps = async (context) => {
   );
 
   return {
-    props: { release, works },
+    props: { release, users },
   };
 };
 
@@ -43,7 +40,7 @@ export const getStaticPaths = async () => {
   };
 };
 
-export default function Releases({ release, works }) {
+export default function Releases({ release, users }) {
   const showComment = release.comment !== undefined && release.comment !== "";
   const showIcon = release.icon !== undefined && release.icon !== "";
   const showCreator = release.creator !== undefined && release.creator !== "";
@@ -57,6 +54,20 @@ export default function Releases({ release, works }) {
     release.credit !== undefined &&
     release.credit !== "";
 
+  // メンバー情報の処理
+  const memberInfo = release.member
+    ? release.member.split(/[,、，]/).map((username, index) => {
+        const memberId = release.memberid
+          ?.split(/[,、，]/)
+          ?.[index]
+          ?.trim() || '';
+        const matchedUser = users.find(
+          (user) => user.username.toLowerCase() === memberId.toLowerCase()
+        );
+        return { username, memberId, matchedUser };
+      })
+    : [];
+
   return (
     <div>
       <Head>
@@ -67,7 +78,6 @@ export default function Releases({ release, works }) {
           name="description"
           content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`}
         />
-
         <meta name="twitter:site" content="@pvscreeningfes" />
         <meta name="twitter:creator" content="@coroke3" />
         <meta property="og:url" content="pvsf.jp" />
@@ -98,7 +108,6 @@ export default function Releases({ release, works }) {
           property="og:description"
           content={`PVSF 出展作品  ${release.title} - ${release.creator}  music:${release.music} - ${release.credit}`}
         />
-
         <link
           rel="icon"
           type="image/png"
@@ -164,7 +173,6 @@ export default function Releases({ release, works }) {
               <p className={styles.time}>
                 {release.data} {release.time}
                 {" 公開予定"}
-                {/* 修正: release.data を release.date に変更 */}
               </p>
             </div>
             <p>
@@ -189,12 +197,51 @@ export default function Releases({ release, works }) {
               </p>
             )}
             {showMember && (
-              <p>
-                参加メンバー
-                <div
-                  dangerouslySetInnerHTML={{ __html: `${release.member}` }}
-                />
-              </p>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>LINK</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {memberInfo.map(({ username, memberId, matchedUser }, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{username.trim()}</td>
+                      <td className={styles.userlink}>
+                        {matchedUser ? (
+                          <>
+                            <a href={`https://event-archive.vercel.app/user/${matchedUser.username}`} target="_blank" rel="noopener noreferrer" className={styles.userLink}>
+                              <FontAwesomeIcon icon={faUser} />
+                            </a>
+                            <div className={styles.userlis}>
+                              <a href={`https://event-archive.vercel.app/user/${matchedUser.username}`} target="_blank" rel="noopener noreferrer" className={styles.userLink}>
+                                /{matchedUser.username}
+                              </a>
+                            </div>
+                          </>
+                        ) : memberId ? (
+                          <div className={styles.userlis}>@{memberId}</div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td>
+                        {memberId ? (
+                          <a href={`https://twitter.com/${memberId}`} target="_blank" rel="noopener noreferrer">
+                            <FontAwesomeIcon icon={faXTwitter} className={styles.twitterIcon} />
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         </div>

@@ -1,20 +1,24 @@
 @charset "utf-8";
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap");
+
 .yf {
   width: 100%;
   aspect-ratio: 16 / 9;
   margin-top: 34px;
 }
+
 .userinfo {
   display: flex;
   margin: 16px 0 20px 0;
 }
+
 .icon {
   width: 40px;
   aspect-ratio: 1 / 1;
   height: 40px;
   border-radius: 50%;
 }
+
 .creator {
   font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
   font-weight: 500;
@@ -26,11 +30,13 @@
   margin: auto;
   padding-left: 0px;
 }
+
 .creator a {
   color: var(--foreground);
   text-decoration: none;
   margin: auto 0px auto 5px;
 }
+
 .title {
   font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
   font-weight: 500;
@@ -40,10 +46,9 @@
   padding: 11px 0;
   border-bottom: solid 2px var(--foreground);
 }
+
 .time {
-  font-family: "Inter", "Zen Kaku Gothic New", sans-serif;
-  font-weight: 300;
-  font-style: normal;
+
   line-height: 1.4rem;
   margin: auto;
   width: 171px;
@@ -54,10 +59,12 @@
   display: flex;
   flex-wrap: wrap;
 }
+
 .s1f {
   width: calc(100%);
   margin: 0 auto;
 }
+
 .s3f {
   width: 400px;
   position: fixed;
@@ -72,15 +79,18 @@
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
+
 .s3f a {
   text-decoration: none;
 }
+
 .works {
   display: flex;
   font-size: 0.8rem;
   margin: 10px 0;
   transition: background-color 0.3s ease;
 }
+
 .works div {
   text-decoration: none;
   color: var(--foreground);
@@ -89,42 +99,52 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .works img {
   width: 30px;
   height: 30px;
 }
+
 .w1 {
   width: calc(40% - 40px);
   margin: auto 5px;
 }
+
 .w2 {
   width: 60%;
 }
+
 .ss1 {
   display: flex;
   margin: 10px 0;
 }
+
 .ss12 {
   width: 42%;
 }
+
 .ss12 img {
   aspect-ratio: 16 / 9;
 }
+
 .ss13 {
   width: 54%;
   margin: 4px 2%;
 }
+
 .scc {
   margin: 0;
   font-size: 0.8rem;
   max-height: 48px;
   overflow: hidden;
 }
+
 .sc {
   margin: 0;
   color: #696969;
   font-size: 0.6rem;
 }
+
 .contentr {
   max-width: 1400px;
   margin: 50px auto !important;
@@ -132,7 +152,7 @@
   position: relative;
 }
 
-.works.active  {
+.works.active {
   background: var(--foreground);
   color: var(--background);
 }
@@ -154,6 +174,67 @@
 .s3f::-webkit-scrollbar-thumb {
   background-color: var(--foreground);
   border-radius: 3px;
+}
+
+.s1f table {
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 1em;
+  font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.s1f table th,
+.s1f table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.s1f table thead {
+  background-color: #000000;
+  /* ヘッダーの背景色 */
+  color: white;
+  /* ヘッダーのテキスト色 */
+}
+
+.s1f table tbody tr:nth-child(even) {
+  background-color: var(--color-bg-hero);
+  /* 偶数行の背景色 */
+}
+
+.s1f table tbody tr:hover {
+  background-color: #ddd;
+  /* ホバー時の背景色 */
+}
+
+.s1f .twitterIcon {
+  color: #1da1f2;
+  /* Twitterアイコンの色 */
+  font-size: 1.2em;
+  /* アイコンのサイズ */
+  transition: color 0.3s ease;
+  /* アイコンの色変更時のトランジション */
+}
+
+.s1f .twitterIcon:hover {
+  color: #0d95e8;
+  /* ホバー時のTwitterアイコンの色 */
+}
+
+.s1f table td img {
+  width: 30px;
+  height: 30px;
+  margin: auto;
+}
+
+
+
+.s1f .userlis {
+  margin: auto 0;
+  padding: 2px 5px;
+  border-radius: 10px;
 }
 
 @media screen and (max-width: 1850px) {
@@ -196,6 +277,7 @@
     position: relative;
   }
 }
+
 @media screen and (max-width: 1000px) {
   .s3f {
     width: 100%;
@@ -245,7 +327,9 @@
     margin: 30px auto !important;
   }
 }
+
 @media screen and (max-width: 600px) {
+
   .s1f p,
   .s1f div,
   .s1f h2 {
@@ -253,19 +337,23 @@
     margin-left: auto;
     margin-right: auto;
   }
+
   .s2f {
     width: 93%;
     margin-left: auto;
     margin-right: auto;
   }
+
   .s3f {
     width: 93%;
     margin: 30px auto;
     padding-top: 80px;
   }
+
   .yf {
     margin-top: 0px;
   }
+
   .works h3 {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -275,61 +363,75 @@
     font-size: 0.8rem;
     line-height: 1.1rem;
   }
+
   .s1f p,
   .s1f div,
   .w1,
   .w2 {
     font-size: 0.7rem;
   }
+
   .s1f p div {
     margin: 2px;
   }
+
   .title {
     font-size: 1.2rem;
   }
+
   .creator {
     font-size: 0.8rem;
     width: 100%;
     margin-left: 5px;
   }
+
   .time {
     padding: 0px 0;
     font-size: 0.5rem;
   }
+
   .icon {
     width: 32px;
     height: 32px;
   }
+
   .contentr {
     margin: 20px auto !important;
     padding: 0 10px;
   }
+
   .sidebarToggle {
     width: 32px;
     height: 50px;
     top: 85px;
   }
+
   .works {
     padding: 8px;
   }
+
   .works img {
     width: 24px;
     height: 24px;
   }
+
   .w1 {
     width: calc(40% - 32px);
     font-size: 0.7rem;
   }
+
   .w2 {
     width: 60%;
     font-size: 0.7rem;
   }
+
   @media (max-aspect-ratio: 9 / 14) {
     .yf {
       top: 75px;
       left: 0px;
       position: fixed;
     }
+
     .bf::after {
       content: "";
       position: relative;
@@ -338,6 +440,7 @@
     }
   }
 }
+
 @media screen and (min-width: 1150px) {
   @media (min-aspect-ratio: 16 / 9) {
     .contentr {

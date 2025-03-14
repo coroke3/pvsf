@@ -4,7 +4,7 @@ import Script from "next/script";
 import * as gtag from "../libs/gtag";
 import { createClient } from "microcms-js-sdk";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
 import WorksSidebar from "@/components/WorksSidebar";
@@ -17,7 +17,8 @@ const client = createClient({
 
 function MyApp({ Component, pageProps }, AppProps) {
   const router = useRouter();
-  
+  const [works, setWorks] = useState([]);
+
   useEffect(() => {
     const handleRouterChange = (url, any) => {
       gtag.pageview(url);
@@ -27,6 +28,21 @@ function MyApp({ Component, pageProps }, AppProps) {
       router.events.off("routeChangeComplete", handleRouterChange);
     };
   }, [router.events]);
+
+  useEffect(() => {
+    // データを取得してworksにセット
+    const fetchWorks = async () => {
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec");
+        const data = await res.json();
+        setWorks(data);
+      } catch (error) {
+        console.error("Failed to fetch works:", error);
+      }
+    };
+
+    fetchWorks();
+  }, []);
 
   // release/[id]のページかどうかを判定
   const isReleasePage = router.pathname === '/release/[id]';
@@ -51,12 +67,12 @@ function MyApp({ Component, pageProps }, AppProps) {
             gtag('js', new Date());
             gtag('config', '${gtag.GA_MEASUREMENT_ID}');
           `,
-        }}ß
+        }}
       />
       <Layout>
-        <div style={{ }}>
+        <div style={{}}>
           <Component {...pageProps} />
-          {isReleasePage && <WorksSidebar works={pageProps.works} currentId={pageProps.release?.timestamp?.toString()} />}
+          {isReleasePage && <WorksSidebar works={works} currentId={pageProps.release?.timestamp?.toString()} />}
         </div>
       </Layout>
     </>
