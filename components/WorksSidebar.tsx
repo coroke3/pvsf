@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, MouseEvent, KeyboardEvent } from 'react';
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
@@ -18,7 +18,7 @@ interface WorksSidebarProps {
 }
 
 const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }: WorksSidebarProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
 
     useEffect(() => {
         const handleEsc = (event: KeyboardEvent): void => {
@@ -33,7 +33,7 @@ const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }:
     }, []);
 
     useEffect(() => {
-        if (window.innerWidth <= 1000) {
+        if (typeof window !== 'undefined' && window.innerWidth <= 1000) {
             if (isOpen) {
                 document.body.style.overflow = 'hidden';
             } else {
@@ -41,44 +41,63 @@ const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }:
             }
         }
         return () => {
-            document.body.style.overflow = 'unset';
+            if (typeof document !== 'undefined') {
+                document.body.style.overflow = 'unset';
+            }
         };
     }, [isOpen]);
+
+    const handleOverlayClick = (event: MouseEvent<HTMLDivElement>): void => {
+        event.preventDefault();
+        setIsOpen(false);
+    };
+
+    const handleToggleClick = (event: MouseEvent<HTMLButtonElement>): void => {
+        event.preventDefault();
+        setIsOpen(!isOpen);
+    };
+
+    const handleLinkClick = (): void => {
+        if (typeof window !== 'undefined' && window.innerWidth <= 1000) {
+            setIsOpen(false);
+        }
+    };
 
     return (
         <>
             <button
                 className="sidebarToggle"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleToggleClick}
                 aria-label="Toggle sidebar"
+                type="button"
             >
                 <FontAwesomeIcon icon={isOpen ? faChevronRight : faChevronLeft} />
             </button>
             <div
                 className={`overlay ${isOpen ? 'open' : ''}`}
-                onClick={() => setIsOpen(false)}
+                onClick={handleOverlayClick}
+                role="presentation"
             />
             <div className={`s3f ${isOpen ? 'open' : ''}`}>
-                {works.map((work) => {
-                    const showIcon = work.icon !== undefined && work.icon !== "";
-                    const isActive = work.timestamp.toString() === currentId;
+                {works.map((work: Work) => {
+                    const showIcon = typeof work.icon === 'string' && work.icon.length > 0;
+                    const isActive = work.timestamp.toString() === currentId?.toString();
 
                     return (
                         <Link
-                            href={`/release/${work.timestamp}`}
+                            href={`/release/${encodeURIComponent(work.timestamp)}`}
                             key={work.id}
-                            onClick={() => {
-                                if (window.innerWidth <= 1000) {
-                                    setIsOpen(false);
-                                }
-                            }}
+                            onClick={handleLinkClick}
+                            passHref
                         >
                             <div className={`works ${isActive ? 'active' : ''}`}>
-                                {showIcon && (
+                                {showIcon && work.icon && (
                                     <img
                                         src={`https://lh3.googleusercontent.com/d/${work.icon.slice(33)}`}
                                         className="icon"
                                         alt={`${work.creator} | PVSF archive`}
+                                        width={50}
+                                        height={50}
                                     />
                                 )}
                                 <div className="w1">{work.creator}</div>
@@ -91,5 +110,7 @@ const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }:
         </>
     );
 });
+
+WorksSidebar.displayName = 'WorksSidebar';
 
 export default WorksSidebar; 
