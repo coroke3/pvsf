@@ -9,16 +9,33 @@ import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
 
-// microCMSクライアントの作成
-const client = createClient({
-  serviceDomain: process.env.NEXT_PUBLIC_SERVICE_DOMAIN,
-  apiKey: process.env.NEXT_PUBLIC_API_KEY,
-});
+// グローバルな状態としてworksを保持
+let cachedWorks = null;
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
-  const [works, setWorks] = useState([]);
+  const [works, setWorks] = useState(cachedWorks || []);
   const [scrollPosition, setScrollPosition] = useState(0);
+
+  useEffect(() => {
+    const fetchWorks = async () => {
+      // キャッシュがある場合はスキップ
+      if (cachedWorks) {
+        return;
+      }
+
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec");
+        const data = await res.json();
+        cachedWorks = data; // グローバルキャッシュを更新
+        setWorks(data);
+      } catch (error) {
+        console.error("Failed to fetch works:", error);
+      }
+    };
+
+    fetchWorks();
+  }, []); // 依存配列を空にして初回のみ実行
 
   useEffect(() => {
     const handleRouterChange = (url) => {
@@ -31,26 +48,10 @@ function MyApp({ Component, pageProps }) {
   }, [router.events]);
 
   useEffect(() => {
-    const fetchWorks = async () => {
-      try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec");
-        const data = await res.json();
-        setWorks(data);
-      } catch (error) {
-        console.error("Failed to fetch works:", error);
-      }
-    };
-
-    fetchWorks();
-  }, []);
-
-  useEffect(() => {
-    // ページ遷移時にスクロール位置を保存
     const handleRouteChangeStart = () => {
       setScrollPosition(window.scrollY);
     };
 
-    // ページ遷移後にスクロール位置を復元
     const handleRouteChangeComplete = () => {
       window.scrollTo(0, scrollPosition);
     };
