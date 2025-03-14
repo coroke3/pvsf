@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEvent, KeyboardEvent } from 'react';
+import { useState, useEffect, MouseEvent, KeyboardEvent as ReactKeyboardEvent } from 'react';
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
@@ -21,7 +21,7 @@ const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }:
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        const handleEsc = (event: KeyboardEvent): void => {
+        const handleEsc = (event: globalThis.KeyboardEvent): void => {
             if (event.key === 'Escape') {
                 setIsOpen(false);
             }
