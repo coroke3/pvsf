@@ -31,12 +31,10 @@ export async function getStaticProps({ params }) {
   );
   const works = await res.json();
 
-  // IDに一致する作品を検索
   const release = works.find(
     (work) => work.timestamp.toString() === params.id
   );
 
-  // 作品が見つからない場合は404
   if (!release) {
     return {
       notFound: true
@@ -48,7 +46,7 @@ export async function getStaticProps({ params }) {
       release,
       works
     },
-    revalidate: 60 // 1分ごとに再生成（ISR）
+    revalidate: 60
   };
 }
 
