@@ -5,7 +5,7 @@ import { client } from "../libs/client";
 import { createClient } from "microcms-js-sdk";
 import Footer from "../components/Footer";
 import styles from "../styles/index.module.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const nextDates = [
   { date: "03/29", year: "2025", day: "Sat" },
@@ -14,6 +14,8 @@ const nextDates = [
 
 export default function Home({ blog }) {
   const [isHide, setIsHide] = useState(true);
+  const [activeItems, setActiveItems] = useState(new Set());
+  const aboutItemRefs = useRef([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,13 +24,28 @@ export default function Home({ blog }) {
       } else {
         setIsHide(true);
       }
+
+      // 各aboutitemの位置をチェックしてアニメーション状態を更新
+      aboutItemRefs.current.forEach((ref, index) => {
+        if (ref) {
+          const rect = ref.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight * 0.8;
+          
+          setActiveItems(prev => {
+            const newSet = new Set(prev);
+            if (isVisible) {
+              newSet.add(index);
+            } else {
+              newSet.delete(index);
+            }
+            return newSet;
+          });
+        }
+      });
     };
 
     window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -86,7 +103,7 @@ export default function Home({ blog }) {
           </div>
 
           <div className={styles.scheduleArea}>
-          <span className={styles.scheduleJp}>次の開催</span>
+          <p className={styles.scheduleJp}>次の開催</p>
             <h2>
               Next Schedule
             </h2>
@@ -107,52 +124,57 @@ export default function Home({ blog }) {
       <div className={`content ${isHide ? "Hide" : ""}`}>
         <section id="about" className={styles.content}>
           <div className={styles.aboutcontainer}>
-            <div className={styles.aboutitem}>
-              <div className={styles.abouttitle}>
-                <span className={styles.abouten}>what&#39;s pvsf?</span>
-
-              </div>
-              <div className={styles.abouarrow}></div>
-              <div className={styles.abouttext}>
-              <div className={styles.titlebox}>
-                  <h2>PVSFってなに？</h2>
+            {['what\'s pvsf?', 'what\'s event?', 'what\'s join?'].map((title, index) => (
+              <div
+                key={index}
+                ref={el => aboutItemRefs.current[index] = el}
+                className={`${styles.aboutitem} ${activeItems.has(index) ? styles.active : ''}`}
+              >
+                
+                <div className={styles.abouttitle}>
+                  <span className={styles.abouten}>{title}</span>
                 </div>
-                <p>
-                  PVSFはノンジャンルのオンライン映像イベントです。さらに映像を頑張ろうと思えるきっかけになるような機会を設けることを目的に行われています。順位付けはありません。
-                </p>
-              </div>
-            </div>
+                <div className={styles.abouarrow}>
 
-            <div className={styles.aboutitem}>
-              <div className={styles.abouttitle}>
-                <span className={styles.abouten}>what&#39;s event?</span>
-
-              </div>
-              <div className={styles.abouarrow}></div>
-              <div className={styles.abouttext}>
-              <div className={styles.titlebox}>
-                  <h2>何をやってる？</h2>
                 </div>
-                <p>
-                  現在は概ね年三回、映像連続投稿祭「PVSF」や、その関連企画を開催しています。
-                </p>
-              </div>
-            </div>
-
-            <div className={styles.aboutitem}>
-              <div className={styles.abouttitle}>
-                <span className={styles.abouten}>what&#39;s join?</span>
-              </div>
-              <div className={styles.abouarrow}></div>
-              <div className={styles.abouttext}>
-                <div className={styles.titlebox}>
-                  <h2>どう参加する？</h2>
+                <div className={styles.abouttext}>
+                  <div className={styles.titlebox}>
+                    <h2>{title === 'what\'s pvsf?' ? 'PVSFってなに？' : title === 'what\'s event?' ? '何をやってる？' : 'どう参加する？'}</h2>
+                  </div>
+                  <p>
+                    {title === 'what\'s pvsf?' ? 'PVSFはノンジャンルのオンライン映像イベントです。さらに映像を頑張ろうと思えるきっかけになるような機会を設けることを目的に行われています。順位付けはありません。' : title === 'what\'s event?' ? '現在は概ね年三回、映像連続投稿祭「PVSF」や、その関連企画を開催しています。' : '参加は簡単。Discordサーバーに入って作品情報を登録。あとはいつも通りYouTubeに投稿するだけ。'}
+                  </p>
                 </div>
-                <p>
-                  参加は簡単。Discordサーバーに入って作品情報を登録。あとはいつも通りYouTubeに投稿するだけ。
-                </p>
+                {index < 2 && ( // 最後の要素以外にカーブを追加
+                    <div className={styles.curveContainer}>
+                      <svg
+                        className={styles.curve}
+                        viewBox="0 0 684 194"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        preserveAspectRatio="none"
+                      >
+                        <path
+                          d="M0.5,0 C0.5,182 276.51,195.09 341,104 C421.5,-9 683.5,14 683.5,194"
+                          stroke="black"
+                          strokeWidth="2"
+                          fill="none"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                        {/* 矢印の先端 */}
+                        <path
+                          d="M678.5,189 L683.5,194 L688.5,189"
+                          stroke="black"
+                          strokeWidth="2"
+                          fill="none"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      </svg>
+                    </div>
+                  )}
               </div>
-            </div>
+              
+            ))}
           </div>
         </section>
         <h2>#PVSF2025S 参加者募集中</h2>

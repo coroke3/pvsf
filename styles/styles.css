@@ -887,6 +887,14 @@ a {
 }
 
 @media screen and (max-width: 1400px) {
+  .content.Hide {
+    width: 95%;
+    margin: auto;
+    margin-top: 120px;
+
+  }
+
+
   .content {
     width: 95%;
     margin: auto;
@@ -1089,7 +1097,7 @@ a {
 
 }
 
-@media screen and (max-width: 1100px) {}
+@media screen and (max-width: 1000px) {}
 
 @media screen and (min-width: 1101px) {
   .menu {
