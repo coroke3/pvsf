@@ -112,10 +112,10 @@ export default function Releases(data) {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            {member.trim()}
+                            {member.trim()} 
                           </a>
                         ) : (
-                          <span key={index}>{member.trim()}</span>
+                          <span key={index}>{member.trim()}{"　"}</span>
                         );
                       })}
                     </div>

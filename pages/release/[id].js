@@ -7,7 +7,6 @@ import { css } from "@emotion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
-import WorksSidebar from "../../components/WorksSidebar";
 
 export const getStaticProps = async (context) => {
   const res = await fetch(
@@ -109,7 +108,6 @@ export default function Releases({ release, works }) {
       </Head>
       <div className={`content ${styles.contentr}`}>
         <div className={styles.bf}>
-          <WorksSidebar works={works} currentId={release.timestamp.toString()} />
           <div className={styles.s1f}>
             {showYoutube ? (
               <iframe
