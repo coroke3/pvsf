@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEvent, KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useState, useEffect, MouseEvent } from 'react';
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
@@ -85,10 +85,10 @@ const WorksSidebar = React.memo(function WorksSidebar({ works = [], currentId }:
 
                     return (
                         <Link
-                            href={`/release/${encodeURIComponent(work.timestamp)}`}
+                            href={`/release/${work.timestamp}`}
                             key={work.id}
                             onClick={handleLinkClick}
-                            passHref
+                            prefetch={false}
                         >
                             <div className={`works ${isActive ? 'active' : ''}`}>
                                 {showIcon && work.icon && (
