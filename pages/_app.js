@@ -15,7 +15,7 @@ const client = createClient({
   apiKey: process.env.NEXT_PUBLIC_API_KEY,
 });
 
-function MyApp({ Component, pageProps }, AppProps) {
+function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [works, setWorks] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -31,7 +31,6 @@ function MyApp({ Component, pageProps }, AppProps) {
   }, [router.events]);
 
   useEffect(() => {
-    // データを一度だけ取得してworksにセット
     const fetchWorks = async () => {
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec");
@@ -91,7 +90,7 @@ function MyApp({ Component, pageProps }, AppProps) {
         }}
       />
       <Layout works={works}>
-        <Component {...pageProps} />
+        <Component {...pageProps} works={works} />
       </Layout>
     </>
   );

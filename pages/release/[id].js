@@ -6,41 +6,53 @@ import styles from "../../styles/releases.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faYoutube, faUser } from "@fortawesome/free-brands-svg-icons";
 
-export const getStaticProps = async (context) => {
+// 静的ページの生成に必要なパスを取得
+export async function getStaticPaths() {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const releases = await res.json();
+  const works = await res.json();
 
-  const resUsers = await fetch("https://pvsf-cash.vercel.app/api/users");
-  const users = await resUsers.json();
-
-  const timestamp = context.params.id;
-  const release = releases.find(
-    (release) => release.timestamp.toString() === timestamp
-  );
-
-  return {
-    props: { release, users },
-  };
-};
-
-export const getStaticPaths = async () => {
-  const res = await fetch(
-    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
-  );
-  const releases = await res.json();
-  const paths = releases.map((release) => ({
-    params: { id: release.timestamp.toString() },
+  // 全ての作品のパスを生成
+  const paths = works.map((work) => ({
+    params: { id: work.timestamp.toString() }
   }));
 
   return {
     paths,
-    fallback: false,
+    fallback: false // 未定義のパスは404
   };
-};
+}
 
-export default function Releases({ release, users }) {
+// ページのプロパティを取得
+export async function getStaticProps({ params }) {
+  const res = await fetch(
+    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
+  );
+  const works = await res.json();
+
+  // IDに一致する作品を検索
+  const release = works.find(
+    (work) => work.timestamp.toString() === params.id
+  );
+
+  // 作品が見つからない場合は404
+  if (!release) {
+    return {
+      notFound: true
+    };
+  }
+
+  return {
+    props: {
+      release,
+      works
+    },
+    revalidate: 60 // 1分ごとに再生成（ISR）
+  };
+}
+
+export default function Release({ release, works }) {
   const showComment = release.comment !== undefined && release.comment !== "";
   const showIcon = release.icon !== undefined && release.icon !== "";
   const showCreator = release.creator !== undefined && release.creator !== "";
@@ -55,14 +67,15 @@ export default function Releases({ release, users }) {
     release.credit !== "";
 
   // メンバー情報の処理
-  const memberInfo = release.member
+  const memberInfo = showMember
     ? release.member.split(/[,、，]/).map((username, index) => {
         const memberId = release.memberid
           ?.split(/[,、，]/)
           ?.[index]
           ?.trim() || '';
-        const matchedUser = users.find(
-          (user) => user.username.toLowerCase() === memberId.toLowerCase()
+        // worksからユーザー情報を検索（usernameプロパティがある場合のみ）
+        const matchedUser = works.find(
+          (user) => user.username && user.username.toLowerCase() === memberId.toLowerCase()
         );
         return { username, memberId, matchedUser };
       })
