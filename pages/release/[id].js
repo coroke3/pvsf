@@ -3,6 +3,8 @@ import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/releases.module.css";
+import { config } from '@fortawesome/fontawesome-svg-core'
+import '@fortawesome/fontawesome-svg-core/styles.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faYoutube, faUser } from "@fortawesome/free-brands-svg-icons";
 
@@ -67,16 +69,16 @@ export default function Release({ release, works }) {
   // メンバー情報の処理
   const memberInfo = showMember
     ? release.member.split(/[,、，]/).map((username, index) => {
-        const memberId = release.memberid
-          ?.split(/[,、，]/)
-          ?.[index]
-          ?.trim() || '';
-        // worksからユーザー情報を検索（usernameプロパティがある場合のみ）
-        const matchedUser = works.find(
-          (user) => user.username && user.username.toLowerCase() === memberId.toLowerCase()
-        );
-        return { username, memberId, matchedUser };
-      })
+      const memberId = release.memberid
+        ?.split(/[,、，]/)
+        ?.[index]
+        ?.trim() || '';
+      // worksからユーザー情報を検索（usernameプロパティがある場合のみ）
+      const matchedUser = works.find(
+        (user) => user.username && user.username.toLowerCase() === memberId.toLowerCase()
+      );
+      return { username, memberId, matchedUser };
+    })
     : [];
 
   return (

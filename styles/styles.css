@@ -41,22 +41,22 @@ h1 {
 }
 
 h2 {
-  font-weight: 500;
+  font-weight: 700;
   font-style: normal;
-  font-size: 2rem;
-  margin: 60px auto 10px auto;
-  border-bottom: solid 2px var(--foreground);
+  font-size: 2.5rem;
+  margin: 60px auto 20px auto;
   padding: 8px 0;
+  position: relative;
 }
 
 
 h3 {
-  font-weight: 500;
+  font-weight: 700;
   font-style: normal;
   font-size: 1.7rem;
   margin: 35px auto 22px auto;
-  padding: 3px 2px 6px 8px;
-  border-left: solid 13px var(--foreground);
+  padding: 3px 2px 6px 10px;
+  border-left: solid 8px var(--foreground);
 }
 
 h4 {
