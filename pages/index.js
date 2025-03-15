@@ -6,6 +6,8 @@ import { createClient } from "microcms-js-sdk";
 import Footer from "../components/Footer";
 import styles from "../styles/index.module.css";
 import { useState, useEffect, useRef } from "react";
+import curveStyles from '../styles/curve.module.css';
+import aboutStyles from '../styles/about.module.css';
 
 const nextDates = [
   { date: "03/29", year: "2025", day: "Sat" },
@@ -128,50 +130,37 @@ export default function Home({ blog }) {
               <div
                 key={index}
                 ref={el => aboutItemRefs.current[index] = el}
-                className={`${styles.aboutitem} ${activeItems.has(index) ? styles.active : ''}`}
+                className={`${aboutStyles.aboutitem} ${activeItems.has(index) ? aboutStyles.active : ''}`}
               >
-                
-                <div className={styles.abouttitle}>
-                  <span className={styles.abouten}>{title}</span>
+                <div className={aboutStyles.abouttitle}>
+                  <span className={aboutStyles.abouten}>{title}</span>
                 </div>
-                <div className={styles.abouarrow}>
+                <div className={aboutStyles.abouarrow}>
 
                 </div>
-                <div className={styles.abouttext}>
-                  <div className={styles.titlebox}>
+                <div className={aboutStyles.abouttext}>
+                  <div className={aboutStyles.titlebox}>
                     <h2>{title === 'what\'s pvsf?' ? 'PVSFってなに？' : title === 'what\'s event?' ? '何をやってる？' : 'どう参加する？'}</h2>
                   </div>
                   <p>
                     {title === 'what\'s pvsf?' ? 'PVSFはノンジャンルのオンライン映像イベントです。さらに映像を頑張ろうと思えるきっかけになるような機会を設けることを目的に行われています。順位付けはありません。' : title === 'what\'s event?' ? '現在は概ね年三回、映像連続投稿祭「PVSF」や、その関連企画を開催しています。' : '参加は簡単。Discordサーバーに入って作品情報を登録。あとはいつも通りYouTubeに投稿するだけ。'}
                   </p>
                 </div>
-                {index < 2 && ( // 最後の要素以外にカーブを追加
-                    <div className={styles.curveContainer}>
-                      <svg
-                        className={styles.curve}
-                        viewBox="0 0 684 194"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        preserveAspectRatio="none"
-                      >
-                        <path
-                          d="M0.5,0 C0.5,182 276.51,195.09 341,104 C421.5,-9 683.5,14 683.5,194"
-                          stroke="black"
-                          strokeWidth="2"
-                          fill="none"
-                          vectorEffect="non-scaling-stroke"
-                        />
-                        {/* 矢印の先端 */}
-                        <path
-                          d="M678.5,189 L683.5,194 L688.5,189"
-                          stroke="black"
-                          strokeWidth="2"
-                          fill="none"
-                          vectorEffect="non-scaling-stroke"
-                        />
-                      </svg>
-                    </div>
-                  )}
+                {index > 0 && index < 3 && (
+                  <div className={`${curveStyles.curve} ${index === 2 ? curveStyles.secondCurve : ''}`}>
+                    <svg viewBox="0 0 946.72 433.64">
+                      <path 
+                        className={`${
+                          (index === 1 && activeItems.has(1)) || (index === 2 && activeItems.has(2)) 
+                            ? curveStyles.activePath 
+                            : curveStyles.normalPath
+                        }`}
+                        d="M83.54,145.16c3.6,19.98,5.91,50.66-8,81-18.63,40.64-49.34,43.53-66,86-2.73,6.97-20.58,52.49,3,87,18.9,27.65,56.92,37.31,86,33,63.51-9.41,100.48-87.83,118-125,24.07-51.05,14.86-63.43,40-100,7.41-10.78,40.37-58.73,94-76,72.84-23.45,98.52,37.15,193,33,66.37-2.92,138.66-36.56,188-81,35.67-32.13,47.26-59.02,87-72,13.33-4.35,70.81-25.68,106,8,29.89,28.6,20.74,79.4,19,89-5.88,32.39-20.77,40.53-34,77-12.45,34.33-13.1,65.3-12,85" 
+                      />
+       
+                    </svg>
+                  </div>
+                )}
               </div>
               
             ))}

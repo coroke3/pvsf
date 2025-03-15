@@ -370,19 +370,103 @@
 /* カーブ付き矢印のSVG */
 .curve {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  transition: stroke-dashoffset 1s ease;
-  transition-delay: 0.8s;
-  transform: scale(0.5);
-  /* SVGのサイズを調整 */
-  transform-origin: top left;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
+/* 2番目の要素は反転 */
+.aboutitem:nth-child(2) .curve {
+  transform: rotate(0deg);
+}
+
+.curve svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 330px;
+}
+
+.curve path {
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 1;
+  stroke-miterlimit: 10;
+  stroke-dasharray: 3000;
+  /* 値を増やして線が完全に表示されるように */
+  stroke-dashoffset: 3000;
+}
+
+/* アクティブ時のアニメーション */
 .active .curve {
-  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+/* 1番目の要素は左から右へ */
+.aboutitem:nth-child(1) .curve path {
+  animation: drawPathForward 2s ease forwards;
+}
+
+/* 2番目の要素は右から左へ */
+.aboutitem:nth-child(2) .curve path {
+  animation: drawPathBackward 2s ease forwards;
+}
+
+.active .curve .arrowHead {
+  animation: fadeInArrow 0.5s ease forwards;
+  animation-delay: 1.8s;
+}
+
+/* アニメーションのリセット */
+.aboutitem:not(.active) .curve path {
+  animation: none;
+  stroke-dashoffset: 3000;
+}
+
+.aboutitem:not(.active) .curve .arrowHead {
+  animation: none;
+  opacity: 0;
+}
+
+/* 左から右へのアニメーション */
+@keyframes drawPathForward {
+  from {
+    stroke-dashoffset: 3000;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 右から左へのアニメーション */
+@keyframes drawPathBackward {
+  from {
+    stroke-dashoffset: -3000;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.arrowHead {
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 1;
+  stroke-miterlimit: 10;
+  opacity: 0;
+}
+
+@keyframes fadeInArrow {
+  to {
+    opacity: 1;
+  }
 }
 
 /* 2番目の要素（what's event?）のみ右寄せ */

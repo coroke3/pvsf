@@ -1,0 +1,147 @@
+.aboutcontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0rem;
+}
+
+.aboutitem {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.aboutitem:nth-child(2) {
+    flex-direction: row-reverse;
+}
+
+.aboutitem.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.abouttitle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: var(--font-title);
+    font-size: 3rem;
+    font-weight: 400;
+    height: 500px;
+}
+
+.titlebox {
+    border: 2px solid #000;
+    padding: 1px 2rem;
+}
+
+.titlebox h2 {
+    font-family: var(--font-jp);
+    border: solid 0px;
+    margin: 0;
+    white-space: nowrap;
+    font-size: 4rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    padding: 0;
+    line-height: 5rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition-delay: 0.8s;
+}
+
+.active .titlebox h2 {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.abouttext {
+    max-width: min-content;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition-delay: 0.6s;
+}
+
+.active .abouttext {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.abouttext p {
+    font-family: var(--font-jp);
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+    line-height: 2;
+}
+
+@media (max-width: 768px) {
+
+    .about-item,
+    .about-item.reverse {
+        flex-direction: column;
+        text-align: left;
+        margin-bottom: 4rem;
+    }
+
+    .about-title {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .about-en {
+        position: relative;
+        top: 0;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .about-item.reverse .about-en {
+        text-align: left;
+    }
+
+    .title-box {
+        display: inline-block;
+    }
+
+    .about-text {
+        padding-top: 1rem;
+    }
+}
+
+.abouarrow {
+    position: relative;
+    width: 2px;
+    height: 0;
+    background: #000;
+    margin: 0 1rem;
+    transition: height 0s ease-in-out 0s;
+}
+
+.active .abouarrow {
+    height: 340px;
+    transition: height 2s ease-out 1.95s !important;
+
+}
+
+.abouarrow::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid #000;
+    border-right: 2px solid #000;
+    transform: rotate(135deg);
+    opacity: 0;
+    transition: opacity 0s ease 0s;
+}
+
+.active .abouarrow::after {
+    opacity: 1;
+    transition: opacity 2s ease 2s !important;
+}
