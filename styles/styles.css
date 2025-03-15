@@ -557,20 +557,56 @@ a {
 }
 
 /* レスポンシブ対応 */
-@media screen and (max-width: 1000px) {
-  .manager.manager-col-3 {
-    width: calc(50% - 10px);
-  }
-}
+@media screen and (max-width: 1000px) {}
 
 @media screen and (max-width: 768px) {
 
-  .manager.manager-col-2,
-  .manager.manager-col-3 {
+  .manager.manager-col-2 {
     width: 100%;
+  }
+
+  .manager.manager-col-3 {
+    width: calc(50% - 60px);
+    ;
   }
 }
 
+@media screen and (max-width: 508px) {
+
+  .manager.manager-col-3 {
+    width: 100%;
+  }
+
+  .manager.manager-col-2 h4 {
+    font-size: 1rem;
+  }
+
+  .manager.manager-col-3 h4 {
+    font-size: 0.7rem;
+  }
+
+  .manager.manager-col-2 .ja-name,
+  .manager.manager-col-2 .type-badgeen,
+  .manager.manager-col-2 .social-links a {
+    font-size: 0.7rem;
+  }
+
+  .manager.manager-col-3 .ja-name,
+  .manager.manager-col-3 .type-badgeen,
+  .manager.manager-col-3 .social-links a {
+    font-size: 0.6rem;
+  }
+
+  .manager.manager-col-2 img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .manager.manager-col-3 img {
+    width: 50px;
+    height: 50px;
+  }
+}
 
 
 /* トップコンテンツのスタイル */
@@ -1093,7 +1129,16 @@ a {
     transition: opacity 0.3s ease;
   }
 
+  .top-images {
+    width: 106.3%;
+    height: auto;
+    aspect-ratio: 16/9;
+  }
 
+  .scroll-button-left,
+  .scroll-button-right {
+    width: 50px;
+  }
 
 }
 

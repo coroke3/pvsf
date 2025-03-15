@@ -60,3 +60,9 @@
 .secondCurve .arrowMarker {
     transform: scale(-1, 1);
 }
+
+@media (max-width: 1400px) {
+    .curve {
+        display: none;
+    }
+}

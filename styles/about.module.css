@@ -145,3 +145,21 @@
     opacity: 1;
     transition: opacity 2s ease 2s !important;
 }
+
+@media (max-width: 730px) {
+    .titlebox h2 {
+        font-size: 8vw;
+    }
+
+    .abouttitle {
+        font-size: 5vw;
+    }
+
+    .abouarrow {
+        display: none;
+    }
+
+    .abouttext p {
+        font-size: 1rem;
+    }
+}

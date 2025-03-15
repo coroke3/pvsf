@@ -501,6 +501,8 @@
   line-height: 2;
 }
 
+
+
 @media (max-width: 768px) {
 
   .about-item,
@@ -571,6 +573,19 @@
   }
 }
 
+@media screen and (max-width: 700px) {
+
+  .dateNumber {
+    font-size: 20vw;
+  }
+
+
+  .scheduleArea h2 {
+    font-size: 8vw;
+
+  }
+}
+
 @media screen and (max-width: 600px) {
 
   .topms1,
@@ -607,6 +622,8 @@
   .topms1 {
     height: 110px;
   }
+
+
 }
 
 @media (max-aspect-ratio: 16 / 9) {
@@ -623,9 +640,7 @@
       left: 50%;
     }
 
-    .videobg {
-      height: 40%;
-    }
+    .videobg {}
   }
 }
 
