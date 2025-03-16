@@ -653,6 +653,7 @@
 @media (max-aspect-ratio: 16 / 9) {
   .videobg iframe {
     height: 100%;
+    height: 100svh;
     width: 5000px;
     left: 50%;
   }
@@ -660,6 +661,7 @@
   @media screen and (max-width: 500px) {
     .videobg iframe {
       height: 100%;
+      height: 100svh;
       width: 5000px;
       left: 50%;
     }
@@ -728,15 +730,7 @@
   margin: 2rem 0;
 }
 
-.topContent h2 {
-  font-size: 2rem;
-  margin: 2rem 0 1rem;
-}
 
-.topContent p {
-  margin: 1rem 0;
-  line-height: 1.6;
-}
 
 .blogContainer {
   margin: 2rem 0;
