@@ -2,7 +2,7 @@
 
 .table {
   width: 100%;
-  margin: 100px auto auto auto;
+  margin: 0px auto auto auto;
   display: flex;
   flex-wrap: wrap;
   background-color: #ffffff00;
@@ -512,15 +512,42 @@ a.btn--blue {
   margin-bottom: 32px;
 }
 
+/* 共通のdateHeaderスタイル */
 .dateHeader {
   font-family: var(--font-title);
   font-size: 2rem;
   color: #fff;
-  padding: 16px;
   margin: 0 auto 16px;
   text-align: center;
+}
+
+/* リストビュー用のdateHeaderスタイル */
+.dateHeaderList {
+  padding: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   background: rgb(0 0 0 / 0%);
+}
+
+/* タイルビュー用のdateHeaderスタイル */
+.dateHeaderTile {
+  padding: 8px;
+  margin-bottom: 0px;
+  border: none;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  color: #000;
+}
+
+.dateHeaderTile::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* リスト表示のスタイル調整 */
@@ -581,11 +608,22 @@ a.btn--blue {
 
 .membersList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
 }
 
-.memberCard,
+.memberCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 28px 23px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
 .groupCard {
   display: flex;
   align-items: center;
@@ -593,6 +631,8 @@ a.btn--blue {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   transition: background-color 0.3s;
+  cursor: pointer;
+  position: relative;
 }
 
 .memberCard:hover,
@@ -615,25 +655,27 @@ a.btn--blue {
 
 .memberName,
 .groupName {
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 500;
-  margin-bottom: 4px;
+  margin-top: 10px;
 }
 
 .groupMembers {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .groupMembers a {
-  color: #3291ff;
+  color: #ffffff;
   text-decoration: none;
-  margin-right: 8px;
+  font-size: 1rem;
 }
 
 .groupMembers a:hover {
   text-decoration: underline;
 }
+
+
 
 /* レスポンシブ対応 */
 @media screen and (max-width: 768px) {
@@ -688,4 +730,104 @@ a.btn--blue {
 .members a:hover {
   color: #5dabff;
   text-decoration: underline;
+}
+
+/* グループリストのスタイル調整 */
+.groupList {
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)) !important;
+}
+
+/* メンバーカードのスタイル調整 */
+.memberInfo {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.memberLinks {
+  display: block;
+
+}
+
+.memberLinks svg {
+  margin-bottom: 20px;
+}
+
+.socialLink {
+  color: #ffffff;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+}
+
+.socialLink:hover {
+  color: #5dabff;
+}
+
+/* グループメンバーのスタイル調整 */
+.groupMembers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0px 15px;
+}
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.archiveLink {
+  color: #ffffff;
+  font-size: 0.7rem;
+}
+
+.archiveLink:hover {
+  color: #5dabff;
+}
+
+.membertop {
+  display: flex;
+}
+
+.membertop .memberIcon {
+  width: calc(100% - 20px);
+  height: auto;
+}
+
+/* レスポンシブ対応 */
+@media screen and (max-width: 768px) {
+  .groupList {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* カードのカーソルスタイル */
+.memberCard,
+.groupCard {
+  cursor: pointer;
+  position: relative;
+}
+
+/* アイコンリンクのスタイル */
+.iconLink {
+  position: relative;
+  z-index: 2;
+}
+
+/* グループ名のスタイル */
+.groupName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.groupXLink {
+  color: #3291ff;
+  font-size: 0.8rem;
+  transition: color 0.2s;
+}
+
+.groupXLink:hover {
+  color: #5dabff;
 }

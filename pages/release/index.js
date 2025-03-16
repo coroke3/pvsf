@@ -6,20 +6,38 @@ import { css } from "@emotion/react";
 import Head from "next/head";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faImage, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 
 export const getStaticProps = async () => {
-  const res = await fetch(
+  // リリースデータの取得
+  const releaseRes = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const release = await res.json();
+  const release = await releaseRes.json();
+
+  let usernames = [];
+  try {
+    // ユーザーIDのリストを取得
+    const usersRes = await fetch("https://pvsf-cash.vercel.app/api/users");
+    const users = await usersRes.json();
+
+    // ユーザー名の配列を作成
+    usernames = users.map(user => user.username);
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    // エラーが発生した場合は空の配列を使用
+  }
 
   return {
-    props: { release },
+    props: {
+      release,
+      usernames
+    },
   };
 };
 
-export default function Releases(data) {
+export default function Releases({ release, usernames }) {
   const [viewMode, setViewMode] = useState('list'); // 'list', 'card', 'members'
 
   // 日付でグループ化する関数
@@ -35,7 +53,13 @@ export default function Releases(data) {
   };
 
   // リリースを日付でグループ化
-  const groupedReleases = groupByDate(data.release);
+  const groupedReleases = groupByDate(release);
+
+  // ユーザー名がリストに含まれているか確認する関数
+  const isValidUsername = (username, usernames) => {
+    if (!usernames || !Array.isArray(usernames)) return false;
+    return usernames.includes(username);
+  };
 
   const ViewToggle = () => (
     <div className={styles.viewToggle}>
@@ -71,51 +95,139 @@ export default function Releases(data) {
         <div className={styles.membersSection}>
           <h3>個人参加</h3>
           <div className={styles.membersList}>
-            {individuals.map(release => (
-              <div key={release.id} className={styles.memberCard}>
-                <img
-                  src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
-                  alt={release.creator}
-                  className={styles.memberIcon}
-                />
-                <div className={styles.memberInfo}>
+            {individuals.map(release => {
+              const twitterId = release.tlink || "";
+              const hasArchiveProfile = isValidUsername(twitterId, usernames);
+
+              return (
+                <div key={release.id} className={styles.memberCard} onClick={() => {
+                  window.location.href = `/release/${release.timestamp}`;
+                }}>
+                  <div className={styles.membertop}>
+                    <a
+                      href={twitterId ? `https://x.com/${twitterId}` : "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className={styles.iconLink}
+                    >
+                      <img
+                        src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
+                        alt={release.creator}
+                        className={styles.memberIcon}
+                      />
+                    </a>
+
+
+
+                    <div className={styles.memberLinks}>
+                      {twitterId && (
+                        <a
+                          href={`https://x.com/${twitterId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.socialLink}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <FontAwesomeIcon icon={faXTwitter} />
+                        </a>
+                      )}
+                      {hasArchiveProfile && (
+                        <a
+                          href={`https://archive.pvsf.jp/user/${twitterId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.socialLink}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <FontAwesomeIcon icon={faExternalLinkAlt} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
                   <div className={styles.memberName}>{release.creator}</div>
+
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         <div className={styles.membersSection}>
           <h3>グループ参加</h3>
-          <div className={styles.membersList}>
+          <div className={`${styles.membersList} ${styles.groupList}`}>
             {groups.map(release => {
               const members = release.member ? release.member.split(',') : [];
               const memberIds = release.memberid ? release.memberid.split(',') : [];
 
               return (
-                <div key={release.id} className={styles.groupCard}>
-                  <img
-                    src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
-                    alt={release.creator}
-                    className={styles.groupIcon}
-                  />
+                <div key={release.id} className={styles.groupCard} onClick={() => {
+                  // グループカード全体をクリックしたときの処理
+                  window.location.href = `/release/${release.timestamp}`;
+                }}>
+                  {/* アイコン部分 - クリックイベントの伝播を停止 */}
+                  <a
+                    href={release.tlink ? `https://x.com/${release.tlink}` : "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className={styles.iconLink}
+                  >
+                    <img
+                      src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
+                      alt={release.creator}
+                      className={styles.groupIcon}
+                    />
+                  </a>
                   <div className={styles.groupInfo}>
-                    <div className={styles.groupName}>{release.creator}</div>
+                    <div className={styles.groupName}>
+                      {release.creator}
+                      {release.tlink && (
+                        <a
+                          href={`https://x.com/${release.tlink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className={styles.groupXLink}
+                        >
+                          <FontAwesomeIcon icon={faXTwitter} size="xs" />
+                        </a>
+                      )}
+                    </div>
                     <div className={styles.groupMembers}>
                       {members.map((member, index) => {
                         const memberId = memberIds[index] ? memberIds[index].trim() : null;
-                        return memberId ? (
-                          <a
-                            key={index}
-                            href={`https://x.com/${memberId}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {member.trim()}
-                          </a>
-                        ) : (
-                          <span key={index}>{member.trim()}{"　"}</span>
+                        const hasArchiveProfile = memberId && isValidUsername(memberId, usernames);
+
+                        return (
+                          <div key={index} className={styles.memberItem}>
+                            {memberId ? (
+                              <>
+                                {member.trim()}
+                                <a
+                                  href={`https://x.com/${memberId}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <FontAwesomeIcon icon={faXTwitter} size="xs" />
+                                </a>
+                                {hasArchiveProfile && (
+                                  <a
+                                    href={`https://archive.pvsf.jp/user/${memberId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.archiveLink}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <FontAwesomeIcon icon={faExternalLinkAlt} size="xs" />
+                                  </a>
+                                )}
+                              </>
+                            ) : (
+                              <span>{member.trim()}</span>
+                            )}
+                          </div>
                         );
                       })}
                     </div>
@@ -381,12 +493,14 @@ export default function Releases(data) {
       <div className="content">
         <ViewToggle />
         {viewMode === 'members' ? (
-          <MembersView releases={data.release} />
+          <MembersView releases={release} />
         ) : (
           <div className={`${styles.table} ${viewMode === 'list' ? styles.listView : ''}`}>
             {Object.entries(groupedReleases).map(([date, releases]) => (
               <div key={date} className={styles.dateGroup}>
-                <h2 className={styles.dateHeader}>{date}</h2>
+                <h2 className={`${styles.dateHeader} ${viewMode === 'list' ? styles.dateHeaderList : styles.dateHeaderTile}`}>
+                  {date}
+                </h2>
                 {releases.map((release) => (
                   <ListItem
                     key={release.id}

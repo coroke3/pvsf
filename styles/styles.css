@@ -192,6 +192,23 @@ table th {
   padding: 0.5em;
 }
 
+.mf1-2 p {
+  letter-spacing: 0.5px;
+}
+
+.mf1-2 .t {
+  font-family: var(--font-title);
+  font-size: 2rem;
+}
+
+.menusns {
+  letter-spacing: 7px;
+}
+
+.menusns a {
+  color: var(--foreground);
+}
+
 /* Add this CSS to your existing styles or create a new stylesheet */
 .hamburger-menu {
   display: flex;

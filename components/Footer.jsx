@@ -1,234 +1,116 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { faDiscord } from "@fortawesome/free-brands-svg-icons";
-import Image from 'next/image'
-import { useTheme } from 'next-themes'
-function Footer() {
-  const { resolvedTheme } = useTheme()
-  let src
+import { faXTwitter, faInstagram, faYoutube, faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { useTheme } from 'next-themes';
 
-  switch (resolvedTheme) {
-    case "light":
-      src = "https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png";
-      break;
-    case "dark":
-      src = "https://i.gyazo.com/f736d6fc965df51b682ccc29bc842eaf.png";
-      break;
-    default:
-      src = "https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png";
-      break;
+// フッターナビゲーションの構造を定義
+const footerNavigation = [
+  {
+    title: "企画",
+    items: [
+      { label: "PVSF2025Sp", href: "/page/2025sp" },
+      { label: "参加する", href: "/page/join" },
+      { label: "投稿予定のご案内", href: "/release" }
+    ]
+  },
+  {
+    title: "アーカイブ",
+    items: [
+      { label: "過去の投稿作品", href: "https://archive.pvsf.jp/", external: true },
+      { label: "過去企画", href: "https://archive.pvsf.jp/event", external: true }
+    ]
+  },
+  {
+    title: "運営情報",
+    items: [
+      { label: "運営メンバー", href: "/page/management" },
+      { label: "Q＆A", href: "/page/qanda" }
+    ]
+  },
+  {
+    title: "SNS",
+    items: [
+      { label: "YouTube", href: "https://www.youtube.com/@PVScreeningFes", external: true },
+      { label: "Twitter", href: "https://twitter.com/pvscreeningfes", external: true },
+      { label: "Discord", href: "https://discord.gg/QXmb76qB47", external: true }
+    ]
+  },
+  {
+    title: "",
+    items: [
+      { label: "グッズ", href: "https://suzuri.jp/PVScreeningFes", external: true }
+    ]
   }
+];
+
+// SNSリンクの定義
+const socialLinks = [
+  { icon: faXTwitter, href: "https://twitter.com/PVScreeningFes" },
+  { icon: faInstagram, href: "https://www.instagram.com/pvscreeningfes/" },
+  { icon: faYoutube, href: "https://www.youtube.com/channel/UCBvhWOJ3sR3hBjO4xjq3aGQ" },
+  { icon: faDiscord, href: "https://discord.gg/QXmb76qB47" }
+];
+
+// 外部リンクかどうかを判定する関数
+const isExternalLink = (href) => {
+  return href.startsWith('http') || href.startsWith('https');
+};
+
+function Footer() {
+  const { resolvedTheme } = useTheme();
+  const logoSrc = resolvedTheme === "dark"
+    ? "https://i.gyazo.com/f736d6fc965df51b682ccc29bc842eaf.png"
+    : "https://i.gyazo.com/70f00bd1015f6f121eb099b11ce450c0.png";
 
   return (
     <footer>
       <div className="menufooters">
-        <div class="mf1">
- 
-          <div class="mf1-2">
-            <p class="t">PVSF</p>
+        {/* ブランド情報セクション */}
+        <div className="mf1">
+          <div className="mf1-2">
+            <p className="t">PVSF</p>
             <p>みんなで成長しよう</p>
             <div className="menusns">
-              <a
-                href="https://twitter.com/PVScreeningFes"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FontAwesomeIcon icon={faXTwitter} />
-              </a>
-              ・
-              <a
-                href="https://www.instagram.com/pvscreeningfes/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FontAwesomeIcon icon={faInstagram} />
-              </a>
-              ・
-              <a
-                href="https://www.youtube.com/channel/UCBvhWOJ3sR3hBjO4xjq3aGQ"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FontAwesomeIcon icon={faYoutube} />
-              </a>
-              ・
-              <a
-                href="https://discord.gg/QXmb76qB47"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FontAwesomeIcon icon={faDiscord} />
-              </a>
+              {socialLinks.map((link, index) => (
+                <>
+                  <a
+                    key={index}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FontAwesomeIcon icon={link.icon} />
+                  </a>
+                  {index < socialLinks.length - 1 && "・"}
+                </>
+              ))}
             </div>
           </div>
         </div>
-        <div class="menu-footer-container">
-          <ul id="menu-footer" class="fmenu">
-            <li
-              id="menu-item-453"
-              class="menu-item menu-item-type-custom menu-item-object-custom current-menu-ancestor current-menu-parent menu-item-has-children menu-item-453"
-            >
-              <a id="generated-id-1690357356137-52cy6kfnc">前回企画</a>
-              <ul class="sub-menu">
-                <li
-                  id="menu-item-452"
-                  class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-403 current_page_item menu-item-452"
-                >
-                  <a
-                    href="../../../../page/x_oezj2-_j2"
-                    aria-current="page"
-                    id="generated-id-1690357356137-ug4l8muy2"
-                  >
-                    PVSF2023R
-                  </a>
-                </li>
-                <li
-                  id="menu-item-455"
-                  class="menu-item menu-item-type-post_type menu-item-object-page menu-item-455"
-                >
-                  <a
-                    href="../../../../page/g6j4xiibusht"
-                    id="generated-id-1690357356137-lnb7f578m"
-                  >
-                    参加する
-                  </a>
-                </li>
-                <li
-                  id="menu-item-455"
-                  class="menu-item menu-item-type-post_type menu-item-object-page menu-item-455"
-                >
-                  <a
-                    href="../../../../release"
-                    id="generated-id-1690357356137-lnb7f578m"
-                  >
-                    投稿予定のご案内
-                  </a>
-                </li>
-              
-              </ul>
-            </li>
-            <li
-              id="menu-item-444"
-              class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-444"
-            >
-              <a id="generated-id-1690357356137-pzn39eubj">アーカイブ</a>
-              <ul class="sub-menu">
-                <li
-                  id="menu-item-446"
-                  class="menu-item menu-item-type-post_type menu-item-object-page menu-item-446"
-                >
-                  <a
-                    href="../../../../work"
-                    id="generated-id-1690357356137-m8jseak9s"
-                  >
-                    過去の投稿作品
-                  </a>
-                </li>
-                <li
-                  id="menu-item-295"
-                  class="menu-item menu-item-type-post_type menu-item-object-page menu-item-295"
-                >
-                  <a
-                    href="../../../../page/typk4cig9"
-                    id="generated-id-1690357356137-fjm69h0y5"
-                  >
-                    過去企画
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li
-              id="menu-item-172"
-              class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-172"
-            >
-              <a id="generated-id-1690357356137-y0yhmde4e">運営情報</a>
-              <ul class="sub-menu">
-                <li
-                  id="menu-item-171"
-                  class="menu-item menu-item-type-post_type menu-item-object-page menu-item-171"
-                >
-                  <a
-                    href="../../../../page/lwu97rrl9d2f/"
-                    id="generated-id-1690357356137-ickgpyf78"
-                  >
-                    運営メンバー
-                  </a>
-                </li>
-                <li
-                  id="menu-item-457"
-                  class="menu-item menu-item-type-post_type menu-item-object-page menu-item-457"
-                >
-                  <a
-                    href="../../../../page/25ta926vp"
-                    id="generated-id-1690357356137-cfqchvs5w"
-                  >
-                    Q＆A
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li
-              id="menu-item-458"
-              class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-458"
-            >
-              <a id="generated-id-1690357356137-wt6i7ecb4">SNS</a>
-              <ul class="sub-menu">
-                <li
-                  id="menu-item-459"
-                  class="menu-item menu-item-type-custom menu-item-object-custom menu-item-459"
-                >
-                  <a
-                    href="https://www.youtube.com/@PVScreeningFes"
-                    id="generated-id-1690357356137-u6dwa5w9o"
-                  >
-                    YouTube
-                  </a>
-                </li>
-                <li
-                  id="menu-item-460"
-                  class="menu-item menu-item-type-custom menu-item-object-custom menu-item-460"
-                >
-                  <a
-                    href="https://twitter.com/pvscreeningfes"
-                    id="generated-id-1690357356137-qzgj3y2f9"
-                  >
-                    Twitter
-                  </a>
-                </li>
-                <li
-                  id="menu-item-461"
-                  class="menu-item menu-item-type-custom menu-item-object-custom menu-item-461"
-                >
-                  <a
-                    href="https://discord.gg/QXmb76qB47"
-                    id="generated-id-1690357356137-gqj9d6rhx"
-                  >
-                    Discord
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li
-              id="menu-item-462"
-              class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-462"
-            >
-              <a></a>
-              <ul class="sub-menu">
-                <li
-                  id="menu-item-260"
-                  class="menu-item menu-item-type-custom menu-item-object-custom menu-item-260"
-                >
-                  <a
-                    href="https://suzuri.jp/PVScreeningFes"
-                    id="generated-id-1690357356137-4pj16qw14"
-                  >
-                    グッズ
-                  </a>
-                </li>
-              </ul>
-            </li>
+
+        {/* ナビゲーションセクション */}
+        <div className="menu-footer-container">
+          <ul id="menu-footer" className="fmenu">
+            {footerNavigation.map((section, index) => (
+              <li key={index} className="menu-item menu-item-has-children">
+                <a>{section.title}</a>
+                <ul className="sub-menu">
+                  {section.items.map((item, itemIndex) => {
+                    const isExternal = item.external || isExternalLink(item.href);
+                    return (
+                      <li key={itemIndex} className="menu-item">
+                        <a
+                          href={item.href}
+                          target={isExternal ? "_blank" : undefined}
+                          rel={isExternal ? "noopener noreferrer" : undefined}
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
