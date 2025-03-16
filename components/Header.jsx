@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter, faInstagram, faYoutube, faDiscord } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
@@ -14,12 +11,17 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 
+// 外部リンクかどうかを判定する関数
+const isExternalLink = (href) => {
+  return href.startsWith('http') || href.startsWith('https');
+};
+
 const menuItems = [
   { title: "PVSF2025Sp", subtitle: "企画概要", href: "../../page/pvsf2025sp" },
   { title: "JOIN", subtitle: "参加する", href: "../../page/join" },
   { title: "RELEASES", subtitle: "投稿予定のご案内", href: "../../release" },
   { title: "Q&A", subtitle: "質問", href: "../../page/qanda" },
-  { title: "ARCHIVES", subtitle: "過去の作品(外部サイト)", href: "" },
+  { title: "ARCHIVES", subtitle: "過去の作品(外部サイト)", href: "https://archive.pvsf.jp", external: true },
 ];
 
 function Header() {
@@ -142,22 +144,44 @@ function Header() {
 
         <nav className={`menu ${isMobileMenuOpen ? "mobile-visible" : ""}`}>
           <ul>
-            {menuItems.map((item, index) => (
-              <li key={index}>
-                <a href={item.href}>
-                  <div className="menu-title text-split">
-                    {[...item.title].map((char, index) => (
-                      <span key={index} data-random={index}>{char}</span>
-                    ))}
-                  </div>
-                  <div className="menu-subtitle text-split">
-                    {[...item.subtitle].map((char, index) => (
-                      <span key={index} data-random={index}>{char}</span>
-                    ))}
-                  </div>
-                </a>
-              </li>
-            ))}
+            {menuItems.map((item, index) => {
+              const isExternal = item.external || isExternalLink(item.href);
+              return (
+                <li key={index}>
+                  {isExternal ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className="menu-title text-split">
+                        {[...item.title].map((char, index) => (
+                          <span key={index} data-random={index}>{char}</span>
+                        ))}
+                      </div>
+                      <div className="menu-subtitle text-split">
+                        {[...item.subtitle].map((char, index) => (
+                          <span key={index} data-random={index}>{char}</span>
+                        ))}
+                      </div>
+                    </a>
+                  ) : (
+                    <a href={item.href}>
+                      <div className="menu-title text-split">
+                        {[...item.title].map((char, index) => (
+                          <span key={index} data-random={index}>{char}</span>
+                        ))}
+                      </div>
+                      <div className="menu-subtitle text-split">
+                        {[...item.subtitle].map((char, index) => (
+                          <span key={index} data-random={index}>{char}</span>
+                        ))}
+                      </div>
+                    </a>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </div>
