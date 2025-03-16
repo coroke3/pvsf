@@ -62,26 +62,29 @@ export default function Releases({ release, usernames }) {
   };
 
   const ViewToggle = () => (
-    <div className={styles.viewToggle}>
-      <button
-        onClick={() => setViewMode('list')}
-        className={`${styles.toggleButton} ${viewMode === 'list' ? styles.active : ''}`}
-      >
-        <FontAwesomeIcon icon={faBars} />
-      </button>
-      <button
-        onClick={() => setViewMode('card')}
-        className={`${styles.toggleButton} ${viewMode === 'card' ? styles.active : ''}`}
-      >
-        <FontAwesomeIcon icon={faImage} />
-      </button>
-      <button
-        onClick={() => setViewMode('members')}
-        className={`${styles.toggleButton} ${viewMode === 'members' ? styles.active : ''}`}
-      >
-        <FontAwesomeIcon icon={faUser} />
-      </button>
-    </div>
+    <>
+      <h2>投稿予定のご案内</h2>
+      <div className={styles.viewToggle}>
+        <button
+          onClick={() => setViewMode('list')}
+          className={`${styles.toggleButton} ${viewMode === 'list' ? styles.active : ''}`}
+        >
+          <FontAwesomeIcon icon={faBars} />
+        </button>
+        <button
+          onClick={() => setViewMode('card')}
+          className={`${styles.toggleButton} ${viewMode === 'card' ? styles.active : ''}`}
+        >
+          <FontAwesomeIcon icon={faImage} />
+        </button>
+        <button
+          onClick={() => setViewMode('members')}
+          className={`${styles.toggleButton} ${viewMode === 'members' ? styles.active : ''}`}
+        >
+          <FontAwesomeIcon icon={faUser} />
+        </button>
+      </div>
+    </>
   );
 
   // 参加者一覧モードのコンポーネント

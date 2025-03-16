@@ -734,6 +734,11 @@
   line-height: 1.6;
 }
 
+.blogContent h3 {
+  border: none;
+  padding: 0;
+}
+
 .blogImage {
   max-width: 100%;
   height: auto;
@@ -751,12 +756,12 @@
   display: block;
   text-decoration: none;
   color: inherit;
-  background: var(--background);
-  border: 1px solid var(--border);
+  background: var(--color-bg-hero);
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.3s ease;
   height: 100%;
+  padding: 0px;
 }
 
 .blogCard:hover {

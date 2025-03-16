@@ -148,11 +148,17 @@
 
 @media (max-width: 730px) {
     .titlebox h2 {
-        font-size: 8vw;
+        font-size: 7vw;
+        line-height: 9vw;
+    }
+
+    .titlebox {
+        padding: 1px 1rem;
     }
 
     .abouttitle {
         font-size: 5vw;
+        height: auto;
     }
 
     .abouarrow {
@@ -161,5 +167,9 @@
 
     .abouttext p {
         font-size: 1rem;
+    }
+
+    .aboutitem {
+        margin: 20px 0;
     }
 }

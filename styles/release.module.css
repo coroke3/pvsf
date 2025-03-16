@@ -337,6 +337,8 @@ a.btn--blue {
     width: 100%;
   }
 
+
+
   .releases1 {
     width: calc(100%);
   }
@@ -361,7 +363,7 @@ a.btn--blue {
 /* 表示切り替えボタン */
 .viewToggle {
   display: flex;
-  justify-content: center;
+  justify-content: start;
   margin-bottom: 20px;
 }
 
@@ -369,7 +371,7 @@ a.btn--blue {
   background: none;
   border: none;
   cursor: pointer;
-  margin: 0 10px;
+  margin-right: 20px;
   font-size: 24px;
   color: #000;
   transition: color 0.3s;
@@ -478,10 +480,16 @@ a.btn--blue {
 /* レスポンシブ対応 */
 @media screen and (max-width: 768px) {
   .listContent {
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: 60px 40px 40px 1fr;
     grid-template-rows: auto auto;
     gap: 8px;
     padding: 12px;
+  }
+
+  .icon {
+    width: 30px !important;
+    height: 30px !important;
+    margin: auto !important;
   }
 
   .date {
@@ -489,6 +497,7 @@ a.btn--blue {
   }
 
   .type {
+    margin: auto;
     grid-column: 2;
     justify-self: start;
   }
@@ -497,9 +506,7 @@ a.btn--blue {
     grid-column: 1 / -1;
   }
 
-  .listCreator {
-    grid-column: 1 / -1;
-  }
+  .listCreator {}
 
   .listActions {
     grid-column: 1 / -1;
@@ -539,16 +546,7 @@ a.btn--blue {
   color: #000;
 }
 
-.dateHeaderTile::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.3);
-}
+
 
 /* リスト表示のスタイル調整 */
 .table.listView {
@@ -578,11 +576,6 @@ a.btn--blue {
   margin-right: 8px;
 }
 
-.members {
-  font-size: 0.9rem;
-  color: #fff;
-  margin-top: 5px;
-}
 
 /* 参加者一覧表示のスタイル */
 .membersView {
@@ -679,6 +672,16 @@ a.btn--blue {
 
 /* レスポンシブ対応 */
 @media screen and (max-width: 768px) {
+  .dateGroup {
+    width: 100%;
+  }
+
+  .dateHeaderTile {
+    width: auto;
+    margin: auto;
+    padding: 0;
+  }
+
   .membersList {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 12px;
@@ -686,8 +689,9 @@ a.btn--blue {
 
   .memberCard,
   .groupCard {
-    padding: 8px;
+    padding: 20px 15px;
   }
+
 
   .memberIcon,
   .groupIcon {
@@ -823,11 +827,10 @@ a.btn--blue {
 }
 
 .groupXLink {
-  color: #3291ff;
-  font-size: 0.8rem;
+  color: #ffffff;
   transition: color 0.2s;
 }
 
 .groupXLink:hover {
-  color: #5dabff;
+  color: #ffffff;
 }

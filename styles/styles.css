@@ -866,7 +866,7 @@ a {
 }
 
 .hamburger {
-  width: 30px;
+  width: 60px;
   height: 24px;
   position: relative;
 }
@@ -885,17 +885,17 @@ a {
 }
 
 .hamburger span:nth-child(2) {
-  top: 50%;
-  transform: translateY(-50%);
+  top: 11px;
 }
 
 .hamburger span:nth-child(3) {
-  bottom: 0;
+  top: 22px;
 }
 
 /* ハンバーガーメニューがアクティブ時の状態 */
 .hamburger.active span:nth-child(1) {
   transform: translateY(11px) rotate(45deg);
+  background-color: var(--background);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -904,6 +904,7 @@ a {
 
 .hamburger.active span:nth-child(3) {
   transform: translateY(-11px) rotate(-45deg);
+  background-color: var(--background);
 }
 
 @media screen and (max-width: 600px) {
@@ -949,7 +950,7 @@ a {
 
 
   .content {
-    width: 95%;
+    width: 90%;
     margin: auto;
     margin-top: 120px;
   }
@@ -1090,17 +1091,7 @@ a {
     transition: all 0.3s ease;
   }
 
-  .hamburger span:nth-child(1) {
-    top: 12px;
-  }
 
-  .hamburger span:nth-child(2) {
-    top: 22px;
-  }
-
-  .hamburger span:nth-child(3) {
-    top: 32px;
-  }
 
   /* ハンバーガーメニューアクティブ時 */
   .hamburger.active span:nth-child(1) {
@@ -1147,7 +1138,7 @@ a {
   }
 
   .top-images {
-    width: 106.3%;
+    width: 112.5%;
     height: auto;
     aspect-ratio: 16/9;
   }
@@ -1159,7 +1150,12 @@ a {
 
 }
 
-@media screen and (max-width: 1000px) {}
+@media screen and (max-width: 610px) {
+  .menufooters {
+    justify-content: center;
+    gap: 30px;
+  }
+}
 
 @media screen and (min-width: 1101px) {
   .menu {

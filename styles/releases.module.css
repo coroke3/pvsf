@@ -438,6 +438,25 @@
       width: 100%;
       aspect-ratio: 16/9;
     }
+
+    .contentr {
+      margin: 69vw 0 0 0 !important;
+      width: 100%;
+      padding: 0;
+
+    }
+
+    .s1f .table {
+      margin: 0 3%;
+    }
+
+    .s1f {
+      padding: 0;
+    }
+
+    .bf {
+      width: 100%;
+    }
   }
 }
 
