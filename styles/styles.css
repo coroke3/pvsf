@@ -586,6 +586,7 @@ a {
     width: calc(50% - 60px);
     ;
   }
+
 }
 
 @media screen and (max-width: 508px) {
@@ -1154,6 +1155,17 @@ a {
   .menufooters {
     justify-content: center;
     gap: 30px;
+  }
+
+  .menu-title {
+    font-size: 6.5vw;
+    line-height: 6.5vw;
+  }
+
+  .menu-subtitle {
+    font-size: 2.5vw;
+    line-height: 2.5vw;
+
   }
 }
 
