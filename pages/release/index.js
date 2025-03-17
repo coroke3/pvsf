@@ -55,10 +55,20 @@ export default function Releases({ release, usernames }) {
   // リリースを日付でグループ化
   const groupedReleases = groupByDate(release);
 
-  // ユーザー名がリストに含まれているか確認する関数
+  // ユーザー名がリストに含まれているか確認する関数（大文字小文字を区別しない）
   const isValidUsername = (username, usernames) => {
-    if (!usernames || !Array.isArray(usernames)) return false;
-    return usernames.includes(username);
+    if (!username || !usernames || !Array.isArray(usernames)) return false;
+
+    // 小文字に変換して比較
+    const lowerUsername = username.toLowerCase();
+    return usernames.some(name => name && name.toLowerCase() === lowerUsername);
+  };
+
+  // アーカイブリンクを生成する関数
+  const getArchiveLink = (username) => {
+    if (!username) return "";
+    // 小文字に変換してリンクを生成
+    return `https://archive.pvsf.jp/user/${username.toLowerCase()}`;
   };
 
   const ViewToggle = () => (
@@ -137,7 +147,7 @@ export default function Releases({ release, usernames }) {
                       )}
                       {hasArchiveProfile && (
                         <a
-                          href={`https://archive.pvsf.jp/user/${twitterId}`}
+                          href={getArchiveLink(twitterId)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.socialLink}
@@ -217,7 +227,7 @@ export default function Releases({ release, usernames }) {
                                 </a>
                                 {hasArchiveProfile && (
                                   <a
-                                    href={`https://archive.pvsf.jp/user/${memberId}`}
+                                    href={getArchiveLink(memberId)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className={styles.archiveLink}

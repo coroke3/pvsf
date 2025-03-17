@@ -659,7 +659,7 @@ a.btn--blue {
 }
 
 .groupMembers a {
-  color: #ffffff;
+  color: #6dcaff;
   text-decoration: none;
   font-size: 1rem;
 }
@@ -725,16 +725,7 @@ a.btn--blue {
   margin-top: 0px;
 }
 
-.members a {
-  color: #3291ff;
-  text-decoration: none;
-  transition: color 0.2s;
-}
 
-.members a:hover {
-  color: #5dabff;
-  text-decoration: underline;
-}
 
 /* グループリストのスタイル調整 */
 .groupList {
@@ -758,15 +749,7 @@ a.btn--blue {
   margin-bottom: 20px;
 }
 
-.socialLink {
-  color: #ffffff;
-  font-size: 1.2rem;
-  transition: color 0.2s;
-}
 
-.socialLink:hover {
-  color: #5dabff;
-}
 
 /* グループメンバーのスタイル調整 */
 .groupMembers {
@@ -781,14 +764,7 @@ a.btn--blue {
   gap: 4px;
 }
 
-.archiveLink {
-  color: #ffffff;
-  font-size: 0.7rem;
-}
 
-.archiveLink:hover {
-  color: #5dabff;
-}
 
 .membertop {
   display: flex;
@@ -831,11 +807,17 @@ a.btn--blue {
   gap: 8px;
 }
 
-.groupXLink {
-  color: #ffffff;
+.groupXLink,
+.archiveLink,
+.socialLink,
+.members a {
+  color: #6dcaff;
   transition: color 0.2s;
 }
 
-.groupXLink:hover {
-  color: #ffffff;
+.groupXLink:hover,
+.archiveLink:hover,
+.socialLink:hover,
+.members a:hover {
+  color: #0077ff;
 }
