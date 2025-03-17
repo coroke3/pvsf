@@ -804,6 +804,11 @@ a.btn--blue {
   .groupList {
     grid-template-columns: 1fr !important;
   }
+
+  .members span,
+  .listcontent span {
+    font-size: 0.9rem;
+  }
 }
 
 /* カードのカーソルスタイル */

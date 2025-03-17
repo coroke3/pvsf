@@ -96,8 +96,8 @@
 
 /* ヒーローセクション（最初の全画面表示部分） */
 .hero {
-  min-height: 100vh;
   height: 100vh;
+  height: 100svh;
   width: 100%;
   top: 0px;
   z-index: 1;
@@ -504,6 +504,9 @@
 
 
 @media (max-width: 768px) {
+  .heroFrame {
+    inset: 0rem;
+  }
 
   .about-item,
   .about-item.reverse {
@@ -586,7 +589,7 @@
   }
 
   .logo {
-    width: 13%;
+    width: 8vw;
     margin: 10px 20px;
   }
 
@@ -596,7 +599,7 @@
   }
 
   .titleArea h1 {
-    margin-top: 5vw;
+    margin-top: 3.3vw;
     font-size: 10vw;
   }
 
