@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
+import { useRouter } from "next/router";
 
 export const getStaticProps = async () => {
   // リリースデータの取得
@@ -38,7 +39,36 @@ export const getStaticProps = async () => {
 };
 
 export default function Releases({ release, usernames }) {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState('list'); // 'list', 'card', 'members'
+
+  // URLハッシュからビューモードを設定
+  useEffect(() => {
+    // URLハッシュを取得
+    const hash = window.location.hash.toLowerCase();
+
+    // ハッシュに基づいてビューモードを設定
+    if (hash === '#grid') {
+      setViewMode('card');
+    } else if (hash === '#creator') {
+      setViewMode('members');
+    } else if (hash === '#list') {
+      setViewMode('list');
+    }
+  }, []);
+
+  // ビューモードが変更されたらURLハッシュを更新
+  useEffect(() => {
+    let hash = '#list';
+    if (viewMode === 'card') {
+      hash = '#grid';
+    } else if (viewMode === 'members') {
+      hash = '#creator';
+    }
+
+    // URLを更新（履歴に追加せず）
+    window.history.replaceState(null, '', hash);
+  }, [viewMode]);
 
   // 日付でグループ化する関数
   const groupByDate = (releases) => {
@@ -71,24 +101,29 @@ export default function Releases({ release, usernames }) {
     return `https://archive.pvsf.jp/user/${username.toLowerCase()}`;
   };
 
+  // ビューモード切り替え関数
+  const changeViewMode = (mode) => {
+    setViewMode(mode);
+  };
+
   const ViewToggle = () => (
     <>
       <h2>投稿予定のご案内</h2>
       <div className={styles.viewToggle}>
         <button
-          onClick={() => setViewMode('list')}
+          onClick={() => changeViewMode('list')}
           className={`${styles.toggleButton} ${viewMode === 'list' ? styles.active : ''}`}
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
         <button
-          onClick={() => setViewMode('card')}
+          onClick={() => changeViewMode('card')}
           className={`${styles.toggleButton} ${viewMode === 'card' ? styles.active : ''}`}
         >
           <FontAwesomeIcon icon={faImage} />
         </button>
         <button
-          onClick={() => setViewMode('members')}
+          onClick={() => changeViewMode('members')}
           className={`${styles.toggleButton} ${viewMode === 'members' ? styles.active : ''}`}
         >
           <FontAwesomeIcon icon={faUser} />
