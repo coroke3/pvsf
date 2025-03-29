@@ -10,6 +10,8 @@ import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-so
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { useRouter } from "next/router";
 
+const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJI1VnKQHGyimbh94ZNVBen';
+
 export const getStaticProps = async () => {
   // リリースデータの取得
   const releaseRes = await fetch(
@@ -374,7 +376,7 @@ export default function Releases({ release, usernames }) {
               <div className={styles.listActions}>
                 {showYlink && (
                   <a
-                    href={`https://youtu.be/${release.ylink.slice(17, 28)}?list=PLhxvXoQxAfWJu5MXy1QxLuv_RHf_lDsFV`}
+                    href={`https://youtu.be/${release.ylink.slice(17, 28)}?list=${YOUTUBE_PLAYLIST_ID}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -491,7 +493,7 @@ export default function Releases({ release, usernames }) {
                     href={`https://youtu.be/${release.ylink.slice(
                       17,
                       28
-                    )}?list=PLhxvXoQxAfWJu5MXy1QxLuv_RHf_lDsFV`}
+                    )}?list=${YOUTUBE_PLAYLIST_ID}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     id="generated-id-1690507402817-hylf4ea9j"
