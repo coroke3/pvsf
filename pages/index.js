@@ -12,8 +12,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 const nextDates = [
-  { date: "08/XX", year: "2025", day: "???" },
-  { date: "08/XX", year: "2025", day: "???" },
+  { date: "08/29", year: "2025", day: "Fri" },
+  { date: "08/30", year: "2025", day: "Sat" },
 ];
 
 export default function Home({ blog, top }) {
