@@ -3,10 +3,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Unbounded:wght@200..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap");
 
 :root {
-  --background: #ececec;
-  --foreground: rgb(12, 12, 12);
-  --color-bg-hero2: rgb(40, 40, 40);
-  --color-bg-hero: #f5f5f5;
+  --background: #000000;
+  --foreground: rgb(255, 255, 255);
+  --color-bg-hero2: rgb(235, 235, 235);
+  --color-bg-hero: #0d0d0d;
   /* 薄いグレー */
   --font-en: "Plus Jakarta Sans", sans-serif;
   --font-jp: "Zen Kaku Gothic New", sans-serif;
@@ -280,7 +280,7 @@ table th {
 }
 
 .logo-area a {
-  color: #000;
+  color: var(--foreground);
 }
 
 .event-type {
@@ -328,6 +328,7 @@ table th {
   flex-direction: column;
   gap: 0.25rem;
   transition: opacity 0.3s ease;
+  color: var(--foreground);
 }
 
 .menu a:hover {
@@ -336,10 +337,11 @@ table th {
 
 .menu-title {
   font-family: var(--font-title);
-  font-size: 1.77rem;
+  font-size: 1.92rem;
   font-weight: 400;
   letter-spacing: 0.1em;
-  color: #000;
+  color: var(--foreground);
+
 
 }
 

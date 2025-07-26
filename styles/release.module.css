@@ -373,7 +373,7 @@ a.btn--blue {
   cursor: pointer;
   margin-right: 20px;
   font-size: 24px;
-  color: #000;
+  color: var(--foreground);
   transition: color 0.3s;
 }
 

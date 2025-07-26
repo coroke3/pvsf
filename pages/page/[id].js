@@ -179,58 +179,80 @@ export default function PageId({ page, top }) {
                   <div dangerouslySetInnerHTML={{ __html: content.top }} />
                   {content.image && (
                     <>
-                      <div className="top-images">
-                        <button
-                          className="scroll-button-left"
-                          onClick={(e) => handleButtonClick(e, 'left')}
-                          aria-label="Scroll left"
-                        >
-                          <FontAwesomeIcon icon={faChevronLeft} />
-                        </button>
-                        <div
-                          ref={scrollContainerRef}
-                          className="top-images-container"
-                          onMouseDown={handleMouseDown}
-                          onMouseMove={handleMouseMove}
-                          onMouseUp={handleMouseUp}
-                          onMouseLeave={handleMouseUp}
-                          style={{
-                            width: `${totalWidth}px`,
-                            minWidth: '100%'
-                          }}
-                        >
-                          {content.image.map((img, imgIndex) => (
-                            <img
-                              key={imgIndex}
-                              src={`${img.url}?h=1000&q=40`}
-                              alt={content.title}
-                              loading="eager"
-                              onClick={() => setSelectedImage(img.url)}
-                              onLoad={(e) => handleImageLoad(e, imgIndex, content.image.length)}
-                              style={{
-                                opacity: 0,
-                                animation: 'fadeIn 0.3s ease forwards',
-                                animationDelay: `${imgIndex * 0.1}s`
-                              }}
-                            />
-                          ))}
+                      {content.image.length === 1 ? (
+                        <div className="top-images">
+                          <img
+                            src={`${content.image[0].url}?h=1000&q=40`}
+                            alt={content.title}
+                            loading="eager"
+                            style={{ width: '100%', height: 'auto', display: 'block' }}
+                            onClick={() => setSelectedImage(content.image[0].url)}
+                          />
+                          {selectedImage && (
+                            <div className={`image-modal ${selectedImage ? 'open' : ''}`} onClick={() => setSelectedImage(null)}>
+                              <div className="modal-content">
+                                <button className="close-modal" onClick={() => setSelectedImage(null)}>
+                                  <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                                <img src={`${selectedImage}?w=1920&q=80`} alt="拡大画像" />
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <button
-                          className="scroll-button-right"
-                          onClick={(e) => handleButtonClick(e, 'right')}
-                          aria-label="Scroll right"
-                        >
-                          <FontAwesomeIcon icon={faChevronRight} />
-                        </button>
-                      </div>
-                      {selectedImage && (
-                        <div className={`image-modal ${selectedImage ? 'open' : ''}`} onClick={() => setSelectedImage(null)}>
-                          <div className="modal-content">
-                            <button className="close-modal" onClick={() => setSelectedImage(null)}>
-                              <FontAwesomeIcon icon={faTimes} />
-                            </button>
-                            <img src={`${selectedImage}?w=1920&q=80`} alt="拡大画像" />
+                      ) : (
+                        <div className="top-images">
+                          <button
+                            className="scroll-button-left"
+                            onClick={(e) => handleButtonClick(e, 'left')}
+                            aria-label="Scroll left"
+                          >
+                            <FontAwesomeIcon icon={faChevronLeft} />
+                          </button>
+                          <div
+                            ref={scrollContainerRef}
+                            className="top-images-container"
+                            onMouseDown={handleMouseDown}
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseUp}
+                            style={{
+                              width: `${totalWidth}px`,
+                              minWidth: '100%'
+                            }}
+                          >
+                            {content.image.map((img, imgIndex) => (
+                              <img
+                                key={imgIndex}
+                                src={`${img.url}?h=1000&q=40`}
+                                alt={content.title}
+                                loading="eager"
+                                onClick={() => setSelectedImage(img.url)}
+                                onLoad={(e) => handleImageLoad(e, imgIndex, content.image.length)}
+                                style={{
+                                  opacity: 0,
+                                  animation: 'fadeIn 0.3s ease forwards',
+                                  animationDelay: `${imgIndex * 0.1}s`
+                                }}
+                              />
+                            ))}
                           </div>
+                          <button
+                            className="scroll-button-right"
+                            onClick={(e) => handleButtonClick(e, 'right')}
+                            aria-label="Scroll right"
+                          >
+                            <FontAwesomeIcon icon={faChevronRight} />
+                          </button>
+                          {selectedImage && (
+                            <div className={`image-modal ${selectedImage ? 'open' : ''}`} onClick={() => setSelectedImage(null)}>
+                              <div className="modal-content">
+                                <button className="close-modal" onClick={() => setSelectedImage(null)}>
+                                  <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                                <img src={`${selectedImage}?w=1920&q=80`} alt="拡大画像" />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </>

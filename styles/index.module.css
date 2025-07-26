@@ -102,7 +102,7 @@
   top: 0px;
   z-index: 1;
   position: absolute;
-  background-color: #ffffff2b;
+  background-color: #0000003c;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -110,7 +110,7 @@
 .heroFrame {
   position: absolute;
   inset: 2rem;
-  border: 1px solid #000;
+  border: 1px solid var(--foreground);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
