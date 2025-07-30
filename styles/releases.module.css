@@ -459,12 +459,3 @@
     }
   }
 }
-
-@media screen and (min-width: 1150px) {
-  @media (min-aspect-ratio: 16 / 9) {
-    .contentr {
-      margin-left: 300px;
-      width: calc(100% - 350px);
-    }
-  }
-}
