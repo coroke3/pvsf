@@ -13,7 +13,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 const nextDates = [
   { date: "08/29", year: "2025", day: "Fri" },
-  { date: "08/30", year: "2025", day: "Sat" },
+  { date: "08/31", year: "2025", day: "Sun" },
 ];
 
 export default function Home({ blog, top }) {
