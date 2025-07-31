@@ -601,7 +601,7 @@ a.btn--blue {
 
 .membersList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 15px;
 }
 
@@ -683,7 +683,7 @@ a.btn--blue {
   }
 
   .membersList {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 12px;
   }
 
@@ -782,7 +782,9 @@ a.btn--blue {
   }
 
   .members span,
-  .listcontent span {
+  .listcontent span,
+  .members span a,
+  .members {
     font-size: 0.9rem;
   }
 }
