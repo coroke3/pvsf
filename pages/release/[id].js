@@ -50,16 +50,12 @@ export async function getStaticProps({ params }) {
     const usersRes = await fetch("https://pvsf-cash.vercel.app/api/users");
     if (usersRes.ok) {
       externalUsers = await usersRes.json();
-      console.log("External users fetched:", externalUsers.length);
       // デバッグ用：最初の3ユーザーの情報を出力
       if (externalUsers.length > 0) {
-        console.log("Sample external users:", externalUsers.slice(0, 3));
       }
     } else {
-      console.error("Failed to fetch external users: HTTP", usersRes.status);
     }
   } catch (error) {
-    console.error("Failed to fetch external users:", error);
   }
 
   // PVSF動画データを取得
@@ -73,12 +69,9 @@ export async function getStaticProps({ params }) {
         (!video.eventid || !video.eventid.includes("PVSFSummary")) &&
         (!video.status || video.status !== "private")
       );
-      console.log("PVSF videos fetched:", allVideos.length, "filtered:", pvsfVideos.length);
     } else {
-      console.error("Failed to fetch PVSF videos: HTTP", videosRes.status);
     }
   } catch (error) {
-    console.error("Failed to fetch PVSF videos:", error);
   }
 
   return {
@@ -142,13 +135,7 @@ const processMemberInfo = (release, works, externalUsers = []) => {
       (user) => user.username && user.username.toLowerCase() === memberId.toLowerCase()
     ) : null;
 
-    // デバッグ用：マッチした場合の情報を出力
-    if (externalUser) {
-      console.log(`Member "${username.trim()}" (ID: ${memberId}) matched with external user:`, {
-        username: externalUser.username,
-        icon: externalUser.icon
-      });
-    }
+
 
     // アイコンURLの処理
     let processedIconUrl = null;
@@ -156,9 +143,7 @@ const processMemberInfo = (release, works, externalUsers = []) => {
       const fileId = extractGoogleDriveFileId(externalUser.icon);
       if (fileId) {
         processedIconUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-        console.log(`Processed icon URL for ${username.trim()}:`, processedIconUrl);
-      } else {
-        console.warn(`Could not extract file ID from icon URL for ${username.trim()}:`, externalUser.icon);
+
       }
     }
 
@@ -565,7 +550,6 @@ const findMemberPastWorks = (memberInfo, pvsfVideos) => {
     allWorks.push(...individualWorksWithType, ...collaborationWorksWithType);
 
     if (allWorks.length > 0) {
-      console.log(`Found ${individualWorksWithType.length} individual and ${collaborationWorksWithType.length} collaboration works for member "${username.trim()}" (ID: ${memberId})`);
 
       // 日時順でソートして最新7作品まで表示
       const sortedWorks = allWorks
@@ -596,7 +580,6 @@ const findRelatedWorksByTlink = (currentRelease, allWorks) => {
     work.timestamp.toString() !== currentRelease.timestamp.toString()
   );
 
-  console.log(`Found ${relatedWorks.length} related works by tlink "${currentRelease.tlink}" for "${currentRelease.creator}"`);
 
   // 最新6作品まで表示（日時順でソート）
   return relatedWorks
@@ -619,11 +602,9 @@ const getAdjacentWorks = (works, currentId) => {
 
 // 日時フォーマットのヘルパー関数
 const formatWorkDateTime = (work) => {
-  console.log('formatWorkDateTime input:', work);
 
   // work.dataとwork.timeを直接使用（既にフォーマット済み）
   if (work.data && work.time) {
-    console.log('Using work.data and work.time:', work.data, work.time);
     return {
       date: work.data,     // "08/29" 形式
       time: work.time      // "18:06" 形式
@@ -633,7 +614,6 @@ const formatWorkDateTime = (work) => {
   // フォールバック: timestampがISO文字列の場合
   if (work.timestamp) {
     const date = new Date(work.timestamp);
-    console.log('Using work.timestamp:', work.timestamp, 'parsed to:', date);
 
     if (!isNaN(date.getTime())) {
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -648,7 +628,6 @@ const formatWorkDateTime = (work) => {
     }
   }
 
-  console.warn('No valid date field found in work:', work);
   return { date: '--/--', time: '--:--' };
 };
 
