@@ -567,22 +567,47 @@ const findMemberPastWorks = (memberInfo, pvsfVideos) => {
   return memberPastWorks;
 };
 
-// 元スプシのtlinkによる関連作品を検索するヘルパー関数
-const findRelatedWorksByTlink = (currentRelease, allWorks) => {
-  if (!currentRelease?.tlink || !allWorks || allWorks.length === 0) {
+// tlinkによる関連作品を検索するヘルパー関数（memberidロジックと同様にpvsfVideosから検索）
+const findRelatedWorksByTlink = (currentRelease, pvsfVideos) => {
+  if (!currentRelease?.tlink || !pvsfVideos || pvsfVideos.length === 0) {
     return [];
   }
 
-  // 現在の作品のtlinkと一致する他の作品を検索（大文字小文字を問わず、自分自身は除外）
-  const relatedWorks = allWorks.filter(work =>
-    work.tlink &&
-    work.tlink.toLowerCase() === currentRelease.tlink.toLowerCase() &&
-    work.timestamp.toString() !== currentRelease.timestamp.toString()
+  const allWorks = [];
+
+  // 1. tlinkと一致する作品を検索（個人作品）
+  const individualWorks = pvsfVideos.filter(video =>
+    video.tlink && video.tlink.toLowerCase() === currentRelease.tlink.toLowerCase()
   );
 
+  // 個人作品にタイプを追加
+  const individualWorksWithType = individualWorks.map(work => ({
+    ...work,
+    participationType: 'individual'
+  }));
+
+  // 2. memberidと一致する作品を検索（合作参加）
+  const collaborationWorks = pvsfVideos.filter(video => {
+    if (!video.memberid) return false;
+
+    // memberidをカンマ区切りで分割して大文字小文字を問わず検索
+    const memberIds = video.memberid.split(/[,、，]/).map(id => id.trim().toLowerCase());
+    return memberIds.includes(currentRelease.tlink.toLowerCase());
+  });
+
+  // 合作参加作品にタイプを追加（重複除去のため、individualWorksに含まれていない作品のみ）
+  const collaborationWorksWithType = collaborationWorks
+    .filter(colWork => !individualWorks.some(indWork => indWork.timestamp === colWork.timestamp))
+    .map(work => ({
+      ...work,
+      participationType: 'collaboration'
+    }));
+
+  // 両方の作品を統合
+  allWorks.push(...individualWorksWithType, ...collaborationWorksWithType);
 
   // 最新6作品まで表示（日時順でソート）
-  return relatedWorks
+  return allWorks
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 6);
 };
@@ -631,7 +656,9 @@ const formatWorkDateTime = (work) => {
   return { date: '--/--', time: '--:--' };
 };
 
-// 元スプシのtlinkによる関連作品表示コンポーネント
+
+
+// tlinkによる関連作品表示コンポーネント（個人作品と合作参加を区別）
 const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
   if (!relatedWorks || relatedWorks.length === 0) return null;
 
@@ -642,53 +669,56 @@ const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
       role="region"
       aria-label={`${currentRelease.creator}による他の作品一覧`}
     >
-      <h3 className={styles.pastWorksTitle}>
+      <h4 className={styles.pastWorksTitle}>
         <FontAwesomeIcon icon={faUser} className={styles.pastWorksTitleIcon} />
-        {currentRelease.creator}による他の作品
-      </h3>
+        {currentRelease.creator}による他の作品 (表示{relatedWorks.length}作品)
+      </h4>
 
       <div className={styles.pastWorksGrid}>
-        {relatedWorks.map((work) => {
-          const youtubeId = extractYouTubeId(work.ylink);
-          const thumbnailUrl = youtubeId
-            ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
-            : '/next.svg';
-
-          const workDate = new Date(work.timestamp * 1000);
-          const formattedDate = `${workDate.getFullYear()}/${String(workDate.getMonth() + 1).padStart(2, '0')}/${String(workDate.getDate()).padStart(2, '0')}`;
-
-          return (
-            <div key={work.timestamp} className={styles.pastWorkItem}>
-              <Link href={`/release/${work.timestamp}`} className={styles.pastWorkLink}>
-                <div className={styles.pastWorkThumbnail}>
-                  <img
-                    src={thumbnailUrl}
-                    alt={`${work.title}のサムネイル`}
-                    className={styles.pastWorkImage}
-                    onError={(e) => {
-                      e.target.src = '/next.svg';
-                    }}
-                  />
-                  <div className={styles.pastWorkOverlay}>
-                    <FontAwesomeIcon icon={faPlay} className={styles.pastWorkPlayIcon} />
-                  </div>
+        {relatedWorks.map((work, workIndex) => (
+          <div
+            key={`related-${workIndex}`}
+            className={work.participationType === 'collaboration' ? `${styles.pastWorkItem} ${styles.collaborationWork}` : styles.pastWorkItem}
+            role="article"
+            aria-label={`${currentRelease.creator}の${work.participationType === 'collaboration' ? '合作参加' : '個人'}作品: ${work.title}`}
+          >
+            <div className={styles.pastWorkThumbnail}>
+              <img
+                src={work.smallThumbnail || work.largeThumbnail || "https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"}
+                alt={`${work.title} サムネイル`}
+                className={styles.pastWorkImage}
+              />
+              <div className={styles.pastWorkOverlay} aria-hidden="true">
+                <FontAwesomeIcon icon={work.participationType === 'collaboration' ? faTrophy : faFilm} className={styles.pastWorkPlayIcon} />
+              </div>
+              {work.participationType === 'collaboration' && (
+                <div className={styles.collaborationBadge} aria-label="合作参加">
+                  <FontAwesomeIcon icon={faTrophy} />
                 </div>
-                <div className={styles.pastWorkInfo}>
-                  <h4 className={styles.pastWorkTitle}>{work.title}</h4>
-                  {work.music && (
-                    <p className={styles.pastWorkMusic}>楽曲: {work.music}</p>
-                  )}
-                  <div className={styles.pastWorkMeta}>
-                    {work.event && (
-                      <span className={styles.pastWorkEvent}>{work.event}</span>
-                    )}
-                    <span className={styles.pastWorkDate}>{formattedDate}</span>
-                  </div>
-                </div>
-              </Link>
+              )}
+              <a
+                href={`https://archive.pvsf.jp/${extractYouTubeId(work.ylink) || 'undefined'}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.pastWorkLink}
+                aria-label={`${work.title} (${work.eventid}) を${work.participationType === 'collaboration' ? '合作参加' : ''}アーカイブで視聴する`}
+              />
             </div>
-          );
-        })}
+
+            <div className={styles.pastWorkInfo}>
+              <h6 className={styles.pastWorkTitle}>
+                {work.title}
+                {work.participationType === 'collaboration' && <small className={styles.collaborationLabel}>（合作参加）</small>}
+              </h6>
+              <p className={styles.pastWorkMusic}>
+                楽曲: {work.music} - {work.credit}
+              </p>
+              <div className={styles.pastWorkMeta}>
+                <span className={styles.pastWorkEvent}>{work.eventid}</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -872,8 +902,8 @@ export default function Release({ release, works, externalUsers = [], pvsfVideos
   // メンバーの過去作品検索
   const memberPastWorks = findMemberPastWorks(memberInfo, pvsfVideos);
 
-  // 元スプシのtlinkによる関連作品検索
-  const relatedWorksByTlink = findRelatedWorksByTlink(release, works);
+  // tlinkによる関連作品検索（pvsfVideosから検索）
+  const relatedWorksByTlink = findRelatedWorksByTlink(release, pvsfVideos);
 
   // メタデータの生成
   const metadata = generateMetadata(release);
