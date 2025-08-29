@@ -10,7 +10,7 @@ import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-so
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { useRouter } from "next/router";
 
-const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJI1VnKQHGyimbh94ZNVBen';
+const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJPFEyi1zr0h6w0oQ0KoURc';
 
 export const getStaticProps = async () => {
   // リリースデータの取得
