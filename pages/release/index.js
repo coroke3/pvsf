@@ -10,7 +10,7 @@ import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-so
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { useRouter } from "next/router";
 
-const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJI1VnKQHGyimbh94ZNVBen';
+const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJPFEyi1zr0h6w0oQ0KoURc';
 
 export const getStaticProps = async () => {
   // リリースデータの取得
@@ -111,7 +111,7 @@ export default function Releases({ release, usernames }) {
   const ViewToggle = () => (
     <>
       <h2>投稿予定のご案内</h2>
-      <p>前回のものです。更新までしばらくお待ちください。</p>
+
       <div className={styles.viewToggle}>
         <button
           onClick={() => changeViewMode('list')}

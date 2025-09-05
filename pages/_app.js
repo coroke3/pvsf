@@ -1,5 +1,4 @@
 import "../styles/styles.css";
-import "../styles/worksSidebar.css";
 import Head from "next/head";
 import Script from "next/script";
 import * as gtag from "../libs/gtag";
@@ -14,9 +13,6 @@ config.autoAddCss = false
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [scrollPosition, setScrollPosition] = useState(0);
-
-  // pagePropsからworksを取得
-  const works = pageProps.works || [];
 
   useEffect(() => {
     const handleRouterChange = (url) => {
@@ -68,7 +64,7 @@ function MyApp({ Component, pageProps }) {
           `,
         }}
       />
-      <Layout works={works}>
+      <Layout>
         <Component {...pageProps} />
       </Layout>
     </>
