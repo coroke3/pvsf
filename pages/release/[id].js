@@ -6,8 +6,8 @@ import styles from "../../styles/releases.module.css";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXTwitter, faYoutube, faUser, faTiktok } from "@fortawesome/free-brands-svg-icons";
-import { faClock as faClockSolid, faCalendarDays as faCalendarSolid, faGlobe, faVideo, faPlay, faExternalLinkAlt, faFilm, faTrophy } from "@fortawesome/free-solid-svg-icons";
+import { faXTwitter, faYoutube, faTiktok } from "@fortawesome/free-brands-svg-icons";
+import { faUser, faClock as faClockSolid, faCalendarDays as faCalendarSolid, faGlobe, faVideo, faPlay, faExternalLinkAlt, faFilm, faTrophy } from "@fortawesome/free-solid-svg-icons";
 
 // 静的ページの生成に必要なパスを取得
 export async function getStaticPaths() {
@@ -16,12 +16,20 @@ export async function getStaticPaths() {
   );
   const works = await res.json();
 
-  // 全ての作品のパスを生成（"release"という値は除外）
+  // 有効なIDのみを対象にし、重複を排除
+  const seen = new Set();
   const paths = works
-    .filter((work) => work.timestamp.toString() !== "release")
-    .map((work) => ({
-      params: { id: work.timestamp.toString() }
-    }));
+    .map((work) => (work && work.timestamp !== undefined && work.timestamp !== null ? work.timestamp.toString().trim() : ""))
+    .filter((id) => {
+      if (!id) return false;                 // 空文字は除外 → "/release" 生成を防止
+      if (id === "release") return false;   // 明示的に "/release" を除外
+      if (id === "/") return false;
+      if (id.toLowerCase() === "index") return false;
+      if (seen.has(id)) return false;        // 重複排除
+      seen.add(id);
+      return true;
+    })
+    .map((id) => ({ params: { id } }));
 
   return {
     paths,
