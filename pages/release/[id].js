@@ -15,10 +15,12 @@ export async function getStaticPaths() {
   );
   const works = await res.json();
 
-  // 全ての作品のパスを生成
-  const paths = works.map((work) => ({
-    params: { id: work.timestamp.toString() }
-  }));
+  // 全ての作品のパスを生成（"release"という値は除外）
+  const paths = works
+    .filter((work) => work.timestamp.toString() !== "release")
+    .map((work) => ({
+      params: { id: work.timestamp.toString() }
+    }));
 
   return {
     paths,
