@@ -744,8 +744,7 @@ const MemberPastWorks = ({ memberPastWorks, styles }) => {
       aria-label="メンバーの過去PVSF作品一覧"
     >
       <h4 className={styles.pastWorksTitle}>
-        <FontAwesomeIcon icon={faTrophy} className={styles.pastWorksTitleIcon} />
-        メンバーの過去PVSF作品
+        メンバーの過去作品
       </h4>
 
       {memberPastWorks.map((memberWork, memberIndex) => {
@@ -778,8 +777,7 @@ const MemberPastWorks = ({ memberPastWorks, styles }) => {
         return (
           <div key={memberIndex} className={styles.memberWorksSection}>
             <h5 className={styles.memberWorksName}>
-              <FontAwesomeIcon icon={faUser} className={styles.memberWorksIcon} />
-              {memberWork.memberName} さんの作品 (表示{worksToShow.length}作品{memberWork.works.length >= 4 ? ` / 全${memberWork.works.length}作品中` : ''})
+              {memberWork.memberName} の過去作品
             </h5>
 
             <div className={styles.pastWorksGrid}>
