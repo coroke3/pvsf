@@ -1106,7 +1106,6 @@
   font-size: 1rem;
   font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
   font-weight: 400;
-  border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow: 0 1px 3px var(--black-10);
 }
@@ -1115,7 +1114,6 @@
 .s1f table td {
   padding: var(--spacing-md) var(--spacing-md);
   text-align: left;
-  border-bottom: 1px solid var(--black-10);
 }
 
 .s1f table thead {
