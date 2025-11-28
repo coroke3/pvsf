@@ -248,38 +248,37 @@ const MediaContent = ({ release, styles }) => {
 
   if (youtubeId) {
     return (
-      <div className={styles.videoThumbnailContainer}>
-        <a
-          href={`https://archive.pvsf.jp/${youtubeId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.videoThumbnailLink}
-        >
-          <img
-            src={`https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`}
-            className={styles.yf}
-            alt={`${release.title} - YouTube動画サムネイル`}
+      <div className={styles.videoContainer}>
+        <div className={styles.videoWrapper}>
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1`}
+            title={`${release.title} - ${release.creator}`}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className={styles.youtubeEmbed}
           />
-          <div className={styles.playButtonOverlay}>
-            <div className={styles.playButton}>
-              <svg
-                width="68"
-                height="48"
-                viewBox="0 0 68 48"
-                className={styles.playIcon}
-              >
-                <path
-                  d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z"
-                  fill="#f00"
-                />
-                <path
-                  d="m 45,24 -18,10 0,-20"
-                  fill="#fff"
-                />
-              </svg>
-            </div>
-          </div>
-        </a>
+        </div>
+        <div className={styles.videoLinks}>
+          <a
+            href={`https://archive.pvsf.jp/${youtubeId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.archiveLink}
+          >
+            <FontAwesomeIcon icon={faExternalLinkAlt} />
+            アーカイブで視聴
+          </a>
+          <a
+            href={`https://www.youtube.com/watch?v=${youtubeId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.youtubeLink}
+          >
+            <FontAwesomeIcon icon={faYoutube} />
+            YouTubeで視聴
+          </a>
+        </div>
       </div>
     );
   }
@@ -680,8 +679,7 @@ const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
       aria-label={`${currentRelease.creator}による他の作品一覧`}
     >
       <h4 className={styles.pastWorksTitle}>
-        <FontAwesomeIcon icon={faUser} className={styles.pastWorksTitleIcon} />
-        {currentRelease.creator}による他の作品 (表示{relatedWorks.length}作品)
+        {currentRelease.creator}の過去のPVSF作品
       </h4>
 
       <div className={styles.pastWorksGrid}>
@@ -855,9 +853,7 @@ const WorksNavigation = ({ works, currentId, styles }) => {
 
           // ラベルの決定（現在作品は空、他は相対位置の数字のみ）
           let label = '';
-          if (!isCurrent) {
-            label = relativePosition.toString(); // -3, -2, -1, 1, 2, 3
-          }
+
 
           return (
             <div key={work.timestamp} className={`${styles.navigationItem} ${isCurrent ? styles.currentItem : ''}`}>
