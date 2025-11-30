@@ -393,29 +393,126 @@ const MemberTable = ({ memberInfo, styles }) => {
   if (memberInfo.length === 0) return null;
 
   return (
-    <table className={styles.table}>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>アイコン</th>
-          <th>名前</th>
-          <th>ID</th>
-          <th>リンク</th>
-        </tr>
-      </thead>
-      <tbody>
+    <>
+      {/* デスクトップ用テーブル表示 */}
+      <div className={styles.memberTableDesktop}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>アイコン</th>
+              <th>名前</th>
+              <th>ID</th>
+              <th>リンク</th>
+            </tr>
+          </thead>
+          <tbody>
+            {memberInfo.map(({ username, memberId, matchedUser, externalUser }, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td className={styles.memberIconCell}>
+                  {externalUser?.processedIconUrl ? (
+                    <img
+                      src={externalUser.processedIconUrl}
+                      alt={`${username.trim()} アイコン`}
+                      className={styles.memberIcon}
+                      tabIndex="0"
+                      role="img"
+                      aria-label={`${username.trim()}のプロフィール画像`}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className={styles.memberIconFallback}
+                    style={{ display: externalUser?.processedIconUrl ? 'none' : 'flex' }}
+                    tabIndex="0"
+                    role="img"
+                    aria-label={`${username.trim()}のデフォルトアイコン`}
+                  >
+                    <FontAwesomeIcon icon={faUser} />
+                  </div>
+                </td>
+                <td className={styles.memberNameCell}>
+                  <span className={styles.memberName}>{username.trim()}</span>
+                </td>
+                <td className={styles.userlink}>
+                  {matchedUser ? (
+                    <>
+                      <a
+                        href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.userLink}
+                        aria-label={`${matchedUser.username}のプロフィール`}
+                      >
+                        <FontAwesomeIcon icon={faUser} />
+                      </a>
+                      <div className={styles.userlis}>
+                        <a
+                          href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.userLink}
+                        >
+                          /{matchedUser.username}
+                        </a>
+                      </div>
+                    </>
+                  ) : memberId ? (
+                    <div className={styles.userlis}>@{memberId}</div>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+                <td>
+                  <div className={styles.linkContainer}>
+                    {memberId && (
+                      <a
+                        href={`https://twitter.com/${memberId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${memberId}のTwitter`}
+                        className={styles.linkIcon}
+                      >
+                        <FontAwesomeIcon icon={faXTwitter} className={styles.twitterIcon} />
+                      </a>
+                    )}
+                    {externalUser && memberId && (
+                      <a
+                        href={`https://archive.pvsf.jp/user/${memberId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${memberId}のアーカイブページ`}
+                        className={styles.linkIcon}
+                      >
+                        <FontAwesomeIcon icon={faExternalLinkAlt} className={styles.externalLinkIcon} />
+                      </a>
+                    )}
+                    {!memberId && "-"}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* モバイル用カード表示 */}
+      <div className={styles.memberCardContainer}>
         {memberInfo.map(({ username, memberId, matchedUser, externalUser }, index) => (
-          <tr key={index}>
-            <td>{index + 1}</td>
-            <td className={styles.memberIconCell}>
+          <div key={index} className={styles.memberCard}>
+            <div className={styles.memberCardNumber}>
+              {index + 1}
+            </div>
+
+            <div className={styles.memberCardIcon}>
               {externalUser?.processedIconUrl ? (
                 <img
                   src={externalUser.processedIconUrl}
                   alt={`${username.trim()} アイコン`}
-                  className={styles.memberIcon}
-                  tabIndex="0"
-                  role="img"
-                  aria-label={`${username.trim()}のプロフィール画像`}
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
@@ -425,56 +522,52 @@ const MemberTable = ({ memberInfo, styles }) => {
               <div
                 className={styles.memberIconFallback}
                 style={{ display: externalUser?.processedIconUrl ? 'none' : 'flex' }}
-                tabIndex="0"
-                role="img"
-                aria-label={`${username.trim()}のデフォルトアイコン`}
               >
                 <FontAwesomeIcon icon={faUser} />
               </div>
-            </td>
-            <td className={styles.memberNameCell}>
-              <span className={styles.memberName}>{username.trim()}</span>
-            </td>
-            <td className={styles.userlink}>
+            </div>
+
+            <div className={styles.memberCardInfo}>
+              <div className={styles.memberCardName}>
+                {username.trim()}
+              </div>
+
               {matchedUser ? (
-                <>
+                <div className={styles.memberCardId}>
                   <a
                     href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.userLink}
-                    aria-label={`${matchedUser.username}のプロフィール`}
+                    style={{ color: '#1da1f2', textDecoration: 'none' }}
                   >
-                    <FontAwesomeIcon icon={faUser} />
+                    /{matchedUser.username}
                   </a>
-                  <div className={styles.userlis}>
-                    <a
-                      href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.userLink}
-                    >
-                      /{matchedUser.username}
-                    </a>
-                  </div>
-                </>
+                </div>
               ) : memberId ? (
-                <div className={styles.userlis}>@{memberId}</div>
+                <div className={styles.memberCardId}>@{memberId}</div>
               ) : (
-                "-"
+                <div className={styles.memberCardId}>-</div>
               )}
-            </td>
-            <td>
-              <div className={styles.linkContainer}>
+
+              <div className={styles.memberCardLinks}>
                 {memberId && (
                   <a
                     href={`https://twitter.com/${memberId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${memberId}のTwitter`}
-                    className={styles.linkIcon}
                   >
-                    <FontAwesomeIcon icon={faXTwitter} className={styles.twitterIcon} />
+                    <FontAwesomeIcon icon={faXTwitter} />
+                  </a>
+                )}
+                {matchedUser && (
+                  <a
+                    href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${matchedUser.username}のプロフィール`}
+                  >
+                    <FontAwesomeIcon icon={faUser} />
                   </a>
                 )}
                 {externalUser && memberId && (
@@ -483,18 +576,16 @@ const MemberTable = ({ memberInfo, styles }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${memberId}のアーカイブページ`}
-                    className={styles.linkIcon}
                   >
-                    <FontAwesomeIcon icon={faExternalLinkAlt} className={styles.externalLinkIcon} />
+                    <FontAwesomeIcon icon={faExternalLinkAlt} />
                   </a>
                 )}
-                {!memberId && "-"}
               </div>
-            </td>
-          </tr>
+            </div>
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
   );
 };
 
@@ -682,7 +773,7 @@ const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
         {currentRelease.creator}の過去のPVSF作品
       </h4>
 
-      <div className={styles.pastWorksGrid}>
+      <div className={styles.relatedWorksGrid}>
         {relatedWorks.map((work, workIndex) => (
           <div
             key={`related-${workIndex}`}

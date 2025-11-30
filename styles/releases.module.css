@@ -166,7 +166,7 @@
   }
 
   /* Member table stays in main content area */
-  .s1f table {
+  .memberTableDesktop table {
     width: 100%;
     max-width: none;
   }
@@ -673,6 +673,12 @@
   gap: 20px;
 }
 
+.relatedWorksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+}
+
 .pastWorkItem {
   composes: cardBase gradientBg;
   border: 1px solid var(--gray-light);
@@ -1099,7 +1105,7 @@
 }
 
 /* Table Styles */
-.s1f table {
+.table {
   width: 100%;
   border-collapse: collapse;
   margin: var(--spacing-lg) 0;
@@ -1110,34 +1116,34 @@
   box-shadow: 0 1px 3px var(--black-10);
 }
 
-.s1f table th,
-.s1f table td {
+.table th,
+.table td {
   padding: var(--spacing-md) var(--spacing-md);
   text-align: left;
 }
 
-.s1f table thead {
+.table thead {
   background: linear-gradient(135deg, #333, #000);
   color: white;
 }
 
-.s1f table thead th {
+.table thead th {
   font-weight: 600;
   font-size: 0.8rem;
   letter-spacing: 0.5px;
 }
 
-.s1f table tbody tr:nth-child(even) {
+.table tbody tr:nth-child(even) {
   background: var(--color-bg-hero);
 }
 
-.s1f table tbody tr:hover {
+.table tbody tr:hover {
   background: var(--black-05);
   transform: translateX(2px);
   transition: all 0.3s ease;
 }
 
-.s1f table td img {
+.table td img {
   width: 30px;
   height: 30px;
   border-radius: 4px;
@@ -1264,6 +1270,7 @@
   .workItem {
     max-width: 280px;
   }
+
 }
 
 @media screen and (max-width: 768px) {
@@ -1274,43 +1281,94 @@
     --spacing-lg: 16px;
     --spacing-xl: 24px;
     --spacing-xxl: 32px;
+    margin: 20px auto !important;
+    padding: 0 var(--spacing-sm);
   }
 
   .title {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    line-height: 1.3;
+    margin: var(--spacing-md) 0;
   }
 
   .creator {
+    font-size: 1.1rem;
+    flex-wrap: wrap;
+  }
+
+  .creator a {
+    width: 30px;
+    height: 30px;
     font-size: 1rem;
   }
 
   .userinfo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .icon {
+    width: 36px;
+    height: 36px;
   }
 
   .timeContainer {
-    min-width: 200px;
-    padding: var(--spacing-sm);
+    width: 100%;
+    min-width: unset;
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
   }
 
   .timeText {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .timeStatus {
-    font-size: 0.7rem;
-    padding: 3px 10px;
+    font-size: 0.75rem;
+    padding: 4px var(--spacing-sm);
+  }
+
+  /* ナビゲーション改善 */
+  .worksNavigation {
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-md);
   }
 
   .navigationTitle {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .navigationItem {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .navigationDateTime {
+    min-width: 50px;
+  }
+
+  .navigationDate {
+    font-size: 0.7rem;
+  }
+
+  .navigationTime {
+    font-size: 0.85rem;
+  }
+
+  .navigationCreator {
+    font-size: 0.85rem;
+  }
+
+  .navigationIcon {
+    width: 20px;
+    height: 20px;
   }
 
   .sectionTitle {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .worksGrid {
@@ -1323,67 +1381,96 @@
   }
 
   .workInfo {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md);
   }
 
   .workTitle {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 
   .workCreator {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
 
   .workDate {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
   }
 
+  /* ソーシャルメディア改善 */
   .otherSocialContainer {
-    margin: var(--spacing-sm) 0;
-    gap: var(--spacing-xs);
+    margin: var(--spacing-md) 0;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
   }
 
   .otherSocialLabel {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    margin-bottom: var(--spacing-xs);
+    width: 100%;
+  }
+
+  .socialMediaSimpleList {
+    gap: var(--spacing-sm);
   }
 
   .socialMediaSimpleItem {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
   }
 
   .socialMediaSimpleIcon {
-    font-size: 0.6rem;
+    font-size: 0.8rem;
   }
 
+  /* 過去作品セクション改善 */
   .pastWorksContainer {
-    margin: var(--spacing-lg) 0;
+    margin: var(--spacing-xl) 0;
     padding: var(--spacing-md);
   }
 
   .pastWorksTitle {
-    font-size: 1.1rem;
-    margin-bottom: var(--spacing-md);
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-lg);
   }
 
   .pastWorksGrid {
     grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    gap: var(--spacing-lg);
+  }
+
+  .relatedWorksGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  .pastWorkInfo {
+    padding: var(--spacing-md);
+  }
+
+  .pastWorkTitle {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .pastWorkMusic {
+    font-size: 0.8rem;
+    line-height: 1.3;
   }
 
   .workTypeTitle {
-    font-size: 0.9rem;
-    padding: 6px var(--spacing-xs);
+    font-size: 0.95rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 
   .collaborationBadge {
-    width: 20px;
-    height: 20px;
-    font-size: 0.6rem;
+    width: 22px;
+    height: 22px;
+    font-size: 0.65rem;
   }
 
   .collaborationLabel {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 
   .memberIcon,
@@ -1397,293 +1484,360 @@
   }
 
   .memberName {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
+
+  /* テーブル改善 */
+  .table {
+    font-size: 0.85rem;
+  }
+
+  .table th,
+  .table td {
+    padding: var(--spacing-sm);
+  }
+
+  .linkContainer {
+    gap: var(--spacing-sm);
+  }
+
+  .s1f .twitterIcon,
+  .s1f .externalLinkIcon {
+    font-size: 1.1em;
+  }
+
 }
 
 @media screen and (max-width: 600px) {
   .contentr {
-    margin: var(--spacing-lg) auto !important;
-    padding: 0 var(--spacing-md);
+    margin: var(--spacing-md) auto !important;
+    padding: 0 var(--spacing-sm);
   }
 
-  .s1f p,
-  .s1f div,
-  .s1f h2 {
-    width: 93%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
+  /* 動画コンテナの改善 */
   .yf,
   .videoThumbnailContainer,
   .videoContainer {
     margin-top: 0;
+    border-radius: var(--radius-sm);
   }
 
   .videoLinks {
-    flex-direction: column;
+    flex-direction: row;
     gap: var(--spacing-sm);
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .archiveLink,
   .youtubeLink {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     padding: var(--spacing-xs) var(--spacing-sm);
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
   }
 
   .playButton,
   .playIcon {
-    width: 56px;
-    height: 40px;
+    width: 48px;
+    height: 36px;
   }
 
+  /* タイトルとクリエイター情報 */
   .title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin: var(--spacing-sm) 0;
   }
 
   .creator {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     width: 100%;
-    margin-left: 4px;
     gap: var(--spacing-xs);
+    flex-wrap: wrap;
   }
 
   .creator a {
-    width: 28px;
-    height: 28px;
-    font-size: 0.9rem;
-    margin-left: 4px;
+    width: 26px;
+    height: 26px;
+    font-size: 0.85rem;
   }
 
-  .timeContainer {
-    min-width: 180px;
-    padding: 10px;
-    margin: var(--spacing-xs) 0;
+  .userinfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
   }
 
   .icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
 
-  .s1f table th,
-  .s1f table td {
-    padding: var(--spacing-xs);
-    font-size: 0.6rem;
+  /* 時間表示の改善 */
+  .timeContainer {
+    width: 100%;
+    min-width: unset;
+    padding: var(--spacing-sm);
+    margin: var(--spacing-sm) 0;
   }
 
-  .memberIcon,
-  .memberIconFallback {
-    width: 32px;
-    height: 32px;
+  .timeText {
+    font-size: 0.95rem;
   }
 
-  .memberIconFallback {
-    font-size: 1rem;
+  .timeStatus {
+    font-size: 0.7rem;
+    padding: 3px var(--spacing-xs);
   }
 
-  .memberName {
-    font-size: 0.65rem;
-    margin-bottom: 2px;
-  }
-
+  /* ナビゲーション最適化 */
   .worksNavigation {
-    margin: var(--spacing-xl) 0 var(--spacing-md) 0;
-    padding: var(--spacing-md) 0;
-  }
-
-  .navigationTitle {
-    font-size: 1.1rem;
-    margin-bottom: var(--spacing-md);
-  }
-
-  .sectionTitle {
-    font-size: 0.9rem;
-  }
-
-  .navigationItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
+    margin: var(--spacing-lg) 0;
     padding: var(--spacing-sm);
   }
 
-  .navigationDateTime {
-    min-width: auto;
-    flex-direction: row;
-    gap: var(--spacing-xs);
-  }
-
-  .navigationWorkInfo {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .navigationCreator {
-    font-size: 0.8rem;
-  }
-
-  .navigationLabel {
-    font-size: 0.7rem;
-    margin-left: 0;
-  }
-
-  /* Creator links for tablet */
-  .creator a {
-    width: 30px;
-    height: 30px;
+  .navigationTitle {
     font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
   }
 
-  .workInfo {
-    padding: 10px;
+  .navigationItem {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs);
   }
 
-  .workTitle {
-    font-size: 0.8rem;
+  .navigationDateTime {
+    min-width: 45px;
+    flex-direction: column;
+    gap: 2px;
   }
 
-  .workCreator {
-    font-size: 0.7rem;
-  }
-
-  .workTimeContainer {
-    padding: 4px var(--spacing-xs);
-    margin-top: 6px;
-  }
-
-  .workTimeIcon {
-    font-size: 0.7rem;
-  }
-
-  .workDate {
+  .navigationDate {
     font-size: 0.65rem;
   }
 
-  .workPlayIcon {
-    width: 32px;
-    height: 32px;
+  .navigationTime {
+    font-size: 0.75rem;
   }
 
-  .miniPlayIcon {
-    width: 20px;
-    height: 14px;
+  .navigationWorkInfo {
+    flex: 1;
+    gap: var(--spacing-xs);
   }
 
+  .navigationIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .navigationCreator {
+    font-size: 0.75rem;
+  }
+
+  .navigationLabel {
+    font-size: 0.65rem;
+    margin-left: auto;
+  }
+
+  /* セクションタイトル */
+  .sectionTitle {
+    font-size: 0.95rem;
+  }
+
+  /* ソーシャルメディア */
+  .otherSocialContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .otherSocialLabel {
+    font-size: 0.75rem;
+  }
+
+  .socialMediaSimpleItem {
+    width: 24px;
+    height: 24px;
+  }
+
+  .socialMediaSimpleIcon {
+    font-size: 0.7rem;
+  }
+
+  /* 過去作品セクション */
   .pastWorksContainer {
-    margin: var(--spacing-md) 0;
+    margin: var(--spacing-lg) 0;
     padding: var(--spacing-sm);
   }
 
   .pastWorksTitle {
-    font-size: 1rem;
-    margin-bottom: var(--spacing-md);
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-sm);
   }
 
   .memberWorksName {
-    font-size: 0.9rem;
-    padding: var(--spacing-xs) 10px;
+    font-size: 0.85rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 
   .pastWorksGrid {
     gap: var(--spacing-sm);
   }
 
+  .relatedWorksGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-sm);
+  }
+
   .workTypeTitle {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     padding: 4px var(--spacing-xs);
   }
 
   .collaborationBadge {
-    width: 18px;
-    height: 18px;
-    font-size: 0.55rem;
+    width: 16px;
+    height: 16px;
+    font-size: 0.5rem;
   }
 
   .collaborationLabel {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .pastWorkInfo {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs);
   }
 
   .pastWorkTitle {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1.3;
   }
 
   .pastWorkMusic {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 
   .pastWorkEvent {
-    font-size: 0.6rem;
-    padding: 2px 5px;
+    font-size: 0.55rem;
+    padding: 2px 4px;
   }
 
   .pastWorkStats {
-    font-size: 0.6rem;
-    gap: 6px;
+    font-size: 0.55rem;
+    gap: 4px;
   }
 
   .pastWorkPlayIcon {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
-  /* Portrait mobile optimization */
+  /* テーブル最適化 */
+  .table th,
+  .table td {
+    padding: var(--spacing-xs);
+    font-size: 0.7rem;
+  }
+
+  .memberIcon,
+  .memberIconFallback {
+    width: 28px;
+    height: 28px;
+  }
+
+  .memberIconFallback {
+    font-size: 0.9rem;
+  }
+
+  .memberName {
+    font-size: 0.7rem;
+    margin-bottom: 1px;
+  }
+
+  .linkContainer {
+    gap: 4px;
+  }
+
+  .s1f .twitterIcon,
+  .s1f .externalLinkIcon {
+    font-size: 1em;
+  }
+
+  /* 作品アイテム */
+  .workInfo {
+    padding: var(--spacing-xs);
+  }
+
+  .workTitle {
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .workCreator {
+    font-size: 0.65rem;
+  }
+
+  .workTimeContainer {
+    padding: 3px var(--spacing-xs);
+    margin-top: 4px;
+  }
+
+  .workTimeIcon {
+    font-size: 0.65rem;
+  }
+
+  .workDate {
+    font-size: 0.6rem;
+  }
+
+  .workPlayIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .miniPlayIcon {
+    width: 18px;
+    height: 12px;
+  }
+
+  /* Portrait mobile optimization - 縦向きスマホ最適化 */
   @media (max-aspect-ratio: 9 / 14) {
 
     .yf,
     .videoThumbnailContainer,
     .videoContainer {
-      position: fixed;
-      top: 75px;
-      left: 0;
-      width: 100vw;
-      z-index: 10;
+      position: relative;
+      top: auto;
+      z-index: auto;
+      margin-top: 0;
+      margin-bottom: var(--spacing-md);
     }
 
     .videoContainer .videoLinks {
-      position: absolute;
-      bottom: var(--spacing-sm);
-      left: var(--spacing-sm);
-      right: var(--spacing-sm);
-      background: var(--black-80);
-      border-radius: var(--radius-sm);
-      padding: var(--spacing-xs);
-      backdrop-filter: blur(8px);
+      position: relative;
+      bottom: auto;
+      left: auto;
+      right: auto;
+      background: transparent;
+      border-radius: 0;
+      padding: var(--spacing-sm) 0;
+      backdrop-filter: none;
+      margin-top: var(--spacing-sm);
     }
 
     .videoContainer .archiveLink,
     .videoContainer .youtubeLink {
       font-size: 0.7rem;
-      padding: var(--spacing-xs);
-    }
-
-    .videoThumbnailContainer {
-      margin-top: 0;
-    }
-
-    .videoThumbnailLink {
-      height: 100%;
-    }
-
-    .bf::after {
-      content: "";
-      width: 100%;
-      aspect-ratio: 16/9;
-      display: block;
+      padding: var(--spacing-xs) var(--spacing-sm);
     }
 
     .contentr {
-      margin: 69vw 0 0 0 !important;
+      margin: var(--spacing-sm) auto !important;
       width: 100%;
-      padding: 0;
-    }
-
-    .s1f .table {
-      margin: 0 3%;
+      padding: 0 var(--spacing-sm);
     }
 
     .s1f {
@@ -1710,7 +1864,7 @@
 
 /* Enhance interactive elements */
 .workItem,
-.s1f table tbody tr,
+.table tbody tr,
 .creator a,
 .twitterIcon,
 .externalLinkIcon,
@@ -1748,6 +1902,167 @@
 .videoThumbnailLink:focus .playButton {
   transform: scale(1.1);
   background: var(--black-90);
+}
+
+/* メンバーカード表示スタイル */
+.memberCardContainer {
+  display: none;
+}
+
+.memberCard {
+  background: linear-gradient(135deg, var(--surface-secondary), var(--surface-tertiary));
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  transition: all 0.3s ease;
+}
+
+.memberCard:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.memberCardIcon {
+  flex-shrink: 0;
+}
+
+.memberCardIcon img,
+.memberCardIcon .memberIconFallback {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--border-primary);
+}
+
+.memberCardIcon .memberIconFallback {
+  background: linear-gradient(135deg, var(--surface-secondary), var(--surface-tertiary));
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.memberCardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.memberCardName {
+  font-family: "Plus Jakarta Sans", "Zen Kaku Gothic New", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  word-break: break-word;
+}
+
+.memberCardId {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-xs) 0;
+  word-break: break-word;
+}
+
+.memberCardLinks {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.memberCardLinks a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.memberCardLinks a:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.memberCardLinks a[href*="twitter"]:hover {
+  color: #1da1f2;
+  background: rgba(29, 161, 242, 0.1);
+  border-color: #1da1f2;
+}
+
+.memberCardLinks a[href*="archive"]:hover {
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  border-color: #ff9800;
+}
+
+.memberCardLinks a[href*="event-archive"]:hover {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+  border-color: #4caf50;
+}
+
+.memberCardNumber {
+  background: linear-gradient(135deg, var(--border-secondary), var(--surface-tertiary));
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  min-width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.memberTableDesktop {
+  margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+}
+
+@media screen and (max-width: 768px) {
+  .memberTableDesktop {
+    display: none;
+  }
+
+  .memberCardContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .memberCard {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .memberCardLinks {
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .memberCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .memberCardLinks {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 /* H3 Border Reset */
