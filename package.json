@@ -7,7 +7,12 @@
     "build": "next build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "build:pages": "opennextjs-cloudflare build && node scripts/cf-pages-worker.mjs",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.11.0",
@@ -25,13 +30,14 @@
     "@types/react-dom": "18.2.7",
     "@vercel/analytics": "^1.0.1",
     "browser-image-compression": "^2.0.2",
-    "firebase": "^12.8.0",
+    "firebase": "^10.14.1",
     "firebase-admin": "^12.0.0",
     "googleapis": "^129.0.0",
     "microcms-js-sdk": "^2.7.0",
-    "next": "^16.1.6",
+    "next": "15.5.11",
     "next-auth": "^4.24.5",
     "next-themes": "^0.2.1",
+    "@opennextjs/cloudflare": "^1.0.0-beta.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-easy-crop": "^5.0.4",
@@ -40,8 +46,9 @@
   },
   "devDependencies": {
     "autoprefixer": "10.4.14",
-    "eslint": "^9.39.2",
+    "eslint": "^8.57.0",
     "eslint-config-next": "15.5.11",
+    "wrangler": "^4.0.0",
     "next-sitemap": "^4.2.3",
     "postcss": "^8.4.31"
   },
