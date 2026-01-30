@@ -8,9 +8,11 @@ import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
+import { SessionProvider } from 'next-auth/react';
+import { AuthProvider } from '@/contexts/AuthContext';
 config.autoAddCss = false
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const router = useRouter();
   const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -43,32 +45,35 @@ function MyApp({ Component, pageProps }) {
   }, [router.events, scrollPosition]);
 
   return (
-    <>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      <Analytics />
-      <Script
-        strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}
-      />
-      <Script
-        id="gtag-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
+    <SessionProvider session={session}>
+      <AuthProvider>
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </Head>
+        <Analytics />
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}
+        />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${gtag.GA_MEASUREMENT_ID}');
           `,
-        }}
-      />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </>
+          }}
+        />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </AuthProvider>
+    </SessionProvider>
   );
 }
 
 export default MyApp;
+

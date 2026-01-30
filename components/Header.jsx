@@ -1,6 +1,8 @@
+// Header component with login functionality
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faInstagram, faYoutube, faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
@@ -10,6 +12,7 @@ import { ThemeSwitcher } from "./ThemeSwitcher";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/contexts/AuthContext";
 
 // 外部リンクかどうかを判定する関数
 const isExternalLink = (href) => {
@@ -32,6 +35,10 @@ function Header() {
   const { resolvedTheme } = useTheme();
   const [imageSrc, setImageSrc] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  // Auth hook
+  const { user, isAuthenticated, isLoading, login, logout, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,12 +104,27 @@ function Header() {
     };
   }, [router.pathname, router.events, lastScrollY]);
 
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isUserMenuOpen && !event.target.closest('.user-menu-container')) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isUserMenuOpen]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const toggleUserMenu = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
   };
 
   return (
@@ -184,10 +206,62 @@ function Header() {
             })}
           </ul>
         </nav>
+
+        {/* Auth Section */}
+        <div className="auth-section">
+          {isLoading ? (
+            <div className="auth-loading">
+              <span className="loading-spinner"></span>
+            </div>
+          ) : isAuthenticated ? (
+            <div className="user-menu-container">
+              <button className="user-avatar-btn" onClick={toggleUserMenu}>
+                {user?.image ? (
+                  <img
+                    src={user.image}
+                    alt={user.name || 'User'}
+                    className="user-avatar"
+                  />
+                ) : (
+                  <div className="user-avatar-placeholder">
+                    <FontAwesomeIcon icon={faUser} />
+                  </div>
+                )}
+              </button>
+              {isUserMenuOpen && (
+                <div className="user-dropdown">
+                  <div className="user-info">
+                    <span className="user-name">{user?.name}</span>
+                    {isAdmin && <span className="admin-badge">Admin</span>}
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  <Link href="/profile" className="dropdown-item">
+                    <FontAwesomeIcon icon={faUser} />
+                    プロフィール
+                  </Link>
+                  {isAdmin && (
+                    <Link href="/admin" className="dropdown-item">
+                      <FontAwesomeIcon icon={faUser} />
+                      管理画面
+                    </Link>
+                  )}
+                  <button className="dropdown-item logout-btn" onClick={logout}>
+                    <FontAwesomeIcon icon={faSignOutAlt} />
+                    ログアウト
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button className="login-btn" onClick={login}>
+              <FontAwesomeIcon icon={faDiscord} />
+              <span>ログイン</span>
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );
 }
 
 export default Header;
-
