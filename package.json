@@ -25,11 +25,11 @@
     "@types/react-dom": "18.2.7",
     "@vercel/analytics": "^1.0.1",
     "browser-image-compression": "^2.0.2",
-    "firebase": "^10.14.1",
+    "firebase": "^12.8.0",
     "firebase-admin": "^12.0.0",
     "googleapis": "^129.0.0",
     "microcms-js-sdk": "^2.7.0",
-    "next": "15.5.11",
+    "next": "^16.1.6",
     "next-auth": "^4.24.5",
     "next-themes": "^0.2.1",
     "react": "18.2.0",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "autoprefixer": "10.4.14",
-    "eslint": "^8.57.0",
+    "eslint": "^9.39.2",
     "eslint-config-next": "15.5.11",
     "next-sitemap": "^4.2.3",
     "postcss": "^8.4.31"
