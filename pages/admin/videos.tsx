@@ -58,7 +58,6 @@ interface EditingVideo {
     episode: string;
     endMessage: string;
     members: VideoMember[];
-    isManuallyReleased: boolean;
 }
 
 export default function AdminVideosPage() {
@@ -77,11 +76,11 @@ export default function AdminVideosPage() {
     const [success, setSuccess] = useState('');
     const [showShortcuts, setShowShortcuts] = useState(false);
     const [showEventFilter, setShowEventFilter] = useState(false);
-
+    
     // Sort state
     const [sortField, setSortField] = useState<SortField>('startTime');
     const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
-
+    
     // Bulk member input
     const [bulkMemberInput, setBulkMemberInput] = useState('');
 
@@ -105,13 +104,13 @@ export default function AdminVideosPage() {
             const name = parts[0]?.trim() || '';
             const xid = parts[1]?.trim() || '';
             const role = parts[2]?.trim() || '';
-
+            
             if (name || xid) {
-                newMembers.push({
-                    name,
-                    xid,
+                newMembers.push({ 
+                    name, 
+                    xid, 
                     role,
-                    editApproved: false
+                    editApproved: false 
                 });
             }
         }
@@ -152,7 +151,7 @@ export default function AdminVideosPage() {
                     const eventIds = v.eventid
                         ? v.eventid.split(',').map((e: string) => e.trim()).filter(Boolean)
                         : [];
-
+                    
                     return {
                         id: extractYouTubeId(v.ylink) || v.ylink,
                         title: v.title,
@@ -198,7 +197,7 @@ export default function AdminVideosPage() {
 
         // Event checkbox filter (if any events selected)
         if (selectedEvents.size > 0) {
-            result = result.filter(v =>
+            result = result.filter(v => 
                 v.eventIds.some(eventId => selectedEvents.has(eventId))
             );
         }
@@ -312,7 +311,6 @@ export default function AdminVideosPage() {
                     episode: data.episode || '',
                     endMessage: data.endMessage || '',
                     members: Array.isArray(data.members) ? data.members : [],
-                    isManuallyReleased: data.isManuallyReleased || false,
                 });
             } else {
                 const errorData = await res.json();
@@ -357,7 +355,6 @@ export default function AdminVideosPage() {
                     episode: editingVideo.episode,
                     endMessage: editingVideo.endMessage,
                     members: editingVideo.members,
-                    isManuallyReleased: editingVideo.isManuallyReleased,
                 })
             });
 
@@ -526,7 +523,7 @@ export default function AdminVideosPage() {
                                 className="search-input"
                             />
                         </div>
-                        <button
+                        <button 
                             className={`filter-btn ${showEventFilter ? 'active' : ''} ${selectedEvents.size > 0 ? 'has-filter' : ''}`}
                             onClick={() => setShowEventFilter(!showEventFilter)}
                         >
@@ -536,7 +533,7 @@ export default function AdminVideosPage() {
                         </button>
                         <div className="sort-controls">
                             <span className="sort-label">並び替え:</span>
-                            <button
+                            <button 
                                 className={`sort-btn ${sortField === 'startTime' ? 'active' : ''}`}
                                 onClick={() => toggleSort('startTime')}
                             >
@@ -545,7 +542,7 @@ export default function AdminVideosPage() {
                                     <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />
                                 )}
                             </button>
-                            <button
+                            <button 
                                 className={`sort-btn ${sortField === 'title' ? 'active' : ''}`}
                                 onClick={() => toggleSort('title')}
                             >
@@ -554,7 +551,7 @@ export default function AdminVideosPage() {
                                     <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />
                                 )}
                             </button>
-                            <button
+                            <button 
                                 className={`sort-btn ${sortField === 'viewCount' ? 'active' : ''}`}
                                 onClick={() => toggleSort('viewCount')}
                             >
@@ -563,7 +560,7 @@ export default function AdminVideosPage() {
                                     <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />
                                 )}
                             </button>
-                            <button
+                            <button 
                                 className={`sort-btn ${sortField === 'likeCount' ? 'active' : ''}`}
                                 onClick={() => toggleSort('likeCount')}
                             >
@@ -585,7 +582,7 @@ export default function AdminVideosPage() {
                         <div className="event-filter-panel">
                             <div className="event-filter-header">
                                 <span>イベントで絞り込み</span>
-                                <button
+                                <button 
                                     className="select-all-btn"
                                     onClick={() => {
                                         if (selectedEvents.size === uniqueEvents.length) {
@@ -753,20 +750,6 @@ export default function AdminVideosPage() {
                                 </div>
 
                                 <div className="form-row">
-                                    <div className="form-group checkbox-group">
-                                        <label className="checkbox-label">
-                                            <input
-                                                type="checkbox"
-                                                checked={editingVideo.isManuallyReleased}
-                                                onChange={(e) => setEditingVideo({ ...editingVideo, isManuallyReleased: e.target.checked })}
-                                            />
-                                            <span className="checkbox-text">手動公開済み</span>
-                                        </label>
-                                        <span className="help-text">公開日時前でも強制的に公開状態にします</span>
-                                    </div>
-                                </div>
-
-                                <div className="form-row">
                                     <div className="form-group">
                                         <label>アイコンURL</label>
                                         <input
@@ -911,7 +894,7 @@ export default function AdminVideosPage() {
                                         <span className="bulk-role-label">全員に役職を設定:</span>
                                         <div className="bulk-role-checkboxes">
                                             {ROLE_OPTIONS.map((role) => {
-                                                const allHaveRole = editingVideo.members.every(m =>
+                                                const allHaveRole = editingVideo.members.every(m => 
                                                     m.role?.split(',').map(r => r.trim()).includes(role)
                                                 );
                                                 return (
@@ -1045,7 +1028,7 @@ export default function AdminVideosPage() {
                         <div className="modal-overlay" onClick={cancelDelete}>
                             <div className="modal delete-modal" onClick={(e) => e.stopPropagation()}>
                                 <h2><FontAwesomeIcon icon={faTrash} /> 動画を削除</h2>
-
+                                
                                 <div className="delete-video-info">
                                     <img
                                         src={`https://i.ytimg.com/vi/${deleteTarget.id}/mqdefault.jpg`}

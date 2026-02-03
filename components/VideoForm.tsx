@@ -25,7 +25,7 @@ const defaultFormData: VideoFormData = {
     credit: '',
     musicUrl: '',
     type: '個人',
-    type2: '個人',
+    type2: '一般',
     movieYear: '',
     software: '',
     beforeComment: '',
@@ -64,14 +64,14 @@ export default function VideoForm({ initialData, onSubmit, isEdit = false }: Vid
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
+
         // Special handling for eventIds (stored as array, edited as comma-separated string)
         if (name === 'eventIds') {
             const eventIds = value.split(',').map(s => s.trim()).filter(Boolean);
             setFormData(prev => ({ ...prev, eventIds }));
             return;
         }
-        
+
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 

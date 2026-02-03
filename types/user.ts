@@ -40,10 +40,6 @@ export interface UserDocument extends SoftDeleteFields {
     // Role
     role: UserRole;
 
-    // User Settings
-    /** Default icon URL for video registration (Firebase Storage URL) */
-    defaultIconUrl?: string | null;
-
     // System
     createdAt: Date;
     updatedAt: Date;
@@ -73,5 +69,4 @@ export interface SessionUser {
     discordId?: string;
     role?: UserRole;
     xidClaims?: XidClaim[];
-    defaultIconUrl?: string | null;
 }

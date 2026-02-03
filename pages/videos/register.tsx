@@ -11,8 +11,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
 import SlotAvailabilityTable, { SlotData } from '@/components/SlotAvailabilityTable';
-import MemberAutocomplete from '@/components/MemberAutocomplete';
-import { uploadIcon, compressAndResizeImage } from '@/libs/storage';
 
 interface Slot {
     eventId: string;
@@ -91,8 +89,7 @@ export default function VideoRegisterPage() {
 
     // Icon upload
     const [iconPreview, setIconPreview] = useState('');
-    const [isUploadingIcon, setIsUploadingIcon] = useState(false);
-    const [iconFile, setIconFile] = useState<File | null>(null);
+    const [isCompressingIcon, setIsCompressingIcon] = useState(false);
 
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,14 +111,6 @@ export default function VideoRegisterPage() {
             router.push('/');
         }
     }, [isLoading, isAuthenticated, router]);
-
-    // Load default icon from user settings
-    useEffect(() => {
-        if (user?.defaultIconUrl && !authorIconUrl && !iconPreview) {
-            setAuthorIconUrl(user.defaultIconUrl);
-            setIconPreview(user.defaultIconUrl);
-        }
-    }, [user?.defaultIconUrl]);
 
     // Preselect registration mode / slot from query params
     useEffect(() => {
@@ -279,7 +268,43 @@ export default function VideoRegisterPage() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [showShortcuts, isSubmitting, agreedToTerms]);
 
-    // Handle icon file selection - creates preview and stores file for later upload
+    // Compress and resize image
+    const compressImage = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const size = 100; // 100x100
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        reject(new Error('Canvas context not available'));
+                        return;
+                    }
+
+                    // Calculate crop dimensions (center crop to square)
+                    const minDimension = Math.min(img.width, img.height);
+                    const sx = (img.width - minDimension) / 2;
+                    const sy = (img.height - minDimension) / 2;
+
+                    ctx.drawImage(img, sx, sy, minDimension, minDimension, 0, 0, size, size);
+
+                    // Convert to base64 with compression
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    resolve(dataUrl);
+                };
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = e.target?.result as string;
+            };
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        });
+    };
+
+    // Handle icon file selection
     const handleIconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -289,32 +314,17 @@ export default function VideoRegisterPage() {
             return;
         }
 
+        setIsCompressingIcon(true);
         setError('');
 
         try {
-            // Create preview using compressed blob
-            const compressedBlob = await compressAndResizeImage(file, 150);
-            const previewUrl = URL.createObjectURL(compressedBlob);
-            setIconPreview(previewUrl);
-            setIconFile(file); // Store original file for upload on submit
+            const compressedDataUrl = await compressImage(file);
+            setAuthorIconUrl(compressedDataUrl);
+            setIconPreview(compressedDataUrl);
         } catch (err) {
-            setError('画像の処理に失敗しました');
-        }
-    };
-
-    // Upload icon to Firebase Storage (called during form submission)
-    const uploadIconToStorage = async (): Promise<string | null> => {
-        if (!iconFile || !user?.discordId) return authorIconUrl || null;
-
-        setIsUploadingIcon(true);
-        try {
-            const downloadUrl = await uploadIcon(user.discordId, iconFile);
-            return downloadUrl;
-        } catch (err) {
-            console.error('Icon upload error:', err);
-            throw new Error('アイコンのアップロードに失敗しました');
+            setError('画像の圧縮に失敗しました');
         } finally {
-            setIsUploadingIcon(false);
+            setIsCompressingIcon(false);
         }
     };
 
@@ -411,25 +421,13 @@ export default function VideoRegisterPage() {
         setIsSubmitting(true);
 
         try {
-            // Upload icon to Firebase Storage if a new file was selected
-            let finalIconUrl = authorIconUrl;
-            if (iconFile) {
-                try {
-                    finalIconUrl = await uploadIconToStorage() || '';
-                } catch (uploadError: any) {
-                    setError(uploadError.message || 'アイコンのアップロードに失敗しました');
-                    setIsSubmitting(false);
-                    return;
-                }
-            }
-
             const payload: any = {
                 videoUrl,
                 title,
                 description,
                 authorXid,
                 authorName,
-                authorIconUrl: finalIconUrl,
+                authorIconUrl,
                 authorChannelUrl,
                 music,
                 credit,
@@ -798,10 +796,10 @@ export default function VideoRegisterPage() {
                                         type="button"
                                         onClick={() => iconInputRef.current?.click()}
                                         className="btn btn-secondary"
-                                        disabled={isUploadingIcon}
+                                        disabled={isCompressingIcon}
                                     >
-                                        {isUploadingIcon ? (
-                                            <><FontAwesomeIcon icon={faSpinner} spin /> 処理中...</>
+                                        {isCompressingIcon ? (
+                                            <><FontAwesomeIcon icon={faSpinner} spin /> 圧縮中...</>
                                         ) : (
                                             <><FontAwesomeIcon icon={faUpload} /> 画像を選択</>
                                         )}
@@ -809,7 +807,7 @@ export default function VideoRegisterPage() {
                                     {iconPreview && (
                                         <button
                                             type="button"
-                                            onClick={() => { setIconPreview(''); setAuthorIconUrl(''); setIconFile(null); }}
+                                            onClick={() => { setIconPreview(''); setAuthorIconUrl(''); }}
                                             className="btn btn-icon btn-danger"
                                         >
                                             <FontAwesomeIcon icon={faTrash} />
@@ -845,27 +843,21 @@ export default function VideoRegisterPage() {
                             <div className="members-list">
                                 {members.map((member, index) => (
                                     <div key={index} className="member-row">
-                                        <MemberAutocomplete
+                                        <input
+                                            type="text"
                                             value={member.name}
-                                            onChange={(value) => updateMember(index, 'name', value)}
-                                            onSelect={(suggestion) => {
-                                                updateMember(index, 'name', suggestion.name);
-                                                updateMember(index, 'xid', suggestion.xid);
-                                            }}
+                                            onChange={(e) => updateMember(index, 'name', e.target.value)}
                                             placeholder="名前"
-                                            field="name"
+                                            className="form-input"
                                         />
                                         <div className="input-with-prefix small">
                                             <span>@</span>
-                                            <MemberAutocomplete
+                                            <input
+                                                type="text"
                                                 value={member.xid}
-                                                onChange={(value) => updateMember(index, 'xid', value)}
-                                                onSelect={(suggestion) => {
-                                                    updateMember(index, 'name', suggestion.name);
-                                                    updateMember(index, 'xid', suggestion.xid);
-                                                }}
+                                                onChange={(e) => updateMember(index, 'xid', e.target.value)}
                                                 placeholder="XID"
-                                                field="xid"
+                                                className="form-input"
                                             />
                                         </div>
                                         <select

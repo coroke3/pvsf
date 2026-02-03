@@ -1,0 +1,255 @@
+﻿
+> pvsf@0.1.0 build
+> next build
+
+   笆ｲ Next.js 15.5.11
+   - Environments: .env.local
+
+   Linting and checking validity of types ...
+node.exe :  筧ｯ ESLint
+: Converting circular
+ structure to JSON   
+  --> starting at obj
+ect with constructor 
+'Object'     |     pr
+operty 'configs' -> o
+bject with constructo
+r 'Object'     |     
+property 'flat' -> ob
+ject with constructor
+ 'Object'     |     .
+..     |     property
+ 'plugins' -> object 
+with constructor 'Obj
+ect'     --- property
+ 'react' closes the c
+ircle Referenced from
+: C:\Users\beeyu\Docu
+ments\GitHub\pvsf_ant
+igravity\.eslintrc.js
+on
+発生場所 行:1 文字:1
++ & "C:\Program Files
+\nodejs/node.exe" "C:
+\Program Files\nodejs
+/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: ( 筧ｯ ESL   
+ int: Con...\.esl    
+intrc.json:Strin    g
+) [], RemoteExc    ep
+tion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+   Creating an optimized production build ...
+ 笞 Mismatching @next
+/swc version, detecte
+d: 15.5.7 while Next.
+js is on 15.5.11. Ple
+ase ensure these matc
+h
+   Disabled SWC as replacement for Babel because of custom Babel configuration ".babelrc" https://nextjs.org/docs/messages/swc-disabled
+   `compiler` options in `next.config.js` will be ignored while using Babel https://nextjs.org/docs/messages/ignored-compiler-options
+Browserslist: browser
+s data (caniuse-lite)
+ is 14 months old. Pl
+ease run:
+  npx update-browsers
+list-db@latest
+  Why you should do i
+t regularly: https://
+github.com/browsersli
+st/update-db#readme
+<w> [webpack.cache.Pa
+ckFileCacheStrategy] 
+Skipped not serializa
+ble cache item 'Compi
+lation/modules|javasc
+ript/auto|C:\Users\be
+eyu\Documents\GitHub\
+pvsf_antigravity\node
+_modules\next\dist\bu
+ild\webpack\loaders\c
+ss-loader\src\index.j
+s??ruleSet[1].rules[7
+].oneOf[8].use[0]!C:\
+Users\beeyu\Documents
+\GitHub\pvsf_antigrav
+ity\node_modules\next
+\dist\build\webpack\l
+oaders\postcss-loader
+\src\index.js??ruleSe
+t[1].rules[7].oneOf[8
+].use[1]!C:\Users\bee
+yu\Documents\GitHub\p
+vsf_antigravity\style
+s\index.module.css|pa
+ges-dir-node': No ser
+ializer registered fo
+r Warning
+<w> while serializing
+ webpack/lib/cache/Pa
+ckFileCacheStrategy.P
+ackContentItems -> we
+bpack/lib/NormalModul
+e -> Array { 1 items 
+} -> webpack/lib/Modu
+leWarning -> Warning
+<w> [webpack.cache.Pa
+ckFileCacheStrategy] 
+Skipped not serializa
+ble cache item 'Compi
+lation/modules|javasc
+ript/auto|C:\Users\be
+eyu\Documents\GitHub\
+pvsf_antigravity\node
+_modules\next\dist\bu
+ild\webpack\loaders\c
+ss-loader\src\index.j
+s??ruleSet[1].rules[7
+].oneOf[8].use[0]!C:\
+Users\beeyu\Documents
+\GitHub\pvsf_antigrav
+ity\node_modules\next
+\dist\build\webpack\l
+oaders\postcss-loader
+\src\index.js??ruleSe
+t[1].rules[7].oneOf[8
+].use[1]!C:\Users\bee
+yu\Documents\GitHub\p
+vsf_antigravity\style
+s\release.module.css|
+pages-dir-node': No s
+erializer registered 
+for Warning
+<w> while serializing
+ webpack/lib/cache/Pa
+ckFileCacheStrategy.P
+ackContentItems -> we
+bpack/lib/NormalModul
+e -> Array { 1 items 
+} -> webpack/lib/Modu
+leWarning -> Warning
+ 笞 Compiled with war
+nings in 1475ms
+
+./styles/index.module
+.css
+Warning
+
+(220:3) autoprefixer:
+ end value has mixed 
+support, consider usi
+ng flex-end instead
+
+Import trace for requ
+ested module:
+./styles/index.module
+.css
+./pages/2024gw/index.
+js
+
+./styles/release.modu
+le.css
+Warning
+
+(366:3) autoprefixer:
+ start value has mixe
+d support, consider u
+sing flex-start inste
+ad
+
+Import trace for requ
+ested module:
+./styles/release.modu
+le.css
+./pages/release/index
+.js
+
+ 笞 Mismatching @next
+/swc version, detecte
+d: 15.5.7 while Next.
+js is on 15.5.11. Ple
+ase ensure these matc
+h
+   Disabled SWC as replacement for Babel because of custom Babel configuration ".babelrc" https://nextjs.org/docs/messages/swc-disabled
+   `compiler` options in `next.config.js` will be ignored while using Babel https://nextjs.org/docs/messages/ignored-compiler-options
+ 笞 Mismatching @next
+/swc version, detecte
+d: 15.5.7 while Next.
+js is on 15.5.11. Ple
+ase ensure these matc
+h
+   Disabled SWC as replacement for Babel because of custom Babel configuration ".babelrc" https://nextjs.org/docs/messages/swc-disabled
+   `compiler` options in `next.config.js` will be ignored while using Babel https://nextjs.org/docs/messages/ignored-compiler-options
+ 笨・Compiled successfully in 3.3s
+   Collecting page data ...
+ 笞 Mismatching @next
+/swc version, detecte
+d: 15.5.7 while Next.
+js is on 15.5.11. Ple
+ase ensure these matc
+h
+ 笞 You are using an 
+experimental edge run
+time, the API might c
+hange.
+ 笞 You are using an 
+experimental edge run
+time, the API might c
+hange.
+   Generating static pages (0/117) ...
+   Generating static pages (29/117) 
+Warning: data for pag
+e "/release/[id]" (pa
+th "/release/2025-08-
+30T07%3A12%3A53.604Z"
+) is 589 kB which exc
+eeds the threshold of
+ 128 kB, this amount 
+of data can reduce pe
+rformance.
+See more info here: h
+ttps://nextjs.org/doc
+s/messages/large-page
+-data
+Error occurred preren
+dering page "/release
+/2025-08-30T07:12:53.
+604Z". Read more: htt
+ps://nextjs.org/docs/
+messages/prerender-er
+ror
+[Error: ENOENT: no su
+ch file or directory,
+ open 'C:\Users\beeyu
+\Documents\GitHub\pvs
+f_antigravity\.next\e
+xport\release\2025-08
+-30T07:12:53.604Z.jso
+n'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\b
+eeyu\\Documents\\GitH
+ub\\pvsf_antigravity\
+\.next\\export\\relea
+se\\2025-08-30T07:12:
+53.604Z.json'
+}
+Export encountered an
+ error on /release/[i
+d]: /release/2025-08-
+30T07:12:53.604Z, exi
+ting the build.
+ 筧ｯ Next.js build wor
+ker exited with code:
+ 1 and signal: null

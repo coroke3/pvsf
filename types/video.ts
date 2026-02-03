@@ -117,7 +117,7 @@ export interface VideoDocument extends SoftDeleteFields {
   endMessage: string; // end (最後に)
   ywatch: string;    // ywatch (e.g., "しない")
   timestamp: Date | null; // timestamp
-
+  
   // New Fields
   snsPlans: SnsUploadPlan[]; // Planned SNS uploads (platform and URL)
   homepageComment: string;   // Homepage display comment
@@ -141,10 +141,6 @@ export interface VideoDocument extends SoftDeleteFields {
 
   // Slot Assignment
   slotId: string | null; // Assigned registration slot ID
-
-  // Release Control
-  /** If true, video is shown on release page regardless of slot time */
-  isManuallyReleased?: boolean;
 
   // System
   createdAt: Date;

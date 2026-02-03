@@ -29,11 +29,16 @@ export async function getStaticPaths() {
       seen.add(id);
       return true;
     })
-    .map((id) => ({ params: { id } }));
+    .map((id) => ({
+      params: {
+        // Encode the ID to avoid filesystem issues with characters like ':'
+        id: encodeURIComponent(id)
+      }
+    }));
 
   return {
     paths,
-    fallback: false // 未定義のパスは404
+    fallback: "blocking" // Allow on-demand rendering for new paths
   };
 }
 
@@ -44,8 +49,11 @@ export async function getStaticProps({ params }) {
   );
   const works = await res.json();
 
+  // Decode the URL-encoded ID to match against original timestamps
+  const decodedId = decodeURIComponent(params.id);
+
   const release = works.find(
-    (work) => work.timestamp.toString() === params.id
+    (work) => work.timestamp.toString() === decodedId
   );
 
   if (!release) {

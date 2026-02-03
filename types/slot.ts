@@ -8,7 +8,6 @@ export interface TimeSlot {
     dateTime: Date | string;
     videoId: string | null; // null if unassigned
     videoTitle?: string;    // Populated when fetching
-    isReserved?: boolean;   // Admin lock - prevents user assignment
 }
 
 /**

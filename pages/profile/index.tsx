@@ -8,11 +8,9 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 import {
   faCheck, faClock, faTimes, faPlus, faVideo,
   faEdit, faSpinner, faEye, faThumbsUp, faExternalLinkAlt,
-  faUserCheck, faUserClock, faUsers, faLock, faKeyboard,
-  faImage, faTrash, faUpload
+  faUserCheck, faUserClock, faUsers, faLock, faKeyboard
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
-import { uploadIcon, compressAndResizeImage } from '@/libs/storage';
 
 // Available role options for members
 const ROLE_OPTIONS = ['映像', '音楽', 'イラスト', 'CG', 'リリック'] as const;
@@ -76,16 +74,9 @@ export default function ProfilePage() {
 
   // Bulk member input
   const [bulkMemberInput, setBulkMemberInput] = useState('');
-
+  
   // Keyboard shortcuts
   const [showShortcuts, setShowShortcuts] = useState(false);
-
-  // Default icon settings
-  const [defaultIconPreview, setDefaultIconPreview] = useState<string | null>(null);
-  const [defaultIconFile, setDefaultIconFile] = useState<File | null>(null);
-  const [isUploadingDefaultIcon, setIsUploadingDefaultIcon] = useState(false);
-  const [defaultIconError, setDefaultIconError] = useState('');
-  const [defaultIconSuccess, setDefaultIconSuccess] = useState('');
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -299,99 +290,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Initialize default icon preview from user data
-  useEffect(() => {
-    if (user?.defaultIconUrl) {
-      setDefaultIconPreview(user.defaultIconUrl);
-    }
-  }, [user?.defaultIconUrl]);
-
-  // Handle default icon file selection
-  const handleDefaultIconSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setDefaultIconError('画像ファイルを選択してください');
-      return;
-    }
-
-    setDefaultIconError('');
-
-    try {
-      const compressedBlob = await compressAndResizeImage(file, 150);
-      const previewUrl = URL.createObjectURL(compressedBlob);
-      setDefaultIconPreview(previewUrl);
-      setDefaultIconFile(file);
-    } catch (err) {
-      setDefaultIconError('画像の処理に失敗しました');
-    }
-  };
-
-  // Save default icon to Firebase Storage and update user profile
-  const saveDefaultIcon = async () => {
-    if (!defaultIconFile || !user?.discordId) return;
-
-    setIsUploadingDefaultIcon(true);
-    setDefaultIconError('');
-    setDefaultIconSuccess('');
-
-    try {
-      // Upload to Firebase Storage
-      const downloadUrl = await uploadIcon(user.discordId, defaultIconFile);
-
-      // Update user profile via API
-      const res = await fetch('/api/user/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ defaultIconUrl: downloadUrl }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || '設定の保存に失敗しました');
-      }
-
-      setDefaultIconSuccess('デフォルトアイコンを保存しました');
-      setDefaultIconFile(null);
-      await refreshUser();
-    } catch (err) {
-      setDefaultIconError(err instanceof Error ? err.message : 'エラーが発生しました');
-    } finally {
-      setIsUploadingDefaultIcon(false);
-    }
-  };
-
-  // Remove default icon
-  const removeDefaultIcon = async () => {
-    if (!user?.discordId) return;
-
-    setIsUploadingDefaultIcon(true);
-    setDefaultIconError('');
-
-    try {
-      const res = await fetch('/api/user/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ defaultIconUrl: null }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || '設定の保存に失敗しました');
-      }
-
-      setDefaultIconPreview(null);
-      setDefaultIconFile(null);
-      setDefaultIconSuccess('デフォルトアイコンを削除しました');
-      await refreshUser();
-    } catch (err) {
-      setDefaultIconError(err instanceof Error ? err.message : 'エラーが発生しました');
-    } finally {
-      setIsUploadingDefaultIcon(false);
-    }
-  };
-
   const startEdit = async (video: MyVideo) => {
     if (!video.editApproved) {
       setEditError('投稿者からの編集承認を待っています。');
@@ -538,17 +436,17 @@ export default function ProfilePage() {
   // Toggle a single role for a member
   const toggleMemberRole = (memberIndex: number, role: string) => {
     if (!editingVideo) return;
-
+    
     const member = editingVideo.members[memberIndex];
     const currentRoles = parseRoles(member.role);
-
+    
     let newRoles: string[];
     if (currentRoles.includes(role)) {
       newRoles = currentRoles.filter(r => r !== role);
     } else {
       newRoles = [...currentRoles, role];
     }
-
+    
     const newMembers = [...editingVideo.members];
     newMembers[memberIndex] = { ...member, role: rolesToString(newRoles) };
     setEditingVideo({ ...editingVideo, members: newMembers });
@@ -557,7 +455,7 @@ export default function ProfilePage() {
   // Select all roles for a member
   const selectAllRoles = (memberIndex: number) => {
     if (!editingVideo) return;
-
+    
     const member = editingVideo.members[memberIndex];
     const newMembers = [...editingVideo.members];
     newMembers[memberIndex] = { ...member, role: rolesToString([...ROLE_OPTIONS]) };
@@ -567,7 +465,7 @@ export default function ProfilePage() {
   // Clear all roles for a member
   const clearAllRoles = (memberIndex: number) => {
     if (!editingVideo) return;
-
+    
     const member = editingVideo.members[memberIndex];
     const newMembers = [...editingVideo.members];
     newMembers[memberIndex] = { ...member, role: '' };
@@ -577,7 +475,7 @@ export default function ProfilePage() {
   // Add a specific role to ALL members
   const addRoleToAllMembers = (role: string) => {
     if (!editingVideo) return;
-
+    
     const newMembers = editingVideo.members.map(member => {
       const currentRoles = parseRoles(member.role);
       if (!currentRoles.includes(role)) {
@@ -591,7 +489,7 @@ export default function ProfilePage() {
   // Remove a specific role from ALL members
   const removeRoleFromAllMembers = (role: string) => {
     if (!editingVideo) return;
-
+    
     const newMembers = editingVideo.members.map(member => {
       const currentRoles = parseRoles(member.role);
       return { ...member, role: rolesToString(currentRoles.filter(r => r !== role)) };
@@ -608,28 +506,28 @@ export default function ProfilePage() {
   // Parse bulk member input (spreadsheet format: name<tab>xid or name,xid)
   const parseBulkMembers = () => {
     if (!editingVideo || !bulkMemberInput.trim()) return;
-
+    
     const lines = bulkMemberInput.trim().split('\n');
     const newMembers: VideoMember[] = [];
-
+    
     for (const line of lines) {
       if (!line.trim()) continue;
-
+      
       // Try tab-separated first, then comma-separated
       let parts = line.split('\t');
       if (parts.length < 2) {
         parts = line.split(',');
       }
-
+      
       const name = parts[0]?.trim() || '';
       let xid = parts[1]?.trim() || '';
       const roleStr = parts[2]?.trim() || '';
-
+      
       // Remove @ prefix if present
       if (xid.startsWith('@')) {
         xid = xid.slice(1);
       }
-
+      
       if (name || xid) {
         newMembers.push({
           name,
@@ -639,12 +537,12 @@ export default function ProfilePage() {
         });
       }
     }
-
+    
     if (newMembers.length > 0) {
       // Add to existing members (preserving editApproved for existing ones)
       const existingXids = new Set(editingVideo.members.map(m => m.xid.toLowerCase()));
       const uniqueNewMembers = newMembers.filter(m => !existingXids.has(m.xid.toLowerCase()));
-
+      
       setEditingVideo({
         ...editingVideo,
         members: [...editingVideo.members, ...uniqueNewMembers],
@@ -730,67 +628,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Default Icon Settings Section */}
-          <div className="profile-section">
-            <h3><FontAwesomeIcon icon={faImage} /> デフォルトアイコン設定</h3>
-            <p className="section-description">
-              動画登録時に使用するデフォルトのアイコン画像を設定できます。
-            </p>
-
-            <div className="default-icon-container">
-              <div className="default-icon-preview">
-                {defaultIconPreview ? (
-                  <img src={defaultIconPreview} alt="デフォルトアイコン" />
-                ) : (
-                  <div className="icon-placeholder">
-                    <FontAwesomeIcon icon={faImage} />
-                  </div>
-                )}
-              </div>
-
-              <div className="default-icon-actions">
-                <label className="file-upload-btn">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleDefaultIconSelect}
-                    style={{ display: 'none' }}
-                    disabled={isUploadingDefaultIcon}
-                  />
-                  <FontAwesomeIcon icon={faUpload} /> 画像を選択
-                </label>
-
-                {defaultIconFile && (
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={saveDefaultIcon}
-                    disabled={isUploadingDefaultIcon}
-                  >
-                    {isUploadingDefaultIcon ? (
-                      <><FontAwesomeIcon icon={faSpinner} spin /> 保存中...</>
-                    ) : (
-                      <><FontAwesomeIcon icon={faCheck} /> 保存</>
-                    )}
-                  </button>
-                )}
-
-                {defaultIconPreview && !defaultIconFile && (
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={removeDefaultIcon}
-                    disabled={isUploadingDefaultIcon}
-                  >
-                    <FontAwesomeIcon icon={faTrash} /> 削除
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {defaultIconError && <p className="error-message">{defaultIconError}</p>}
-            {defaultIconSuccess && <p className="success-message">{defaultIconSuccess}</p>}
-          </div>
+          {/* New Registration Section */}
           <div className="profile-section">
             <h3><FontAwesomeIcon icon={faPlus} /> 新規登録</h3>
             <p className="section-description">
@@ -1141,7 +979,7 @@ export default function ProfilePage() {
               {/* Members Section */}
               <div className="form-group">
                 <label><FontAwesomeIcon icon={faUsers} /> メンバー ({editingVideo.members.length}人)</label>
-
+                
                 {/* Bulk Input */}
                 <div className="bulk-input-section">
                   <textarea
@@ -1228,7 +1066,7 @@ export default function ProfilePage() {
                           <FontAwesomeIcon icon={faTimes} />
                         </button>
                       </div>
-
+                      
                       {/* Role Checkboxes */}
                       <div className="role-section">
                         <div className="role-checkboxes">
@@ -1249,7 +1087,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   ))}
-
+                  
                   {/* Add Single Member */}
                   <button
                     type="button"
