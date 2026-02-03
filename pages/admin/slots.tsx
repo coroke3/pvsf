@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCalendarAlt, faPlus, faTrash, faSpinner, faCheck, faTimes,
-    faEdit, faClock, faVideo, faChevronDown, faChevronUp, faTable
+    faEdit, faClock, faVideo, faChevronDown, faChevronUp, faTable, faRepeat
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
 import SlotAvailabilityTable from '@/components/SlotAvailabilityTable';
@@ -47,9 +47,16 @@ export default function AdminSlotsPage() {
     const [isCreating, setIsCreating] = useState(false);
 
     // GUI slot creation
-    const [inputMode, setInputMode] = useState<'csv' | 'gui'>('gui');
+    const [inputMode, setInputMode] = useState<'csv' | 'gui' | 'repeat'>('gui');
     const [guiSlotDate, setGuiSlotDate] = useState('');
     const [guiSlotTimes, setGuiSlotTimes] = useState<string[]>(['']);
+
+    // Repeat generation mode
+    const [repeatStartDate, setRepeatStartDate] = useState('');
+    const [repeatEndDate, setRepeatEndDate] = useState('');
+    const [repeatPattern, setRepeatPattern] = useState<'daily' | 'weekly'>('daily');
+    const [repeatSelectedDays, setRepeatSelectedDays] = useState<number[]>([]);
+    const [repeatTimes, setRepeatTimes] = useState<string[]>(['12:00']);
 
     // Table view mode
     const [showTableView, setShowTableView] = useState(false);
@@ -118,6 +125,25 @@ export default function AdminSlotsPage() {
             }
             // Generate CSV format from GUI inputs
             finalSlotsInput = validTimes.map(time => `${guiSlotDate},${time}`).join('\n');
+        } else if (inputMode === 'repeat') {
+            if (!repeatStartDate || !repeatEndDate) {
+                setError('開始日と終了日を指定してください');
+                return;
+            }
+            if (repeatPattern === 'weekly' && repeatSelectedDays.length === 0) {
+                setError('曜日を1つ以上選択してください');
+                return;
+            }
+            const validTimes = repeatTimes.filter(t => t.trim());
+            if (validTimes.length === 0) {
+                setError('時間を1つ以上入力してください');
+                return;
+            }
+            finalSlotsInput = generateRepeatSlots();
+            if (!finalSlotsInput) {
+                setError('指定された条件でスロットを生成できませんでした');
+                return;
+            }
         } else {
             if (!newSlotsInput.trim()) {
                 setError('枠データを入力してください');
@@ -149,6 +175,11 @@ export default function AdminSlotsPage() {
                 setNewSlotsInput('');
                 setGuiSlotDate('');
                 setGuiSlotTimes(['']);
+                setRepeatStartDate('');
+                setRepeatEndDate('');
+                setRepeatPattern('daily');
+                setRepeatSelectedDays([]);
+                setRepeatTimes(['12:00']);
                 setShowCreateForm(false);
                 fetchEvents();
             } else {
@@ -178,6 +209,60 @@ export default function AdminSlotsPage() {
         const newTimes = [...guiSlotTimes];
         newTimes[index] = value;
         setGuiSlotTimes(newTimes);
+    };
+
+    // Repeat generation helpers
+    const addRepeatTime = () => {
+        setRepeatTimes([...repeatTimes, '12:00']);
+    };
+
+    const removeRepeatTime = (index: number) => {
+        if (repeatTimes.length > 1) {
+            setRepeatTimes(repeatTimes.filter((_, i) => i !== index));
+        }
+    };
+
+    const updateRepeatTime = (index: number, value: string) => {
+        const newTimes = [...repeatTimes];
+        newTimes[index] = value;
+        setRepeatTimes(newTimes);
+    };
+
+    const toggleWeekday = (day: number) => {
+        if (repeatSelectedDays.includes(day)) {
+            setRepeatSelectedDays(repeatSelectedDays.filter(d => d !== day));
+        } else {
+            setRepeatSelectedDays([...repeatSelectedDays, day].sort());
+        }
+    };
+
+    const WEEKDAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
+
+    // Generate repeat slots CSV from date range and pattern
+    const generateRepeatSlots = (): string => {
+        if (!repeatStartDate || !repeatEndDate || repeatTimes.length === 0) return '';
+
+        const start = new Date(repeatStartDate);
+        const end = new Date(repeatEndDate);
+        const slots: string[] = [];
+
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            const dayOfWeek = d.getDay();
+
+            // For weekly pattern, only include selected days
+            if (repeatPattern === 'weekly' && !repeatSelectedDays.includes(dayOfWeek)) {
+                continue;
+            }
+
+            const dateStr = d.toISOString().split('T')[0];
+            repeatTimes.forEach(time => {
+                if (time.trim()) {
+                    slots.push(`${dateStr},${time}`);
+                }
+            });
+        }
+
+        return slots.join('\n');
     };
 
     const startEditEvent = (event: EventSlots) => {
@@ -414,6 +499,13 @@ export default function AdminSlotsPage() {
                                 </button>
                                 <button
                                     type="button"
+                                    className={`mode-btn ${inputMode === 'repeat' ? 'active' : ''}`}
+                                    onClick={() => setInputMode('repeat')}
+                                >
+                                    <FontAwesomeIcon icon={faRepeat} /> リピート生成
+                                </button>
+                                <button
+                                    type="button"
                                     className={`mode-btn ${inputMode === 'csv' ? 'active' : ''}`}
                                     onClick={() => setInputMode('csv')}
                                 >
@@ -481,6 +573,107 @@ export default function AdminSlotsPage() {
                                         className="form-input"
                                         style={{ fontFamily: 'monospace' }}
                                     />
+                                </div>
+                            )}
+
+                            {/* Repeat Mode */}
+                            {inputMode === 'repeat' && (
+                                <div className="repeat-slot-input">
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>開始日 *</label>
+                                            <input
+                                                type="date"
+                                                value={repeatStartDate}
+                                                onChange={(e) => setRepeatStartDate(e.target.value)}
+                                                className="form-input"
+                                                min={new Date().toISOString().split('T')[0]}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>終了日 *</label>
+                                            <input
+                                                type="date"
+                                                value={repeatEndDate}
+                                                onChange={(e) => setRepeatEndDate(e.target.value)}
+                                                className="form-input"
+                                                min={repeatStartDate || new Date().toISOString().split('T')[0]}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>繰り返しパターン</label>
+                                        <div className="pattern-toggle">
+                                            <button
+                                                type="button"
+                                                className={`pattern-btn ${repeatPattern === 'daily' ? 'active' : ''}`}
+                                                onClick={() => setRepeatPattern('daily')}
+                                            >
+                                                毎日
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`pattern-btn ${repeatPattern === 'weekly' ? 'active' : ''}`}
+                                                onClick={() => setRepeatPattern('weekly')}
+                                            >
+                                                曜日指定
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {repeatPattern === 'weekly' && (
+                                        <div className="form-group">
+                                            <label>曜日を選択 *</label>
+                                            <div className="weekday-selector">
+                                                {WEEKDAY_NAMES.map((name, index) => (
+                                                    <button
+                                                        key={index}
+                                                        type="button"
+                                                        className={`weekday-btn ${repeatSelectedDays.includes(index) ? 'active' : ''}`}
+                                                        onClick={() => toggleWeekday(index)}
+                                                    >
+                                                        {name}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="form-group">
+                                        <label>時間 *（複数追加可能）</label>
+                                        <div className="time-inputs">
+                                            {repeatTimes.map((time, index) => (
+                                                <div key={index} className="time-input-row">
+                                                    <input
+                                                        type="time"
+                                                        value={time}
+                                                        onChange={(e) => updateRepeatTime(index, e.target.value)}
+                                                        className="form-input"
+                                                    />
+                                                    {repeatTimes.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeRepeatTime(index)}
+                                                            className="btn btn-icon btn-danger"
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={addRepeatTime}
+                                            className="btn btn-secondary btn-sm"
+                                            style={{ marginTop: '0.5rem' }}
+                                        >
+                                            <FontAwesomeIcon icon={faPlus} /> 時間を追加
+                                        </button>
+                                    </div>
+                                    {repeatStartDate && repeatEndDate && (
+                                        <div className="preview-count">
+                                            生成予定: {generateRepeatSlots().split('\n').filter(Boolean).length} 枠
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -1000,6 +1193,108 @@ export default function AdminSlotsPage() {
                     display: flex;
                     align-items: center;
                     gap: 0.5rem;
+                }
+
+                .repeat-slot-input {
+                    padding: 1rem;
+                    background: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                }
+
+                .pattern-toggle {
+                    display: flex;
+                    gap: 0.5rem;
+                }
+
+                .pattern-btn {
+                    flex: 1;
+                    padding: 0.625rem 1rem;
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    background: rgba(255, 255, 255, 0.03);
+                    color: #8892b0;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                .pattern-btn:hover {
+                    background: rgba(255, 255, 255, 0.06);
+                }
+
+                .pattern-btn.active {
+                    background: rgba(100, 255, 218, 0.1);
+                    border-color: #64ffda;
+                    color: #64ffda;
+                }
+
+                .weekday-selector {
+                    display: flex;
+                    gap: 0.375rem;
+                    flex-wrap: wrap;
+                }
+
+                .weekday-btn {
+                    width: 40px;
+                    height: 40px;
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    background: rgba(255, 255, 255, 0.03);
+                    color: #8892b0;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    font-size: 0.85rem;
+                }
+
+                .weekday-btn:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.25);
+                }
+
+                .weekday-btn.active {
+                    background: #64ffda;
+                    border-color: #64ffda;
+                    color: #0a192f;
+                }
+
+                .preview-count {
+                    margin-top: 1rem;
+                    padding: 0.75rem;
+                    background: rgba(100, 255, 218, 0.08);
+                    border-radius: 6px;
+                    color: #64ffda;
+                    text-align: center;
+                    font-weight: 500;
+                }
+
+                .checkbox-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+
+                .checkbox-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    cursor: pointer;
+                    font-weight: 500;
+                }
+
+                .checkbox-label input[type="checkbox"] {
+                    width: 18px;
+                    height: 18px;
+                    accent-color: #64ffda;
+                }
+
+                .checkbox-text {
+                    color: #fff;
+                }
+
+                .help-text {
+                    font-size: 0.8rem;
+                    color: #8892b0;
                 }
             `}</style>
         </>

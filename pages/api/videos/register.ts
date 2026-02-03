@@ -6,6 +6,7 @@ import { adminDb } from '@/libs/firebase-admin';
 import type { VideoDocument } from '@/types/video';
 import type { EventSlotsDocument, TimeSlot } from '@/types/slot';
 import { extractYouTubeId, generateThumbnails } from '@/libs/videoConverter';
+import { logCreate } from '@/libs/operationLog';
 
 /**
  * Convert Firestore timestamp to Date
@@ -302,6 +303,14 @@ export default async function handler(
         }
 
         await batch.commit();
+
+        // Log the create operation for audit trail
+        try {
+            await logCreate('videos', ytId, videoDoc as unknown as Record<string, unknown>, user.discordId || user.id, `Registered video: ${title}`);
+        } catch (logError) {
+            console.error('Failed to log operation:', logError);
+            // Don't fail the request if logging fails
+        }
 
         return res.status(201).json({
             success: true,
