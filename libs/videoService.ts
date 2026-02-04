@@ -75,7 +75,6 @@ export interface UpdateVideoData {
     episode?: string;
     endMessage?: string;
     members?: VideoMember[];
-    isManuallyReleased?: boolean;
 }
 
 /**
@@ -179,7 +178,7 @@ export async function createVideo(
     try {
         // Extract YouTube ID and generate thumbnails
         const youtubeId = extractYouTubeId(data.videoUrl);
-        const thumbnails = youtubeId ? generateThumbnails(youtubeId) : { small: '', large: '' };
+        const thumbnails = youtubeId ? generateThumbnails(youtubeId) : { largeThumbnail: '', smallThumbnail: '' };
 
         // Build document data
         const videoData: Partial<VideoDocument> = {
@@ -220,8 +219,8 @@ export async function createVideo(
             likeCount: 0,
             videoScore: 0,
             deterministicScore: 0,
-            largeThumbnail: thumbnails.large,
-            smallThumbnail: thumbnails.small,
+            largeThumbnail: thumbnails.largeThumbnail,
+            smallThumbnail: thumbnails.smallThumbnail,
             privacyStatus: 'public',
             daysSincePublished: 0,
             lastStatsFetch: null,
@@ -286,7 +285,6 @@ export async function updateVideo(
         if (data.episode !== undefined) updateData.episode = data.episode;
         if (data.endMessage !== undefined) updateData.endMessage = data.endMessage;
         if (data.members !== undefined) updateData.members = data.members;
-        if (data.isManuallyReleased !== undefined) updateData.isManuallyReleased = data.isManuallyReleased;
 
         await updateDoc(docRef, updateData);
     } catch (error) {

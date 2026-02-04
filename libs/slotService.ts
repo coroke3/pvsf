@@ -51,7 +51,7 @@ export async function getEventList(): Promise<EventSummary[]> {
             if (data.isDeleted) return;
 
             const slots = data.slots || [];
-            const availableSlots = slots.filter(s => !s.videoId && !s.isReserved);
+            const availableSlots = slots.filter(s => !s.videoId);
 
             events.push({
                 eventId: data.eventId,
@@ -93,8 +93,7 @@ export async function getAvailableSlots(filters: SlotFilters = {}): Promise<Publ
             const slots = data.slots || [];
 
             slots.forEach(slot => {
-                // Skip assigned/reserved slots unless includeAssigned is true
-                if (!filters.includeAssigned && (slot.videoId || slot.isReserved)) {
+                if (!filters.includeAssigned && slot.videoId) {
                     return;
                 }
 
@@ -102,7 +101,7 @@ export async function getAvailableSlots(filters: SlotFilters = {}): Promise<Publ
                     eventId: data.eventId,
                     eventName: data.eventName,
                     dateTime: toDate(slot.dateTime).toISOString(),
-                    isAvailable: !slot.videoId && !slot.isReserved,
+                    isAvailable: !slot.videoId,
                 });
             });
         });
@@ -186,12 +185,8 @@ export async function reserveSlot(
 
         const slot = data.slots[slotIndex];
 
-        // Check if already assigned or reserved
         if (slot.videoId) {
             throw new Error('Slot already assigned');
-        }
-        if (slot.isReserved) {
-            throw new Error('Slot is reserved');
         }
 
         // Update the slot
@@ -274,7 +269,7 @@ export async function isSlotAvailable(eventId: string, slotDateTime: string): Pr
         });
 
         if (!slot) return false;
-        return !slot.videoId && !slot.isReserved;
+        return !slot.videoId;
     } catch (error) {
         console.error('Failed to check slot availability:', error);
         return false;

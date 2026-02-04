@@ -8,7 +8,7 @@ import type { UserDocument, XidClaim } from '@/types/user';
 
 // Interface for user settings
 export interface UserSettings {
-    defaultIconUrl?: string | null;
+    // Add future settings here
 }
 
 // Interface for public user data
@@ -19,7 +19,6 @@ export interface PublicUserData {
     discordAvatar?: string;
     role?: string;
     xidClaims: XidClaim[];
-    defaultIconUrl?: string | null;
 }
 
 /**
@@ -42,7 +41,6 @@ export async function getUserData(discordId: string): Promise<PublicUserData | n
             discordAvatar: data.discordAvatar,
             role: data.role || 'user',
             xidClaims: data.xidClaims || [],
-            defaultIconUrl: data.defaultIconUrl || null,
         };
     } catch (error) {
         console.error('Failed to get user data:', error);
@@ -60,20 +58,8 @@ export async function updateUserSettings(
     try {
         const userRef = doc(db, 'users', discordId);
 
-        // Validate icon URL if provided
-        if (settings.defaultIconUrl !== undefined && settings.defaultIconUrl !== null) {
-            if (typeof settings.defaultIconUrl !== 'string') {
-                throw new Error('Invalid defaultIconUrl format');
-            }
-            if (settings.defaultIconUrl !== '' &&
-                !settings.defaultIconUrl.startsWith('https://firebasestorage.googleapis.com') &&
-                !settings.defaultIconUrl.startsWith('gs://')) {
-                throw new Error('Invalid icon URL - must be Firebase Storage URL');
-            }
-        }
-
         await updateDoc(userRef, {
-            defaultIconUrl: settings.defaultIconUrl || null,
+            ...settings,
             updatedAt: serverTimestamp(),
         });
     } catch (error) {
@@ -108,7 +94,6 @@ export async function ensureUserDocument(
                 role: 'user',
                 roles: ['user'],
                 xidClaims: [],
-                defaultIconUrl: null,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             });
