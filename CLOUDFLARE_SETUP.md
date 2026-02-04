@@ -55,15 +55,18 @@ DISCORD_CLIENT_SECRET=your_discord_client_secret
 
 > ⚠️ **重要**: `FIREBASE_PRIVATE_KEY` は改行を `\n` に置換して1行にするか、ダブルクォートで囲んでください。
 
-### 4. Node.jsバージョン
+### 4. Node.jsバージョン（重要）
 
 **Settings → Environment variables** で以下を設定：
 
 ```
-NODE_VERSION=20.19.0
+NODE_VERSION=22
 ```
 
-> 現在の `yargs` パッケージは `^20.19.0 || ^22.12.0 || >=23` を要求しています。
+または、**Build system version** を **v2** に設定（デフォルトでNode.js 22が使用されます）。
+
+> ⚠️ 現在の `yargs` パッケージは `^20.19.0 || ^22.12.0 || >=23` を要求しています。  
+> **推奨: Node.js 22** を使用してください。
 
 ---
 

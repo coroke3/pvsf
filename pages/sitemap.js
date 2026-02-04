@@ -1,4 +1,4 @@
-export const runtime = 'experimental-edge';
+// Removed: export const runtime = 'experimental-edge'; (incompatible with OpenNext/Cloudflare)
 
 import SitemapComponent from '../components/Sitemap';
 import { getAllWorkIds } from "../libs/work";
