@@ -1,0 +1,39 @@
+﻿
+笏娯楳笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏・笏・OpenNext 窶・Cloudflare build 笏・笏披楳笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏・
+node.exe : WARN OpenN
+ext is not fully comp
+atible with Windows.
+発生場所 行:1 文字:1
++ & "C:\Program Files
+\nodejs/node.exe" "C:
+\Program Files\nodejs
+/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (WARN Op   
+ enNext i...e wit    
+h Windows.:Strin    g
+) [], RemoteExc    ep
+tion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+WARN For optimal perf
+ormance, it is recomm
+ended to use Windows 
+Subsystem for Linux (
+WSL).
+WARN While OpenNext m
+ay function on Window
+s, it could encounter
+ unpredictable failur
+es during runtime.
+App directory: C:\Users\beeyu\OneDrive\繝峨く繝･繝｡繝ｳ繝・GitHub\pvsf
+Next.js version : 16.1.6
+@opennextjs/cloudflare version: 1.16.2
+@opennextjs/aws version: 3.9.14

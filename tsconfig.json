@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,9 +24,24 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "pages/blog/[ID].js", "pages/index.js", "pages/_app.js", "components/ThemeSwitcher.jsx", "pages/sitemap.xml/index.js"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "pages/blog/[ID].js",
+    "pages/index.js",
+    "pages/_app.js",
+    "components/ThemeSwitcher.jsx",
+    "pages/sitemap.xml/index.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "open-next.config.ts"
+  ]
 }
