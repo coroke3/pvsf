@@ -1,4 +1,4 @@
-# Cloudflare Pages デプロイ設定ガイド
+# Cloudflare Pages デプロイ設定ガイド (Build System v3)
 
 ## 必要なファイル
 
@@ -7,6 +7,7 @@
 1. **`open-next.config.ts`** - OpenNextの設定ファイル
 2. **`wrangler.jsonc`** - Cloudflare Workers設定
 3. **`package.json`** - `build:pages` スクリプト
+4. **`.node-version`** - Node.jsバージョン指定（オプション）
 
 ---
 
@@ -26,7 +27,13 @@
 | **Build output directory** | `.open-next` |
 | **Root directory** | `/` (デフォルト) |
 
-### 3. 環境変数
+### 3. Build System Version
+
+**Settings → Build & deployments → Build system version** で **v3** を選択
+
+> ✅ Build System v3 はデフォルトで **Node.js 22.16.0** を使用します
+
+### 4. 環境変数
 
 以下の環境変数を **Settings → Environment variables** で設定：
 
@@ -55,18 +62,27 @@ DISCORD_CLIENT_SECRET=your_discord_client_secret
 
 > ⚠️ **重要**: `FIREBASE_PRIVATE_KEY` は改行を `\n` に置換して1行にするか、ダブルクォートで囲んでください。
 
-### 4. Node.jsバージョン（重要）
+---
 
-**Settings → Environment variables** で以下を設定：
+## Node.jsバージョン指定（オプション）
+
+Build System v3ではデフォルトでNode.js 22が使用されますが、明示的に指定したい場合：
+
+### 方法1: `.node-version` ファイル
+
+プロジェクトルートに `.node-version` ファイルを作成：
+
+```
+22
+```
+
+### 方法2: 環境変数
+
+**Settings → Environment variables** で設定：
 
 ```
 NODE_VERSION=22
 ```
-
-または、**Build system version** を **v2** に設定（デフォルトでNode.js 22が使用されます）。
-
-> ⚠️ 現在の `yargs` パッケージは `^20.19.0 || ^22.12.0 || >=23` を要求しています。  
-> **推奨: Node.js 22** を使用してください。
 
 ---
 
@@ -87,9 +103,20 @@ NODE_VERSION=22
 
 `open-next.config.ts` がリポジトリにコミットされていることを確認してください。
 
-### Node.js バージョンエラー
+### TypeScriptエラー: Cannot find module '@opennextjs/cloudflare/config'
 
-`NODE_VERSION` 環境変数を `20.19.0` 以上に設定してください。
+`tsconfig.json` で `open-next.config.ts` を除外してください：
+
+```json
+{
+  "exclude": ["node_modules", "open-next.config.ts"]
+}
+```
+
+### edge runtime エラー
+
+`experimental-edge` ランタイムはOpenNextと互換性がありません。  
+該当ページから `export const runtime = 'experimental-edge';` を削除してください。
 
 ### Firebase Admin エラー
 
@@ -111,3 +138,14 @@ npm run build:pages
 ```bash
 npx wrangler pages dev .open-next
 ```
+
+---
+
+## 設定まとめ
+
+| 項目 | 設定値 |
+|------|--------|
+| Build system version | **v3** |
+| Build command | `npm run build:pages` |
+| Build output directory | `.open-next` |
+| Node.js version | 22 (v3デフォルト) |
