@@ -51,7 +51,7 @@
     "wrangler": "^3.109.1"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=18.18.0"
   },
   "overrides": {
     "jose": "^5.9.6",
