@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:pages": "npx @opennextjs/cloudflare build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint"
@@ -39,6 +40,7 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^0.5.0",
     "autoprefixer": "10.4.14",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
