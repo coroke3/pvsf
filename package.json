@@ -33,7 +33,7 @@
     "googleapis": "^129.0.0",
     "jose": "^5.9.6",
     "microcms-js-sdk": "^2.7.0",
-    "next": "15.0.3",
+    "next": "15.0.7",
     "next-auth": "4.24.5",
     "next-themes": "^0.2.1",
     "react": "18.2.0",
@@ -47,7 +47,7 @@
     "@types/react-dom": "18.2.7",
     "autoprefixer": "^10.4.14",
     "eslint": "8.57.0",
-    "eslint-config-next": "15.0.3",
+    "eslint-config-next": "15.0.7",
     "next-sitemap": "^4.2.3",
     "postcss": "^8.4.31",
     "typescript": "5.1.6"
