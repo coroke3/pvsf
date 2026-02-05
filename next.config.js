@@ -12,8 +12,4 @@ const nextConfig = {
   ],
 };
 
-// Cloudflare Pages ローカル開発用
-const initOpenNextCloudflareForDev = require("@opennextjs/cloudflare").initOpenNextCloudflareForDev;
-initOpenNextCloudflareForDev();
-
 module.exports = nextConfig;
