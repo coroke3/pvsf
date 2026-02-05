@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     domains: ["i.gyazo.com"],
   },
-  // Cloudflare Workers (workerd) で解決できないパッケージを外部化
+  // Cloudflare Pages (workerd) で解決できないパッケージを外部化
   serverExternalPackages: [
     "jose",
     "@panva/hkdf",
@@ -12,4 +12,4 @@ const nextConfig = {
   ],
 };
 
-module.exports = nextConfig;
+export default nextConfig;

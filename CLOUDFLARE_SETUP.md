@@ -5,7 +5,7 @@
 以下のファイルがリポジトリに含まれている必要があります：
 
 1. **`open-next.config.ts`** - OpenNextの設定ファイル
-2. **`wrangler.jsonc`** - Cloudflare Workers設定
+2. **`wrangler.jsonc`** - Cloudflare Pages用設定
 3. **`package.json`** - `build:pages` スクリプト
 4. **`.node-version`** - Node.jsバージョン指定（オプション）
 
