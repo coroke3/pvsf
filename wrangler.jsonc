@@ -1,17 +1,10 @@
 {
-  // Cloudflare Pages デプロイ用（OpenNext ビルドは Workers 形式で行うため pages_build_output_dir は含めない）
-  // Pages デプロイ時の nodejs_compat 適用は .open-next/wrangler.json に委譲
+  // Cloudflare Pages デプロイ用（Git 連携時）
+  // pages_build_output_dir により Pages が wrangler 設定を認識し、nodejs_compat が _worker.js バンドルに適用される
+  // assets ブロックは含めない（ASSETS バインディング競合を回避、Pages が自動設定）
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "pvsf",
-  "main": ".open-next/worker.js",
+  "pages_build_output_dir": ".open-next",
   "compatibility_date": "2025-02-01",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS",
-    "run_worker_first": true
-  },
-  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "pvsf" }]
-  // ISR 用 R2 キャッシュ（オプション）: R2 バケット作成後、上の行にカンマを追加し、以下を有効化
-  // , "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "YOUR_BUCKET_NAME" }]
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"]
 }

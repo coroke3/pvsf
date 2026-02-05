@@ -9,9 +9,10 @@
 以下のファイルがリポジトリに含まれている必要があります：
 
 1. **`open-next.config.ts`** - OpenNext の設定ファイル
-2. **`wrangler.jsonc`** - Cloudflare Pages 用設定
-3. **`package.json`** - `build:pages` スクリプト（WRANGLER 変数を内蔵）
-4. **`.node-version`** / **`.tool-versions`** - Node.js 20 指定
+2. **`wrangler.jsonc`** - Cloudflare Pages 用設定（`pages_build_output_dir` と `nodejs_compat` を含む）
+3. **`wrangler.workers.jsonc`** - Cloudflare Workers 直接デプロイ用（`deploy:workers` で使用）
+4. **`package.json`** - `build:pages` / `build:workers` スクリプト（WRANGLER 変数を内蔵）
+5. **`.node-version`** / **`.tool-versions`** - Node.js 20 指定
 
 ---
 
@@ -38,9 +39,9 @@
    - `build:workers`：OpenNext ビルド（fix-cloudflare-pages を実行しない）
    - `deploy:workers`：ビルド後に `@opennextjs/cloudflare deploy` で Workers へデプロイ
 
-### wrangler.jsonc の確認
+### wrangler.workers.jsonc の確認
 
-Workers デプロイでは `wrangler.jsonc` がそのまま使用されます。以下を確認してください：
+Workers デプロイでは `wrangler.workers.jsonc` が使用されます（`--config wrangler.workers.jsonc`）。以下を確認してください：
 
 - `compatibility_date`: `2024-09-23` 以降
 - `compatibility_flags`: `["nodejs_compat", "global_fetch_strictly_public"]`
@@ -119,7 +120,7 @@ Cloudflare の asdf では Node.js 22 が未対応のため、**Node.js 20** を
 2. **Workers & Pages** → プロジェクト → **Settings** → **Bindings**
 3. **Add binding** → **R2 bucket** を選択
 4. Variable name: `NEXT_INC_CACHE_R2_BUCKET` / Bucket: 作成したバケット
-5. `wrangler.jsonc` に R2 バインディングを追加
+5. `wrangler.workers.jsonc` に R2 バインディングを追加
 
 R2 未設定の場合は ISR のキャッシュが制限されますが、ビルドと基本的な動作は可能です。
 
@@ -149,10 +150,8 @@ R2 未設定の場合は ISR のキャッシュが制限されますが、ビル
 
 Pages を使い続ける場合の確認事項：
 
-- `wrangler.jsonc` に `compatibility_date`（`2024-09-23` 以降）と `compatibility_flags: ["nodejs_compat", "global_fetch_strictly_public"]` を含める
-- `scripts/fix-cloudflare-pages.mjs` が `.open-next` 内に `wrangler.json` を生成する（デプロイ時の再バンドルで nodejs_compat が適用される）
-
-> **注意**: `pages_build_output_dir` を wrangler.jsonc に追加すると Pages モードとなり ASSETS バインディングが予約済みでビルドが失敗するため、追加しないでください。
+- **`wrangler.jsonc`**（Pages 用）に `pages_build_output_dir: ".open-next"` と `compatibility_flags: ["nodejs_compat", "global_fetch_strictly_public"]` を含める。これにより Pages が wrangler 設定を認識し、`_worker.js` バンドル時に `nodejs_compat` が適用される。
+- **`wrangler.workers.jsonc`**（Workers 用）は `deploy:workers` 専用。`wrangler.jsonc` とは別ファイルとして維持する。
 
 ### wrangler.toml の警告
 
