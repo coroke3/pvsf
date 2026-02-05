@@ -5,9 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:pages": "cross-env WRANGLER_BUILD_PLATFORM=node WRANGLER_BUILD_CONDITIONS= npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare populateCache local && node scripts/fix-cloudflare-pages.mjs",
-    "build:workers": "cross-env WRANGLER_BUILD_PLATFORM=node WRANGLER_BUILD_CONDITIONS= npx @opennextjs/cloudflare build --config wrangler.workers.jsonc && npx @opennextjs/cloudflare populateCache local --config wrangler.workers.jsonc",
-    "deploy:workers": "npm run build:workers && npx @opennextjs/cloudflare deploy --config wrangler.workers.jsonc",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint"
@@ -45,18 +42,15 @@
     "tailwindcss": "^3.3.3"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.16.2",
     "@types/node": "20.4.2",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "^10.4.14",
-    "cross-env": "^10.1.0",
     "eslint": "8.57.0",
     "eslint-config-next": "15.0.3",
     "next-sitemap": "^4.2.3",
     "postcss": "^8.4.31",
-    "typescript": "5.1.6",
-    "wrangler": "^3.109.1"
+    "typescript": "5.1.6"
   },
   "engines": {
     "node": ">=18.18.0"

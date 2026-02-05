@@ -41,7 +41,6 @@
     "pages/sitemap.xml/index.js"
   ],
   "exclude": [
-    "node_modules",
-    "open-next.config.ts"
+    "node_modules"
   ]
 }

@@ -1,4 +1,4 @@
-// Removed: export const runtime = 'experimental-edge'; (incompatible with OpenNext/Cloudflare)
+// Vercel optimized - uses Node.js runtime by default
 
 import SitemapComponent from '../components/Sitemap';
 import { getAllWorkIds } from "../libs/work";
