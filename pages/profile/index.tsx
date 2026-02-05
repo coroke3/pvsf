@@ -93,50 +93,11 @@ export default function ProfilePage() {
       .map((claim: any) => claim.xid.toLowerCase()) || [];
   }, [user?.xidClaims]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      const isInputFocused = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
-
-      // Escape - close modals
-      if (e.key === 'Escape') {
-        if (editingVideo) {
-          setEditingVideo(null);
-          e.preventDefault();
-        } else if (managingVideo) {
-          setManagingVideo(null);
-          e.preventDefault();
-        } else if (showShortcuts) {
-          setShowShortcuts(false);
-          e.preventDefault();
-        }
-        return;
-      }
-
-      // Skip other shortcuts if input is focused
-      if (isInputFocused) return;
-
-      // Ctrl/Cmd + S - Save (when editing)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        if (editingVideo && !isEditing) {
-          e.preventDefault();
-          saveEdit();
-        }
-        return;
-      }
-
-      // ? - Show shortcuts help
-      if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
-        e.preventDefault();
-        setShowShortcuts(prev => !prev);
-        return;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [editingVideo, managingVideo, showShortcuts, isEditing, saveEdit]);
+  function extractYouTubeId(url: string): string | null {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  }
 
   // Fetch videos that match user's approved XIDs
   const fetchMyVideos = useCallback(async () => {
@@ -238,17 +199,97 @@ export default function ProfilePage() {
     }
   }, [approvedXids]);
 
+  const saveEdit = useCallback(async () => {
+    if (!editingVideo) return;
+
+    setIsEditing(true);
+    setEditError('');
+    setEditSuccess('');
+
+    try {
+      const res = await fetch(`/api/videos/${editingVideo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editingVideo.title,
+          description: editingVideo.description,
+          music: editingVideo.music,
+          credit: editingVideo.credit,
+          software: editingVideo.software,
+          beforeComment: editingVideo.beforeComment,
+          afterComment: editingVideo.afterComment,
+          listen: editingVideo.listen,
+          episode: editingVideo.episode,
+          endMessage: editingVideo.endMessage,
+          members: editingVideo.members,
+        })
+      });
+
+      if (res.ok) {
+        setEditSuccess('動画を更新しました');
+        setEditingVideo(null);
+        fetchMyVideos();
+      } else {
+        const data = await res.json();
+        setEditError(data.error || '更新に失敗しました');
+      }
+    } catch (err) {
+      setEditError('更新中にエラーが発生しました');
+    } finally {
+      setIsEditing(false);
+    }
+  }, [editingVideo, fetchMyVideos]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isInputFocused = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
+
+      // Escape - close modals
+      if (e.key === 'Escape') {
+        if (editingVideo) {
+          setEditingVideo(null);
+          e.preventDefault();
+        } else if (managingVideo) {
+          setManagingVideo(null);
+          e.preventDefault();
+        } else if (showShortcuts) {
+          setShowShortcuts(false);
+          e.preventDefault();
+        }
+        return;
+      }
+
+      // Skip other shortcuts if input is focused
+      if (isInputFocused) return;
+
+      // Ctrl/Cmd + S - Save (when editing)
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        if (editingVideo && !isEditing) {
+          e.preventDefault();
+          saveEdit();
+        }
+        return;
+      }
+
+      // ? - Show shortcuts help
+      if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+        e.preventDefault();
+        setShowShortcuts(prev => !prev);
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [editingVideo, managingVideo, showShortcuts, isEditing, saveEdit]);
+
   useEffect(() => {
     if (isAuthenticated && approvedXids.length > 0) {
       fetchMyVideos();
     }
   }, [isAuthenticated, approvedXids.length, fetchMyVideos]);
-
-  function extractYouTubeId(url: string): string | null {
-    if (!url) return null;
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    return match ? match[1] : null;
-  }
 
   const handleXidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -332,47 +373,6 @@ export default function ProfilePage() {
       setEditError('動画情報の取得に失敗しました');
     }
   };
-
-  const saveEdit = useCallback(async () => {
-    if (!editingVideo) return;
-
-    setIsEditing(true);
-    setEditError('');
-    setEditSuccess('');
-
-    try {
-      const res = await fetch(`/api/videos/${editingVideo.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: editingVideo.title,
-          description: editingVideo.description,
-          music: editingVideo.music,
-          credit: editingVideo.credit,
-          software: editingVideo.software,
-          beforeComment: editingVideo.beforeComment,
-          afterComment: editingVideo.afterComment,
-          listen: editingVideo.listen,
-          episode: editingVideo.episode,
-          endMessage: editingVideo.endMessage,
-          members: editingVideo.members,
-        })
-      });
-
-      if (res.ok) {
-        setEditSuccess('動画を更新しました');
-        setEditingVideo(null);
-        fetchMyVideos();
-      } else {
-        const data = await res.json();
-        setEditError(data.error || '更新に失敗しました');
-      }
-    } catch (err) {
-      setEditError('更新中にエラーが発生しました');
-    } finally {
-      setIsEditing(false);
-    }
-  }, [editingVideo, fetchMyVideos]);
 
   const toggleMemberApproval = async (videoId: string, memberXid: string, currentApproved: boolean) => {
     setIsUpdatingMember(memberXid);
