@@ -1,21 +1,14 @@
 {
+  // Cloudflare Pages デプロイ用（OpenNext の出力形式のため main/worker という名前を使用）
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "pvsf",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-02-01",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
     "run_worker_first": false
   },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "pvsf"
-    }
-  ]
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "pvsf" }]
 }

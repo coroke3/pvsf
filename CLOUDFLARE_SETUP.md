@@ -1,5 +1,7 @@
 # Cloudflare Pages デプロイ設定ガイド (Build System v3)
 
+> このプロジェクトは **Cloudflare Pages**（Workers ではない）へデプロイします。
+
 ## 必要なファイル
 
 以下のファイルがリポジトリに含まれている必要があります：
@@ -68,19 +70,15 @@ DISCORD_CLIENT_SECRET=your_discord_client_secret
 
 ---
 
-## Node.jsバージョン指定（オプション）
+## Node.jsバージョン指定（推奨）
 
-Build System v3ではデフォルトでNode.js 22が使用されますが、明示的に指定したい場合：
+OpenNext と Next.js 15 には **Node.js 22** を推奨します。
 
-### 方法1: `.node-version` ファイル
+### 方法1: `.node-version` と `.tool-versions` の統一
 
-プロジェクトルートに `.node-version` ファイルを作成：
+プロジェクトには `.node-version` と `.tool-versions` があり、Cloudflare の asdf が `.tool-versions` を優先します。両方とも `22` に揃えてください。
 
-```
-22
-```
-
-### 方法2: 環境変数
+### 方法2: 環境変数（Cloudflare ダッシュボード）
 
 **Settings → Environment variables** で設定：
 
