@@ -1,15 +1,16 @@
 # Cloudflare Pages デプロイ設定ガイド (Build System v3)
 
-> このプロジェクトは **Cloudflare Pages**（Workers ではない）へデプロイします。
+> このプロジェクトは **Cloudflare Pages** へデプロイします。OpenNext を使用して Next.js を Cloudflare の Workers ランタイムで動作させます。
 
 ## 必要なファイル
 
 以下のファイルがリポジトリに含まれている必要があります：
 
-1. **`open-next.config.ts`** - OpenNextの設定ファイル
-2. **`wrangler.jsonc`** - Cloudflare Pages用設定
+1. **`open-next.config.ts`** - OpenNext の設定ファイル
+2. **`wrangler.jsonc`** - Cloudflare Pages 用設定
 3. **`package.json`** - `build:pages` スクリプト
-4. **`.node-version`** - Node.jsバージョン指定（オプション）
+4. **`.node-version`** / **`.tool-versions`** - Node.js バージョン指定
+5. **`.env`** - ビルド用環境変数（WRANGLER_BUILD_PLATFORM 等）
 
 ---
 
@@ -19,7 +20,7 @@
 
 1. [Cloudflare Dashboard](https://dash.cloudflare.com/) にログイン
 2. **Workers & Pages** → **Create** → **Pages**
-3. **Connect to Git** → GitHubリポジトリを選択
+3. **Connect to Git** → GitHub リポジトリを選択
 
 ### 2. ビルド設定
 
@@ -33,14 +34,12 @@
 
 **Settings → Build & deployments → Build system version** で **v3** を選択
 
-> ✅ Build System v3 はデフォルトで **Node.js 22.16.0** を使用します
+### 4. 環境変数（必須）
 
-### 4. 環境変数
-
-以下の環境変数を **Settings → Environment variables** で設定：
+**Settings → Environment variables** で以下の環境変数を設定してください。
 
 ```
-# OpenNext ビルド用（必須 - モジュール解決エラーを防ぐ）
+# OpenNext ビルド用（必須 - @emotion/jose 等のモジュール解決エラーを防ぐ）
 WRANGLER_BUILD_PLATFORM=node
 WRANGLER_BUILD_CONDITIONS=
 
@@ -66,36 +65,34 @@ DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
 ```
 
-> ⚠️ **重要**: `FIREBASE_PRIVATE_KEY` は改行を `\n` に置換して1行にするか、ダブルクォートで囲んでください。
+> ⚠️ **重要**: `WRANGLER_BUILD_PLATFORM=node` と `WRANGLER_BUILD_CONDITIONS=` を必ず設定してください。これがないと @emotion/react、jose、@panva/hkdf 等のパッケージ解決に失敗します。
+
+> ⚠️ `FIREBASE_PRIVATE_KEY` は改行を `\n` に置換して1行にしてください。
 
 ---
 
-## Node.jsバージョン指定（推奨）
+## Node.js バージョン
 
-OpenNext と Next.js 15 には **Node.js 22** を推奨します。
+Cloudflare の asdf では Node.js 22 が未対応のため、**Node.js 20** を使用します。
 
-### 方法1: `.node-version` と `.tool-versions` の統一
+- `.node-version`: `20`
+- `.tool-versions`: `nodejs 20.18.1`
 
-プロジェクトには `.node-version` と `.tool-versions` があり、Cloudflare の asdf が `.tool-versions` を優先します。両方とも `22` に揃えてください。
-
-### 方法2: 環境変数（Cloudflare ダッシュボード）
-
-**Settings → Environment variables** で設定：
-
-```
-NODE_VERSION=22
-```
+ビルド環境の `NODE_VERSION` や `NVM_NODE_VERSION` で Node 22 を指定している場合は、20 に変更してください。
 
 ---
 
-## R2バケット設定（オプション）
+## R2 バケット設定（ISR 用・オプション）
 
 `open-next.config.ts` で R2 インクリメンタルキャッシュを使用する場合：
 
 1. **R2** → **Create bucket** でバケットを作成
 2. **Workers & Pages** → プロジェクト → **Settings** → **Bindings**
 3. **Add binding** → **R2 bucket** を選択
-4. Variable name: `CACHE_BUCKET` / Bucket: 作成したバケット
+4. Variable name: `NEXT_INC_CACHE_R2_BUCKET` / Bucket: 作成したバケット
+5. `wrangler.jsonc` に R2 バインディングを追加
+
+R2 未設定の場合は ISR のキャッシュが制限されますが、ビルドと基本的な動作は可能です。
 
 ---
 
@@ -105,24 +102,23 @@ NODE_VERSION=22
 
 `open-next.config.ts` がリポジトリにコミットされていることを確認してください。
 
-### TypeScriptエラー: Cannot find module '@opennextjs/cloudflare/config'
+### ビルドエラー: Could not resolve "@emotion/react" または "jose"
 
-`tsconfig.json` で `open-next.config.ts` を除外してください：
+Cloudflare ダッシュボードで以下を設定してください：
+- `WRANGLER_BUILD_PLATFORM=node`
+- `WRANGLER_BUILD_CONDITIONS=`（空文字）
 
-```json
-{
-  "exclude": ["node_modules", "open-next.config.ts"]
-}
-```
+### ビルドエラー: node-build: definition not found: 22
+
+`.tool-versions` と `.node-version` を Node.js 20 に変更してください。
+
+### wrangler.toml の警告
+
+「A wrangler.toml file was found but it does not appear to be valid」という警告は無視して構いません。`wrangler.jsonc` が使用されます。
 
 ### edge runtime エラー
 
-`experimental-edge` ランタイムはOpenNextと互換性がありません。  
-該当ページから `export const runtime = 'experimental-edge';` を削除してください。
-
-### Firebase Admin エラー
-
-`FIREBASE_PRIVATE_KEY` の改行が正しくエスケープされているか確認してください。
+`experimental-edge` ランタイムは OpenNext と互換性がありません。該当ページから `export const runtime = 'experimental-edge';` を削除してください。
 
 ---
 
@@ -150,4 +146,5 @@ npx wrangler pages dev .open-next
 | Build system version | **v3** |
 | Build command | `npm run build:pages` |
 | Build output directory | `.open-next` |
-| Node.js version | 22 (v3デフォルト) |
+| Node.js version | 20 |
+| 必須環境変数 | WRANGLER_BUILD_PLATFORM=node, WRANGLER_BUILD_CONDITIONS= |
