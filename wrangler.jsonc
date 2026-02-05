@@ -1,5 +1,6 @@
 {
-  // Cloudflare Pages デプロイ用（OpenNext の出力形式のため main/worker という名前を使用）
+  // Cloudflare Pages デプロイ用（OpenNext ビルドは Workers 形式で行うため pages_build_output_dir は含めない）
+  // Pages デプロイ時の nodejs_compat 適用は .open-next/wrangler.json に委譲
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "pvsf",
   "main": ".open-next/worker.js",

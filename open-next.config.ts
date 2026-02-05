@@ -4,6 +4,9 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare/config";
 import staticAssetsIncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/static-assets-incremental-cache";
 
-export default defineCloudflareConfig({
+const config = defineCloudflareConfig({
     incrementalCache: staticAssetsIncrementalCache,
 });
+// @emotion/react 等の workerd 非対応パッケージは Node 解決を使用（ビルド成功のため必須）
+config.cloudflare = { ...config.cloudflare, useWorkerdCondition: false };
+export default config;

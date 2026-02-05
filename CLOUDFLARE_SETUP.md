@@ -99,11 +99,22 @@ R2 未設定の場合は ISR のキャッシュが制限されますが、ビル
 
 ### ビルドエラー: Could not resolve "@emotion/react" または "jose"
 
-`package.json` の `build:pages` に `WRANGLER_BUILD_PLATFORM=node` が含まれているか確認してください。含まれていない場合は手動で追加するか、Cloudflare ダッシュボードで設定してください。
+`open-next.config.ts` で `useWorkerdCondition: false` を設定し、Node 解決を使用するようにしてください。これにより @emotion/react などの workerd 非対応パッケージが正しくバンドルされます。
+
+なお、`package.json` の `build:pages` に `WRANGLER_BUILD_PLATFORM=node` が含まれているか、`.env` に設定があるかも確認してください。
 
 ### ビルドエラー: node-build: definition not found: 22
 
 `.tool-versions` と `.node-version` を Node.js 20 に変更してください。
+
+### ビルドエラー: Could not resolve "async_hooks" などの Node 組み込みモジュール
+
+デプロイ時に `async_hooks`、`fs`、`path` などの Node.js 組み込みモジュールが解決できない場合、以下を確認してください：
+
+- `wrangler.jsonc` に `compatibility_date`（`2024-09-23` 以降）と `compatibility_flags: ["nodejs_compat", "global_fetch_strictly_public"]` を含める
+- `scripts/fix-cloudflare-pages.mjs` が `.open-next` 内に `wrangler.json` を生成する（デプロイ時の再バンドルで nodejs_compat が適用される）
+
+> **注意**: `pages_build_output_dir` を wrangler.jsonc に追加すると Pages モードとなり ASSETS バインディングが予約済みでビルドが失敗するため、追加しないでください。
 
 ### wrangler.toml の警告
 
@@ -118,10 +129,12 @@ R2 未設定の場合は ISR のキャッシュが制限されますが、ビル
 `scripts/fix-cloudflare-pages.mjs` が `build:pages` の最後に自動実行されます。このスクリプトは以下を行います：
 
 1. **アセットをルートにコピー**: HTML が参照する `/_next/static/` と実際のファイルパスを一致させます
-2. **`_routes.json` の作成**: 静的アセットを CDN から直接配信するようルーティングを設定します
-3. **`_worker.js` の生成**: Cloudflare Pages の Worker モード用エントリーポイントを用意します
+2. **トップページ（index.html）の配置**: `index.html` をルートに配置し、ルートパス `/` を静的配信します（NoFallbackError 回避）
+3. **プリレンダ済みページの静的化**: `/page/[id]`, `/blog/[id]`, `/release/[id]` を pretty URL 形式（`segment/id/index.html`）で配置し、CDN から直接配信します
+4. **`_routes.json` の作成**: `/`, `/page/*`, `/blog/*`, `/release/*`, 静的アセットを CDN から直接配信するようルーティングを設定します
+5. **`_worker.js` の生成**: Cloudflare Pages の Worker モード用エントリーポイントを用意します
 
-`wrangler.jsonc` の `run_worker_first` が `true` の場合は、すべてのリクエストが Worker を経由します。ダイナミックルートやリライトが必要な場合は必須です。
+`wrangler.jsonc` の `run_worker_first` が `true` の場合は、すべてのリクエストが Worker を経由します。ダイナミックルートやリライトが必要な場合は必須です。トップページは `_routes.json` の `exclude` に含めることで Worker をバイパスし、CDN から直接配信されます。
 
 ---
 
