@@ -38,6 +38,10 @@
 以下の環境変数を **Settings → Environment variables** で設定：
 
 ```
+# OpenNext ビルド用（必須 - モジュール解決エラーを防ぐ）
+WRANGLER_BUILD_PLATFORM=node
+WRANGLER_BUILD_CONDITIONS=
+
 # Firebase (本番環境)
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
