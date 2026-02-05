@@ -1,6 +1,7 @@
 // Admin User Management Page
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -264,7 +265,14 @@ export default function AdminUsers() {
                                 <div className="user-main">
                                     <div className="user-identity">
                                         {user.discordAvatar ? (
-                                            <img src={user.discordAvatar} alt="" className="avatar" />
+                                            <Image 
+                                              src={user.discordAvatar} 
+                                              alt={user.discordUsername || 'User'} 
+                                              width={40}
+                                              height={40}
+                                              className="avatar"
+                                              unoptimized
+                                            />
                                         ) : (
                                             <div className="avatar placeholder"><FontAwesomeIcon icon={faDiscord} /></div>
                                         )}

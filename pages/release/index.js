@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/release.module.css";
@@ -174,9 +175,12 @@ export default function Releases({ release, usernames }) {
                       onClick={(e) => e.stopPropagation()}
                       className={styles.iconLink}
                     >
-                      <img
+                      <Image
                         src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
                         alt={release.creator}
+                        width={100}
+                        height={100}
+                        unoptimized
                         className={styles.memberIcon}
                       />
                     </a>
@@ -236,10 +240,13 @@ export default function Releases({ release, usernames }) {
                     onClick={(e) => e.stopPropagation()}
                     className={styles.iconLink}
                   >
-                    <img
+                    <Image
                       src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
                       alt={release.creator}
+                      width={100}
+                      height={100}
                       className={styles.groupIcon}
+                      unoptimized
                     />
                   </a>
                   <div className={styles.groupInfo}>
@@ -383,7 +390,14 @@ export default function Releases({ release, usernames }) {
                 <div className={`${styles.type} ${styles[release.type1]} `}>{release.type1}</div>
                 <div className={`${styles.type} ${styles[release.type2]}`}>{release.type2}</div>
               </span>
-              <img src={iconUrl} alt={release.title} className={styles.icon} />
+              <Image 
+                src={iconUrl} 
+                alt={release.title} 
+                width={100}
+                height={100}
+                className={styles.icon}
+                unoptimized
+              />
               <span className={styles.listCreator}>{release.creator}</span>
               <span className={styles.listTitle}>{release.title}</span>
               <div className={styles.listActions}>
@@ -477,7 +491,13 @@ export default function Releases({ release, usernames }) {
                       backgroundImage: `url(${iconUrl})`,
                     }}
                   >
-                    <img src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" />
+                    <Image 
+                      src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" 
+                      alt=""
+                      width={800}
+                      height={600}
+                      unoptimized
+                    />
                   </div>
                 </a>
               </div>

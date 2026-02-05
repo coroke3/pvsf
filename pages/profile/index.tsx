@@ -1,5 +1,6 @@
 // User Profile Page with XID Claim and My Videos functionality
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import Image from 'next/image';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -612,7 +613,14 @@ export default function ProfilePage() {
           <div className="profile-card">
             <div className="profile-header">
               {user?.image ? (
-                <img src={user.image} alt={user.name ?? 'Profile'} className="profile-avatar" />
+                <Image 
+                  src={user.image} 
+                  alt={user.name ?? 'Profile'} 
+                  width={80}
+                  height={80}
+                  className="profile-avatar"
+                  unoptimized
+                />
               ) : (
                 <div className="profile-avatar-placeholder">
                   <FontAwesomeIcon icon={faDiscord} />
@@ -732,9 +740,12 @@ export default function ProfilePage() {
                 {authoredVideos.map((video) => (
                   <div key={video.id} className="my-video-card">
                     <div className="my-video-thumbnail">
-                      <img
+                      <Image
                         src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
-                        alt=""
+                        alt={video.title || '動画サムネイル'}
+                        width={320}
+                        height={180}
+                        unoptimized
                       />
                       {video.privacyStatus !== 'public' && (
                         <span className="video-status-badge">{video.privacyStatus}</span>
@@ -808,9 +819,12 @@ export default function ProfilePage() {
                 {participatedVideos.map((video) => (
                   <div key={video.id} className={`my-video-card ${!video.editApproved ? 'pending-approval' : ''}`}>
                     <div className="my-video-thumbnail">
-                      <img
+                      <Image
                         src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
-                        alt=""
+                        alt={video.title || '動画サムネイル'}
+                        width={320}
+                        height={180}
+                        unoptimized
                       />
                       {video.privacyStatus !== 'public' && (
                         <span className="video-status-badge">{video.privacyStatus}</span>

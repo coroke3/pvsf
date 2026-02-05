@@ -1,6 +1,7 @@
 // Admin Videos Management Page
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -1025,10 +1026,13 @@ export default function AdminVideosPage() {
                                 <h2><FontAwesomeIcon icon={faTrash} /> 動画を削除</h2>
                                 
                                 <div className="delete-video-info">
-                                    <img
+                                    <Image
                                         src={`https://i.ytimg.com/vi/${deleteTarget.id}/mqdefault.jpg`}
-                                        alt=""
+                                        alt={deleteTarget.title || '動画サムネイル'}
+                                        width={320}
+                                        height={180}
                                         className="delete-thumbnail"
+                                        unoptimized
                                     />
                                     <div className="delete-video-details">
                                         <strong>{deleteTarget.title}</strong>
@@ -1097,9 +1101,12 @@ export default function AdminVideosPage() {
                                     {filteredVideos.map((video) => (
                                     <div key={video.id} className="video-card">
                                         <div className="video-card-thumbnail">
-                                            <img
+                                            <Image
                                                 src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
-                                                alt=""
+                                                alt={video.title || '動画サムネイル'}
+                                                width={320}
+                                                height={180}
+                                                unoptimized
                                             />
                                             {video.privacyStatus !== 'public' && (
                                                 <span className="video-card-status">{video.privacyStatus}</span>

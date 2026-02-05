@@ -9,6 +9,7 @@ import {
     faSpinner, faCheck, faTimes, faPlus, faImage,
     faTrash, faUpload, faLink, faKeyboard
 } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
 import Footer from '@/components/Footer';
 import SlotAvailabilityTable, { SlotData } from '@/components/SlotAvailabilityTable';
 
@@ -169,7 +170,7 @@ export default function VideoRegisterPage() {
         };
 
         fetchEvents();
-    }, [registrationType]);
+    }, [registrationType, eventIdFilter]);
 
     // Fetch available slots for selected event
     useEffect(() => {
@@ -779,7 +780,14 @@ export default function VideoRegisterPage() {
                                     />
                                     <div className="icon-preview-container">
                                         {iconPreview ? (
-                                            <img src={iconPreview} alt="アイコンプレビュー" className="icon-preview" />
+                                            <Image 
+                                                src={iconPreview} 
+                                                alt="アイコンプレビュー" 
+                                                width={72}
+                                                height={72}
+                                                className="icon-preview"
+                                                unoptimized
+                                            />
                                         ) : (
                                             <div className="icon-placeholder">
                                                 <FontAwesomeIcon icon={faUser} />
@@ -839,9 +847,12 @@ export default function VideoRegisterPage() {
                                 if (!ytId) return null;
                                 return (
                                     <div className="thumbnail-preview">
-                                        <img
+                                        <Image
                                             src={`https://i.ytimg.com/vi/${ytId}/mqdefault.jpg`}
                                             alt="サムネイルプレビュー"
+                                            width={480}
+                                            height={360}
+                                            unoptimized
                                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                         />
                                     </div>

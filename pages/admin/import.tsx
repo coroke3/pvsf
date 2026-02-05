@@ -1,6 +1,7 @@
 // Admin Data Import Page
 import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -256,10 +257,13 @@ export default function AdminImportPage() {
                                         <div key={index} className="preview-card">
                                             <div className="preview-card-header">
                                                 {ytId ? (
-                                                    <img 
+                                                    <Image 
                                                         src={`https://i.ytimg.com/vi/${ytId}/mqdefault.jpg`}
-                                                        alt=""
+                                                        alt={item.title || '動画サムネイル'}
+                                                        width={320}
+                                                        height={180}
                                                         className="preview-thumb"
+                                                        unoptimized
                                                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                                     />
                                                 ) : (

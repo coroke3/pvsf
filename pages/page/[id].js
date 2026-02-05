@@ -1,5 +1,6 @@
 // pages/blog/[id].js
 import Link from "next/link";
+import Image from "next/image";
 import { client } from "../../libs/client";
 import Footer from "../../components/Footer";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
@@ -181,12 +182,14 @@ export default function PageId({ page, top }) {
                     <>
                       {content.image.length === 1 ? (
                         <div className="top-images">
-                          <img
+                          <Image
                             src={`${content.image[0].url}?h=1000&q=40`}
                             alt={content.title}
-                            loading="eager"
-                            style={{ width: '100%', height: 'auto', display: 'block' }}
+                            width={content.image[0].width || 1920}
+                            height={content.image[0].height || 1080}
+                            style={{ width: '100%', height: 'auto', display: 'block', cursor: 'pointer' }}
                             onClick={() => setSelectedImage(content.image[0].url)}
+                            unoptimized
                           />
                           {selectedImage && (
                             <div className={`image-modal ${selectedImage ? 'open' : ''}`} onClick={() => setSelectedImage(null)}>
@@ -194,7 +197,13 @@ export default function PageId({ page, top }) {
                                 <button className="close-modal" onClick={() => setSelectedImage(null)}>
                                   <FontAwesomeIcon icon={faTimes} />
                                 </button>
-                                <img src={`${selectedImage}?w=1920&q=80`} alt="拡大画像" />
+                                <Image 
+                                  src={`${selectedImage}?w=1920&q=80`} 
+                                  alt="拡大画像"
+                                  width={1920}
+                                  height={1080}
+                                  unoptimized
+                                />
                               </div>
                             </div>
                           )}
@@ -221,18 +230,21 @@ export default function PageId({ page, top }) {
                             }}
                           >
                             {content.image.map((img, imgIndex) => (
-                              <img
+                              <Image
                                 key={imgIndex}
                                 src={`${img.url}?h=1000&q=40`}
                                 alt={content.title}
-                                loading="eager"
+                                width={img.width || 800}
+                                height={img.height || 600}
                                 onClick={() => setSelectedImage(img.url)}
                                 onLoad={(e) => handleImageLoad(e, imgIndex, content.image.length)}
                                 style={{
                                   opacity: 0,
                                   animation: 'fadeIn 0.3s ease forwards',
-                                  animationDelay: `${imgIndex * 0.1}s`
+                                  animationDelay: `${imgIndex * 0.1}s`,
+                                  cursor: 'pointer'
                                 }}
+                                unoptimized
                               />
                             ))}
                           </div>
@@ -249,7 +261,13 @@ export default function PageId({ page, top }) {
                                 <button className="close-modal" onClick={() => setSelectedImage(null)}>
                                   <FontAwesomeIcon icon={faTimes} />
                                 </button>
-                                <img src={`${selectedImage}?w=1920&q=80`} alt="拡大画像" />
+                                <Image 
+                                  src={`${selectedImage}?w=1920&q=80`} 
+                                  alt="拡大画像"
+                                  width={1920}
+                                  height={1080}
+                                  unoptimized
+                                />
                               </div>
                             </div>
                           )}
@@ -275,7 +293,13 @@ export default function PageId({ page, top }) {
                         {eventManage.manager.map((manager, mIndex) => (
                           <div key={mIndex} className={`manager ${getColumnClass(manager.caste)}`}>
                             {manager.icon && (
-                              <img src={manager.icon} alt={manager.name} />
+                              <Image 
+                                src={manager.icon} 
+                                alt={manager.name} 
+                                width={200}
+                                height={200}
+                                unoptimized
+                              />
                             )}
                             <div className="manager-info">
                               <h4>{manager.name} {manager.janame && <span className="ja-name">{manager.janame}</span>}</h4>
@@ -331,11 +355,17 @@ export default function PageId({ page, top }) {
                   <h3>{content.eventname}</h3>
                   <div className="manager-container">
                     {content.manager.map((manager, mIndex) => (
-                      <div key={mIndex} className={`manager ${getColumnClass(manager.caste)}`}>
-                        {manager.icon && (
-                          <img src={manager.icon} alt={manager.name} />
-                        )}
-                        <div className="manager-info">
+                          <div key={mIndex} className={`manager ${getColumnClass(manager.caste)}`}>
+                            {manager.icon && (
+                              <Image 
+                                src={manager.icon} 
+                                alt={manager.name} 
+                                width={200}
+                                height={200}
+                                unoptimized
+                              />
+                            )}
+                            <div className="manager-info">
                           <h4>{manager.name} {manager.janame && <span className="ja-name">{manager.janame}</span>}</h4>
 
                           <div className="manager-types">

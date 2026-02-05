@@ -1,6 +1,7 @@
 // Admin Dashboard Index
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -134,7 +135,14 @@ export default function AdminDashboard() {
           <div className="card user-card">
             <div className="user-card-content">
               {user?.image && (
-                <img src={user.image} alt="" className="user-card-avatar" />
+                <Image 
+                  src={user.image} 
+                  alt={user.name || 'User'} 
+                  width={40}
+                  height={40}
+                  className="user-card-avatar"
+                  unoptimized
+                />
               )}
               <div className="user-card-info">
                 <span className="user-card-name">{user?.name}</span>

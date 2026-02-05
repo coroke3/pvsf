@@ -4,7 +4,7 @@ import { db } from '@/libs/firebase';
 import {
     collection, query, where, getDocs, getDoc, doc,
     setDoc, updateDoc, addDoc, serverTimestamp,
-    orderBy, limit, Timestamp, arrayContains, startAfter
+    orderBy, limit, Timestamp, startAfter
 } from 'firebase/firestore';
 import type { VideoDocument, VideoMember, SnsUploadPlan } from '@/types/video';
 import { extractYouTubeId, generateThumbnails } from '@/libs/videoConverter';

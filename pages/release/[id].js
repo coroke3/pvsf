@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Head from "next/head";
+import Image from "next/image";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/releases.module.css";
@@ -311,10 +312,13 @@ const MediaContent = ({ release, styles }) => {
   }
 
   return (
-    <img
+    <Image
       src="https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"
       className={styles.yf}
       alt="デフォルト画像"
+      width={800}
+      height={600}
+      unoptimized
     />
   );
 };
@@ -324,9 +328,13 @@ const UserInfo = ({ release, styles }) => {
   return (
     <div className={styles.userinfo}>
       {release.icon && (
-        <img
+        <Image
           src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
+          alt={release.title || 'アイコン'}
+          width={100}
+          height={100}
           className={styles.icon}
+          unoptimized
           alt={`${release.creator} アイコン`}
         />
       )}
@@ -809,10 +817,13 @@ const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
             aria-label={`${currentRelease.creator}の${work.participationType === 'collaboration' ? '合作参加' : '個人'}作品: ${work.title}`}
           >
             <div className={styles.pastWorkThumbnail}>
-              <img
+              <Image
                 src={work.smallThumbnail || work.largeThumbnail || "https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"}
                 alt={`${work.title} サムネイル`}
+                width={320}
+                height={180}
                 className={styles.pastWorkImage}
+                unoptimized
               />
               <div className={styles.pastWorkOverlay} aria-hidden="true">
                 <FontAwesomeIcon icon={work.participationType === 'collaboration' ? faTrophy : faFilm} className={styles.pastWorkPlayIcon} />
@@ -907,10 +918,13 @@ const MemberPastWorks = ({ memberPastWorks, styles }) => {
                   aria-label={`${memberWork.memberName}の${work.participationType === 'collaboration' ? '合作参加' : '個人'}作品: ${work.title}`}
                 >
                   <div className={styles.pastWorkThumbnail}>
-                    <img
+                    <Image
                       src={work.smallThumbnail || work.largeThumbnail || "https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"}
                       alt={`${work.title} サムネイル`}
+                      width={320}
+                      height={180}
                       className={styles.pastWorkImage}
+                      unoptimized
                     />
                     <div className={styles.pastWorkOverlay} aria-hidden="true">
                       <FontAwesomeIcon icon={work.participationType === 'collaboration' ? faTrophy : faFilm} className={styles.pastWorkPlayIcon} />
@@ -980,10 +994,13 @@ const WorksNavigation = ({ works, currentId, styles }) => {
 
               <div className={styles.navigationWorkInfo}>
                 {work.icon && (
-                  <img
+                  <Image
                     src={`https://lh3.googleusercontent.com/d/${work.icon.slice(33)}`}
                     className={styles.navigationIcon}
                     alt={`${work.creator} アイコン`}
+                    width={50}
+                    height={50}
+                    unoptimized
                   />
                 )}
                 <span className={styles.navigationCreator}>{work.creator}</span>

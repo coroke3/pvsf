@@ -1,5 +1,6 @@
 // Video Registration/Edit Form Component
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faSpinner, faImage } from '@fortawesome/free-solid-svg-icons';
 import MemberForm from './MemberForm';
@@ -115,7 +116,13 @@ export default function VideoForm({ initialData, onSubmit, isEdit = false }: Vid
 
                     {thumbnailPreview && (
                         <div className="thumbnail-preview full-width">
-                            <img src={thumbnailPreview} alt="サムネイルプレビュー" />
+                            <Image 
+                                src={thumbnailPreview} 
+                                alt="サムネイルプレビュー"
+                                width={640}
+                                height={360}
+                                unoptimized
+                            />
                         </div>
                     )}
 

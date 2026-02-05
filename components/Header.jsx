@@ -196,10 +196,13 @@ function Header() {
             <div className="user-menu-container">
               <button className="user-avatar-btn" onClick={toggleUserMenu}>
                 {user?.image ? (
-                  <img
+                  <Image
                     src={user.image}
                     alt={user.name || 'User'}
+                    width={32}
+                    height={32}
                     className="user-avatar"
+                    unoptimized
                   />
                 ) : (
                   <div className="user-avatar-placeholder">
