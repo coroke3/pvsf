@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:pages": "npx @opennextjs/cloudflare build",
+    "build:pages": "WRANGLER_BUILD_PLATFORM=node WRANGLER_BUILD_CONDITIONS= npx @opennextjs/cloudflare build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint"
