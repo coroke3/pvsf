@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:pages": "next build && npx @opennextjs/cloudflare build --skipNextBuild",
+    "build:pages": "npx @opennextjs/cloudflare build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint"
