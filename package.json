@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "build:pages": "cross-env WRANGLER_BUILD_PLATFORM=node WRANGLER_BUILD_CONDITIONS= npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare populateCache local && node scripts/fix-cloudflare-pages.mjs",
+    "build:workers": "cross-env WRANGLER_BUILD_PLATFORM=node WRANGLER_BUILD_CONDITIONS= npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare populateCache local",
+    "deploy:workers": "npm run build:workers && npx @opennextjs/cloudflare deploy",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint"

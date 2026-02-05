@@ -1,6 +1,8 @@
 # Cloudflare Pages デプロイ設定ガイド (Build System v3)
 
 > このプロジェクトは **Cloudflare Pages** へデプロイします。OpenNext を使用して Next.js を Cloudflare の Workers ランタイムで動作させます。
+>
+> **Node.js 組み込みモジュールの解決エラーが発生する場合**：Cloudflare **Workers** への直接デプロイに切り替えることを推奨します（下記「Cloudflare Workers へのデプロイ（推奨）」を参照）。
 
 ## 必要なファイル
 
@@ -10,6 +12,38 @@
 2. **`wrangler.jsonc`** - Cloudflare Pages 用設定
 3. **`package.json`** - `build:pages` スクリプト（WRANGLER 変数を内蔵）
 4. **`.node-version`** / **`.tool-versions`** - Node.js 20 指定
+
+---
+
+## Cloudflare Workers へのデプロイ（推奨）
+
+`async_hooks`、`fs`、`path` などの Node.js 組み込みモジュールの解決エラーが Pages デプロイで発生する場合、**Cloudflare Workers** への直接デプロイを使用してください。Workers では `wrangler.jsonc` の `compatibility_flags` や `nodejs_compat` が確実に適用されます。
+
+### 手順
+
+1. **Cloudflare にログイン**
+   ```bash
+   npx wrangler login
+   ```
+
+2. **環境変数を wrangler.jsonc に設定**
+   - `wrangler.jsonc` の `vars` に本番用の環境変数を追加するか、`[vars]` セクションで設定
+   - または `wrangler secret put` でシークレットを登録
+
+3. **ビルド＆デプロイ**
+   ```bash
+   npm run deploy:workers
+   ```
+
+   - `build:workers`：OpenNext ビルド（fix-cloudflare-pages を実行しない）
+   - `deploy:workers`：ビルド後に `@opennextjs/cloudflare deploy` で Workers へデプロイ
+
+### wrangler.jsonc の確認
+
+Workers デプロイでは `wrangler.jsonc` がそのまま使用されます。以下を確認してください：
+
+- `compatibility_date`: `2024-09-23` 以降
+- `compatibility_flags`: `["nodejs_compat", "global_fetch_strictly_public"]`
 
 ---
 
@@ -109,7 +143,11 @@ R2 未設定の場合は ISR のキャッシュが制限されますが、ビル
 
 ### ビルドエラー: Could not resolve "async_hooks" などの Node 組み込みモジュール
 
-デプロイ時に `async_hooks`、`fs`、`path` などの Node.js 組み込みモジュールが解決できない場合、以下を確認してください：
+デプロイ時に `async_hooks`、`fs`、`path` などの Node.js 組み込みモジュールが解決できない場合：
+
+**推奨**: **Cloudflare Workers** への直接デプロイに切り替えてください（上記「Cloudflare Workers へのデプロイ（推奨）」を参照）。Workers では `nodejs_compat` が確実に適用されます。
+
+Pages を使い続ける場合の確認事項：
 
 - `wrangler.jsonc` に `compatibility_date`（`2024-09-23` 以降）と `compatibility_flags: ["nodejs_compat", "global_fetch_strictly_public"]` を含める
 - `scripts/fix-cloudflare-pages.mjs` が `.open-next` 内に `wrangler.json` を生成する（デプロイ時の再バンドルで nodejs_compat が適用される）
