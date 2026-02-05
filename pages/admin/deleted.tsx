@@ -98,11 +98,10 @@ export default function AdminDeletedPage() {
             // Check if we need to reset
             // We can't rely on `fetchItems` dependency alone effectively for reset
             // So we call it manually when filterCollection changes
-            setItems([]);
             setLastDeletedAt(null);
             fetchItems(false, filterCollection);
         }
-    }, [isAdmin, filterCollection]);
+    }, [isAdmin, filterCollection, fetchItems]);
 
     // NOTE: Dropping `fetchItems` from dependencies of the EFFECT to avoid loops, 
     // instead passing `filterCollection` to the EFFECT is correct.

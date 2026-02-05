@@ -2,59 +2,60 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Unbounded:wght@200..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap");
 
-/* == Core Colors (Spring Theme) == */
-/* Main Background (Pale Pink) */
---c-bg: #FFF5F7;
-/* Surface/Card (White) */
---c-surface: #FFFFFF;
-/* Main Text (Dark Navy) */
---c-text: #2D3748;
-/* Muted/Border (Grey) */
---c-muted: #A0AEC0;
-/* Primary Accent (Pink) */
---c-primary: #FF6B95;
-/* Secondary Accent (Blue) */
---c-secondary: #4B9EFF;
+:root {
+  /* == Core Colors (Spring Theme) == */
+  /* Main Background (Pale Pink) */
+  --c-bg: #FFF5F7;
+  /* Surface/Card (White) */
+  --c-surface: #FFFFFF;
+  /* Main Text (Dark Navy) */
+  --c-text: #2D3748;
+  /* Muted/Border (Grey) */
+  --c-muted: #A0AEC0;
+  /* Primary Accent (Pink) */
+  --c-primary: #FF6B95;
+  /* Secondary Accent (Blue) */
+  --c-secondary: #4B9EFF;
 
-/* == Semantic Mappings (Aliases) == */
---bg-main: var(--c-bg);
---bg-sub: var(--c-surface);
---bg-sidebar: var(--c-surface);
---bg-card: rgba(255, 255, 255, 0.7);
---bg-input: rgba(255, 255, 255, 0.9);
+  /* == Semantic Mappings (Aliases) == */
+  --bg-main: var(--c-bg);
+  --bg-sub: var(--c-surface);
+  --bg-sidebar: var(--c-surface);
+  --bg-card: rgba(255, 255, 255, 0.7);
+  --bg-input: rgba(255, 255, 255, 0.9);
 
---text-main: var(--c-text);
---text-dim: var(--c-text);
-/* Unified for simplicity */
---text-sub: var(--c-muted);
---text-muted: var(--c-muted);
+  --text-main: var(--c-text);
+  --text-dim: var(--c-text);
+  /* Unified for simplicity */
+  --text-sub: var(--c-muted);
+  --text-muted: var(--c-muted);
 
---accent-primary: var(--c-primary);
---accent-secondary: var(--c-secondary);
---accent-highlight: #F6E05E;
-/* Kept specific yellow for highlights if needed, or map to secondary? Keeping as extra for now */
---accent-error: #e53e3e;
+  --accent-primary: var(--c-primary);
+  --accent-secondary: var(--c-secondary);
+  --accent-highlight: #F6E05E;
+  /* Kept specific yellow for highlights if needed, or map to secondary? Keeping as extra for now */
+  --accent-error: #e53e3e;
 
---border-main: rgba(0, 0, 0, 0.1);
---border-active: var(--c-primary);
+  --border-main: rgba(0, 0, 0, 0.1);
+  --border-active: var(--c-primary);
 
-/* Spring Compatibility Keys */
---color-spring-pink: var(--c-primary);
---color-spring-blue: var(--c-secondary);
---color-spring-yellow: var(--accent-highlight);
---color-spring-navy: var(--c-text);
+  /* Spring Compatibility Keys */
+  --color-spring-pink: var(--c-primary);
+  --color-spring-blue: var(--c-secondary);
+  --color-spring-yellow: var(--accent-highlight);
+  --color-spring-navy: var(--c-text);
 
-/* Tailwinds Compat */
---background: var(--c-bg);
---foreground: var(--c-text);
---color-bg-hero: var(--c-bg);
---color-bg-hero2: var(--c-surface);
+  /* Tailwinds Compat */
+  --background: var(--c-bg);
+  --foreground: var(--c-text);
+  --color-bg-hero: var(--c-bg);
+  --color-bg-hero2: var(--c-surface);
 
-/* Layout specific */
---bg-surface-1: rgba(255, 235, 240, 0.5);
---bg-surface-2: rgba(255, 255, 255, 0.82);
---bg-surface-3: #F7FAFC;
-/* Slightly different white/grey */
+  /* Layout specific */
+  --bg-surface-1: rgba(255, 235, 240, 0.5);
+  --bg-surface-2: rgba(255, 255, 255, 0.82);
+  --bg-surface-3: #F7FAFC;
+  /* Slightly different white/grey */
 }
 
 body {

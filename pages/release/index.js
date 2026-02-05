@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 import styles from "../../styles/release.module.css";
 import { css } from "@emotion/react";
 import Head from "next/head";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
@@ -320,8 +320,8 @@ export default function Releases({ release, usernames }) {
     const [contentWidth, setContentWidth] = useState(0);
 
     // メンバー情報の取得
-    const members = release.member ? release.member.split(',') : [];
-    const memberIds = release.memberid ? release.memberid.split(',') : [];
+    const members = useMemo(() => release.member ? release.member.split(',') : [], [release.member]);
+    const memberIds = useMemo(() => release.memberid ? release.memberid.split(',') : [], [release.memberid]);
     const iconUrl = `https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`;
 
     useEffect(() => {
@@ -390,9 +390,9 @@ export default function Releases({ release, usernames }) {
                 <div className={`${styles.type} ${styles[release.type1]} `}>{release.type1}</div>
                 <div className={`${styles.type} ${styles[release.type2]}`}>{release.type2}</div>
               </span>
-              <Image 
-                src={iconUrl} 
-                alt={release.title} 
+              <Image
+                src={iconUrl}
+                alt={release.title}
                 width={100}
                 height={100}
                 className={styles.icon}
@@ -491,8 +491,8 @@ export default function Releases({ release, usernames }) {
                       backgroundImage: `url(${iconUrl})`,
                     }}
                   >
-                    <Image 
-                      src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" 
+                    <Image
+                      src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png"
                       alt=""
                       width={800}
                       height={600}
