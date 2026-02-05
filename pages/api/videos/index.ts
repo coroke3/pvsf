@@ -141,6 +141,20 @@ export default async function handler(
             videosQuery = videosQuery.where('eventIds', 'array-contains', eventid);
         }
 
+        // authorXidでフィルタリング（サーバーサイド）
+        const { authorXid } = req.query;
+        if (authorXid && typeof authorXid === 'string') {
+            if (authorXid.includes(',')) {
+                // 複数のXIDがある場合は 'in' 演算子を使用 (最大10個)
+                const xids = authorXid.split(',').map(x => x.trim()).filter(Boolean).slice(0, 10);
+                if (xids.length > 0) {
+                    videosQuery = videosQuery.where('authorXid', 'in', xids);
+                }
+            } else {
+                videosQuery = videosQuery.where('authorXid', '==', authorXid);
+            }
+        }
+
         // デフォルトで作成日時でソート（最新順）
         videosQuery = videosQuery.orderBy('createdAt', 'desc');
 
@@ -194,8 +208,8 @@ export default async function handler(
             });
         } else {
             // 通常モード: limitパラメータに応じて制限
-            const limitValue = limitParam 
-                ? parseInt(limitParam as string, 10) 
+            const limitValue = limitParam
+                ? parseInt(limitParam as string, 10)
                 : 15; // デフォルト15件（無限スクロール用）
 
             // ページネーション: startAfterパラメータがある場合
@@ -246,8 +260,8 @@ export default async function handler(
         });
 
         // ページネーション用の情報を追加
-        const lastDoc = videosSnapshot.docs.length > 0 
-            ? videosSnapshot.docs[videosSnapshot.docs.length - 1] 
+        const lastDoc = videosSnapshot.docs.length > 0
+            ? videosSnapshot.docs[videosSnapshot.docs.length - 1]
             : null;
         const hasMore = videosSnapshot.docs.length === (limitParam ? parseInt(limitParam as string, 10) : 15);
 

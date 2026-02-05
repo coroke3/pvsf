@@ -298,7 +298,7 @@ export default function SlotAvailabilityTable({
                 }
 
                 .legend-item.hint {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     font-size: 0.8rem;
                 }
 
@@ -387,8 +387,8 @@ export default function SlotAvailabilityTable({
 
                 .slot-cell.selected {
                     background: rgba(100, 255, 218, 0.25) !important;
-                    color: #64ffda !important;
-                    box-shadow: inset 0 0 0 2px #64ffda;
+                    color: var(--accent-primary) !important;
+                    box-shadow: inset 0 0 0 2px var(--accent-primary);
                 }
 
                 .slot-table-empty {

@@ -193,7 +193,12 @@ export default async function handler(
         // Check for duplicate video
         const existingVideo = await adminDb.collection('videos').doc(ytId).get();
         if (existingVideo.exists) {
-            return res.status(409).json({ error: 'This video is already registered' });
+            const existingData = existingVideo.data() as VideoDocument;
+            // Allow re-registration if the video was soft-deleted
+            if (!existingData.isDeleted) {
+                return res.status(409).json({ error: 'This video is already registered' });
+            }
+            // If soft-deleted, we proceed (which will overwrite/restore the video)
         }
 
         // Create video document

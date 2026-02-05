@@ -23,6 +23,7 @@ interface PaginationInfo {
 
 interface UseInfiniteVideosOptions {
     eventId?: string;
+    authorXid?: string;
     limit?: number;
     enabled?: boolean;
 }
@@ -40,7 +41,7 @@ interface UseInfiniteVideosReturn {
 export function useInfiniteVideos(
     options: UseInfiniteVideosOptions = {}
 ): UseInfiniteVideosReturn {
-    const { eventId, limit = 15, enabled = true } = options;
+    const { eventId, authorXid, limit = 15, enabled = true } = options;
     
     const [videos, setVideos] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -102,6 +103,9 @@ export function useInfiniteVideos(
             const params = new URLSearchParams();
             if (eventId) {
                 params.append('eventid', eventId);
+            }
+            if (authorXid) {
+                params.append('authorXid', authorXid);
             }
             params.append('limit', limit.toString());
             if (isLoadMore && lastDocId) {
@@ -165,7 +169,7 @@ export function useInfiniteVideos(
             setIsLoading(false);
             setIsLoadingMore(false);
         }
-    }, [eventId, limit, enabled, lastDocId]);
+    }, [eventId, authorXid, limit, enabled, lastDocId]);
 
     // 初回読み込み
     useEffect(() => {

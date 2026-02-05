@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
+import {
     faUpload, faCheck, faTimes, faSpinner, faArrowLeft,
     faFileAlt, faVideo, faUser, faMusic, faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
@@ -45,10 +45,10 @@ export default function AdminImportPage() {
         const result: string[] = [];
         let current = '';
         let inQuotes = false;
-        
+
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
-            
+
             if (char === '"') {
                 if (inQuotes && line[i + 1] === '"') {
                     // Escaped quote
@@ -97,9 +97,9 @@ export default function AdminImportPage() {
                 // Detect delimiter (tab or comma)
                 const firstLine = lines[0];
                 const delimiter = firstLine.includes('\t') ? '\t' : ',';
-                
+
                 const headers = parseCSVLine(firstLine, delimiter);
-                
+
                 data = lines.slice(1).map((line, lineIndex) => {
                     const values = parseCSVLine(line, delimiter);
                     const obj: any = {};
@@ -189,175 +189,175 @@ export default function AdminImportPage() {
                 <div className="admin-content">
                     <div className="card">
 
-                    {/* File Upload Area */}
-                    <div
-                        className="upload-area"
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".json,.csv,.tsv,.txt"
-                            onChange={handleFileSelect}
-                            style={{ display: 'none' }}
-                        />
-                        <FontAwesomeIcon icon={faUpload} size="2x" />
-                        <p>クリックしてファイルを選択</p>
-                        <p className="upload-hint">JSON / CSV / TSV 形式に対応</p>
-                    </div>
-
-                    {/* Selected File */}
-                    {file && (
-                        <div className="selected-file">
-                            <span>📄 {file.name}</span>
-                            <span className="file-size">
-                                ({(file.size / 1024).toFixed(1)} KB)
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Preview */}
-                    {preview.length > 0 && (
-                        <div className="preview-section">
-                            <div className="preview-header">
-                                <h3><FontAwesomeIcon icon={faFileAlt} /> プレビュー</h3>
-                                <span className="preview-count">{preview.length}件</span>
-                            </div>
-                            
-                            {/* Field Summary */}
-                            <div className="field-summary">
-                                <span className="field-summary-label">検出されたフィールド:</span>
-                                <div className="field-tags">
-                                    {Object.keys(preview[0] || {}).slice(0, 12).map(key => (
-                                        <span key={key} className="field-tag">{key}</span>
-                                    ))}
-                                    {Object.keys(preview[0] || {}).length > 12 && (
-                                        <span className="field-tag field-tag-more">+{Object.keys(preview[0] || {}).length - 12}</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="preview-cards">
-                                {preview.slice(0, 20).map((item, index) => {
-                                    // Extract YouTube ID for thumbnail
-                                    const ytMatch = item.ylink?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
-                                    const ytId = ytMatch ? ytMatch[1] : null;
-
-                                    // Count filled optional fields
-                                    const hasListen = !!item.listen;
-                                    const hasEpisode = !!item.episode;
-                                    const hasEnd = !!item.end;
-                                    const hasBefore = !!item.beforecomment;
-                                    const hasAfter = !!item.aftercomment;
-                                    const hasMusic = !!item.music;
-                                    const hasCredit = !!item.credit;
-                                    const hasSoft = !!item.soft;
-
-                                    return (
-                                        <div key={index} className="preview-card">
-                                            <div className="preview-card-header">
-                                                {ytId ? (
-                                                    <Image 
-                                                        src={`https://i.ytimg.com/vi/${ytId}/mqdefault.jpg`}
-                                                        alt={item.title || '動画サムネイル'}
-                                                        width={320}
-                                                        height={180}
-                                                        className="preview-thumb"
-                                                        unoptimized
-                                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                                    />
-                                                ) : (
-                                                    <div className="preview-thumb-placeholder">
-                                                        <FontAwesomeIcon icon={faVideo} />
-                                                    </div>
-                                                )}
-                                                <div className="preview-card-title">
-                                                    <span className="preview-index">#{index + 1}</span>
-                                                    <h4>{item.title || '(タイトルなし)'}</h4>
-                                                </div>
-                                            </div>
-                                            <div className="preview-card-body">
-                                                <div className="preview-row">
-                                                    <FontAwesomeIcon icon={faUser} className="row-icon" />
-                                                    <span>{item.creator || '-'}</span>
-                                                    {item.tlink && <span className="sub-text">@{item.tlink}</span>}
-                                                </div>
-                                                {hasMusic && (
-                                                    <div className="preview-row">
-                                                        <FontAwesomeIcon icon={faMusic} className="row-icon" />
-                                                        <span className="truncate">{item.music}</span>
-                                                        {hasCredit && <span className="sub-text">/ {item.credit}</span>}
-                                                    </div>
-                                                )}
-                                                <div className="preview-row">
-                                                    <FontAwesomeIcon icon={faInfoCircle} className="row-icon" />
-                                                    <span>{item.type || '-'} / {item.type2 || '-'}</span>
-                                                    {item.eventid && <span className="event-badge">{item.eventid}</span>}
-                                                </div>
-                                            </div>
-                                            <div className="preview-card-footer">
-                                                <div className="data-badges">
-                                                    {hasSoft && <span className="badge badge-sm badge-info">{item.soft}</span>}
-                                                    {hasBefore && <span className="badge badge-sm">前コメ</span>}
-                                                    {hasAfter && <span className="badge badge-sm">後コメ</span>}
-                                                    {hasListen && <span className="badge badge-sm">聞</span>}
-                                                    {hasEpisode && <span className="badge badge-sm">話</span>}
-                                                    {hasEnd && <span className="badge badge-sm">終</span>}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            {preview.length > 20 && (
-                                <p className="preview-more">他 {preview.length - 20}件...</p>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Import Button */}
-                    {file && preview.length > 0 && (
-                        <button
-                            className="import-btn"
-                            onClick={handleImport}
-                            disabled={isImporting}
+                        {/* File Upload Area */}
+                        <div
+                            className="upload-area"
+                            onClick={() => fileInputRef.current?.click()}
                         >
-                            {isImporting ? (
-                                <>
-                                    <FontAwesomeIcon icon={faSpinner} spin />
-                                    インポート中...
-                                </>
-                            ) : (
-                                <>
-                                    <FontAwesomeIcon icon={faUpload} />
-                                    インポート実行
-                                </>
-                            )}
-                        </button>
-                    )}
-
-                    {/* Error Message */}
-                    {error && (
-                        <div className="message error">
-                            <FontAwesomeIcon icon={faTimes} />
-                            {error}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".json,.csv,.tsv,.txt"
+                                onChange={handleFileSelect}
+                                style={{ display: 'none' }}
+                            />
+                            <FontAwesomeIcon icon={faUpload} size="2x" />
+                            <p>クリックしてファイルを選択</p>
+                            <p className="upload-hint">JSON / CSV / TSV 形式に対応</p>
                         </div>
-                    )}
 
-                    {/* Result */}
-                    {result && (
-                        <div className="message success">
-                            <FontAwesomeIcon icon={faCheck} />
-                            インポート完了: {result.success}件成功, {result.failed}件失敗
-                            {result.errors.length > 0 && (
-                                <ul className="error-list">
-                                    {result.errors.slice(0, 5).map((err, i) => (
-                                        <li key={i}>{err}</li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                    )}
+                        {/* Selected File */}
+                        {file && (
+                            <div className="selected-file">
+                                <span>📄 {file.name}</span>
+                                <span className="file-size">
+                                    ({(file.size / 1024).toFixed(1)} KB)
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Preview */}
+                        {preview.length > 0 && (
+                            <div className="preview-section">
+                                <div className="preview-header">
+                                    <h3><FontAwesomeIcon icon={faFileAlt} /> プレビュー</h3>
+                                    <span className="preview-count">{preview.length}件</span>
+                                </div>
+
+                                {/* Field Summary */}
+                                <div className="field-summary">
+                                    <span className="field-summary-label">検出されたフィールド:</span>
+                                    <div className="field-tags">
+                                        {Object.keys(preview[0] || {}).slice(0, 12).map(key => (
+                                            <span key={key} className="field-tag">{key}</span>
+                                        ))}
+                                        {Object.keys(preview[0] || {}).length > 12 && (
+                                            <span className="field-tag field-tag-more">+{Object.keys(preview[0] || {}).length - 12}</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="preview-cards">
+                                    {preview.slice(0, 20).map((item, index) => {
+                                        // Extract YouTube ID for thumbnail
+                                        const ytMatch = item.ylink?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+                                        const ytId = ytMatch ? ytMatch[1] : null;
+
+                                        // Count filled optional fields
+                                        const hasListen = !!item.listen;
+                                        const hasEpisode = !!item.episode;
+                                        const hasEnd = !!item.end;
+                                        const hasBefore = !!item.beforecomment;
+                                        const hasAfter = !!item.aftercomment;
+                                        const hasMusic = !!item.music;
+                                        const hasCredit = !!item.credit;
+                                        const hasSoft = !!item.soft;
+
+                                        return (
+                                            <div key={index} className="preview-card">
+                                                <div className="preview-card-header">
+                                                    {ytId ? (
+                                                        <Image
+                                                            src={`https://i.ytimg.com/vi/${ytId}/mqdefault.jpg`}
+                                                            alt={item.title || '動画サムネイル'}
+                                                            width={320}
+                                                            height={180}
+                                                            className="preview-thumb"
+                                                            unoptimized
+                                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                        />
+                                                    ) : (
+                                                        <div className="preview-thumb-placeholder">
+                                                            <FontAwesomeIcon icon={faVideo} />
+                                                        </div>
+                                                    )}
+                                                    <div className="preview-card-title">
+                                                        <span className="preview-index">#{index + 1}</span>
+                                                        <h4>{item.title || '(タイトルなし)'}</h4>
+                                                    </div>
+                                                </div>
+                                                <div className="preview-card-body">
+                                                    <div className="preview-row">
+                                                        <FontAwesomeIcon icon={faUser} className="row-icon" />
+                                                        <span>{item.creator || '-'}</span>
+                                                        {item.tlink && <span className="sub-text">@{item.tlink}</span>}
+                                                    </div>
+                                                    {hasMusic && (
+                                                        <div className="preview-row">
+                                                            <FontAwesomeIcon icon={faMusic} className="row-icon" />
+                                                            <span className="truncate">{item.music}</span>
+                                                            {hasCredit && <span className="sub-text">/ {item.credit}</span>}
+                                                        </div>
+                                                    )}
+                                                    <div className="preview-row">
+                                                        <FontAwesomeIcon icon={faInfoCircle} className="row-icon" />
+                                                        <span>{item.type || '-'} / {item.type2 || '-'}</span>
+                                                        {item.eventid && <span className="event-badge">{item.eventid}</span>}
+                                                    </div>
+                                                </div>
+                                                <div className="preview-card-footer">
+                                                    <div className="data-badges">
+                                                        {hasSoft && <span className="badge badge-sm badge-info">{item.soft}</span>}
+                                                        {hasBefore && <span className="badge badge-sm">前コメ</span>}
+                                                        {hasAfter && <span className="badge badge-sm">後コメ</span>}
+                                                        {hasListen && <span className="badge badge-sm">聞</span>}
+                                                        {hasEpisode && <span className="badge badge-sm">話</span>}
+                                                        {hasEnd && <span className="badge badge-sm">終</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                {preview.length > 20 && (
+                                    <p className="preview-more">他 {preview.length - 20}件...</p>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Import Button */}
+                        {file && preview.length > 0 && (
+                            <button
+                                className="import-btn"
+                                onClick={handleImport}
+                                disabled={isImporting}
+                            >
+                                {isImporting ? (
+                                    <>
+                                        <FontAwesomeIcon icon={faSpinner} spin />
+                                        インポート中...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faUpload} />
+                                        インポート実行
+                                    </>
+                                )}
+                            </button>
+                        )}
+
+                        {/* Error Message */}
+                        {error && (
+                            <div className="message error">
+                                <FontAwesomeIcon icon={faTimes} />
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Result */}
+                        {result && (
+                            <div className="message success">
+                                <FontAwesomeIcon icon={faCheck} />
+                                インポート完了: {result.success}件成功, {result.failed}件失敗
+                                {result.errors.length > 0 && (
+                                    <ul className="error-list">
+                                        {result.errors.slice(0, 5).map((err, i) => (
+                                            <li key={i}>{err}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -377,7 +377,7 @@ export default function AdminImportPage() {
                 }
 
                 .back-link:hover {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .upload-area {
@@ -391,12 +391,12 @@ export default function AdminImportPage() {
                 }
 
                 .upload-area:hover {
-                    border-color: #64ffda;
+                    border-color: var(--accent-primary);
                     background: rgba(100, 255, 218, 0.05);
                 }
 
                 .upload-area :global(svg) {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     opacity: 0.7;
                 }
 
@@ -451,12 +451,12 @@ export default function AdminImportPage() {
                 }
 
                 .preview-header h3 :global(svg) {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .preview-count {
                     background: rgba(100, 255, 218, 0.1);
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     padding: 0.25rem 0.75rem;
                     border-radius: 20px;
                     font-size: 0.8rem;
@@ -499,7 +499,7 @@ export default function AdminImportPage() {
                 .field-tag-more {
                     background: rgba(100, 255, 218, 0.1);
                     border-color: rgba(100, 255, 218, 0.2);
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 /* Preview Cards */
@@ -559,7 +559,7 @@ export default function AdminImportPage() {
 
                 .preview-index {
                     font-size: 0.65rem;
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     font-weight: 600;
                 }
 
@@ -592,7 +592,7 @@ export default function AdminImportPage() {
 
                 .preview-row :global(.row-icon) {
                     width: 14px;
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     opacity: 0.6;
                 }
 

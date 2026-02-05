@@ -6,7 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faTrash, faUndo, faSpinner, faCheck, faTimes,
-    faVideo, faUser, faCalendarAlt, faExclamationTriangle
+    faVideo, faUser, faCalendarAlt, faExclamationTriangle,
+    faChevronDown
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
 
@@ -26,8 +27,11 @@ export default function AdminDeletedPage() {
 
     const [items, setItems] = useState<DeletedItem[]>([]);
     const [isLoadingItems, setIsLoadingItems] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [hasMore, setHasMore] = useState(false);
+    const [lastDeletedAt, setLastDeletedAt] = useState<string | null>(null);
 
     // Filter state
     const [filterCollection, setFilterCollection] = useState<'all' | 'videos' | 'users'>('all');
@@ -43,13 +47,40 @@ export default function AdminDeletedPage() {
         }
     }, [isLoading, isAuthenticated, isAdmin, router]);
 
-    const fetchItems = useCallback(async () => {
-        setIsLoadingItems(true);
+    const fetchItems = useCallback(async (isLoadMore = false, col = filterCollection) => {
+        if (isLoadMore) {
+            setIsLoadingMore(true);
+        } else {
+            setIsLoadingItems(true);
+        }
+        setError('');
+
         try {
-            const res = await fetch('/api/admin/deleted');
+            const params = new URLSearchParams();
+            if (col !== 'all') {
+                params.append('collection', col);
+            }
+            params.append('limit', '20');
+
+            if (isLoadMore && lastDeletedAt) {
+                params.append('lastDeletedAt', lastDeletedAt);
+            }
+
+            const res = await fetch(`/api/admin/deleted?${params.toString()}`);
             if (res.ok) {
                 const data = await res.json();
-                setItems(data.items || []);
+                const newItems = data.items || [];
+
+                if (isLoadMore) {
+                    setItems(prev => [...prev, ...newItems]);
+                } else {
+                    setItems(newItems);
+                }
+
+                // If we got full limit, assume there is more (or check if returned items < limit)
+                // API was asked for 20. If we got 20, likely there's more.
+                setHasMore(newItems.length >= 20);
+                setLastDeletedAt(data.lastDeletedAt || null);
             } else {
                 setError('削除済みデータの取得に失敗しました');
             }
@@ -57,14 +88,31 @@ export default function AdminDeletedPage() {
             setError('データ取得中にエラーが発生しました');
         } finally {
             setIsLoadingItems(false);
+            setIsLoadingMore(false);
         }
-    }, []);
+    }, [filterCollection, lastDeletedAt]);
 
+    // Initial load and filter change
     useEffect(() => {
         if (isAdmin) {
-            fetchItems();
+            // Check if we need to reset
+            // We can't rely on `fetchItems` dependency alone effectively for reset
+            // So we call it manually when filterCollection changes
+            setItems([]);
+            setLastDeletedAt(null);
+            fetchItems(false, filterCollection);
         }
-    }, [isAdmin, fetchItems]);
+    }, [isAdmin, filterCollection]);
+
+    // NOTE: Dropping `fetchItems` from dependencies of the EFFECT to avoid loops, 
+    // instead passing `filterCollection` to the EFFECT is correct.
+    // However, `fetchItems` needs to capture the correct `lastDeletedAt` IF we call it.
+    // But here we rely on the effect for Filter Change (RESET).
+    // For LoadMore, we call `fetchItems(true)` via button click.
+
+    const handleLoadMore = () => {
+        fetchItems(true);
+    };
 
     const handleRestore = async (item: DeletedItem) => {
         setIsProcessing(true);
@@ -83,7 +131,8 @@ export default function AdminDeletedPage() {
 
             if (res.ok) {
                 setSuccess(`${item.title || item.name || item.id} を復元しました`);
-                fetchItems();
+                // Remove from list
+                setItems(prev => prev.filter(i => i.id !== item.id));
             } else {
                 const data = await res.json();
                 setError(data.error || '復元に失敗しました');
@@ -122,7 +171,8 @@ export default function AdminDeletedPage() {
 
             if (res.ok) {
                 setSuccess(`${actionTarget.item.title || actionTarget.item.name || actionTarget.item.id} を完全に削除しました`);
-                fetchItems();
+                // Remove from list
+                setItems(prev => prev.filter(i => i.id !== actionTarget.item.id));
             } else {
                 const data = await res.json();
                 setError(data.error || '削除に失敗しました');
@@ -135,11 +185,6 @@ export default function AdminDeletedPage() {
             setDeleteConfirmCount(0);
         }
     };
-
-    const filteredItems = items.filter(item => {
-        if (filterCollection === 'all') return true;
-        return item.collection === filterCollection;
-    });
 
     const formatDate = (isoString: string) => {
         return new Date(isoString).toLocaleDateString('ja-JP', {
@@ -192,7 +237,7 @@ export default function AdminDeletedPage() {
             <div className="admin-page">
                 <div className="admin-header">
                     <h1><FontAwesomeIcon icon={faTrash} /> 削除済みデータ管理</h1>
-                    <p>ソフトデリートされたデータを管理します（30日後に自動削除）</p>
+                    <p>ソフトデリートされた動画・ユーザーを管理（30日後に完全削除）</p>
                 </div>
 
                 <div className="admin-content">
@@ -214,19 +259,19 @@ export default function AdminDeletedPage() {
                             className={`filter-btn ${filterCollection === 'all' ? 'active' : ''}`}
                             onClick={() => setFilterCollection('all')}
                         >
-                            すべて ({items.length})
+                            すべて
                         </button>
                         <button
                             className={`filter-btn ${filterCollection === 'videos' ? 'active' : ''}`}
                             onClick={() => setFilterCollection('videos')}
                         >
-                            <FontAwesomeIcon icon={faVideo} /> 動画 ({items.filter(i => i.collection === 'videos').length})
+                            <FontAwesomeIcon icon={faVideo} /> 動画
                         </button>
                         <button
                             className={`filter-btn ${filterCollection === 'users' ? 'active' : ''}`}
                             onClick={() => setFilterCollection('users')}
                         >
-                            <FontAwesomeIcon icon={faUser} /> ユーザー ({items.filter(i => i.collection === 'users').length})
+                            <FontAwesomeIcon icon={faUser} /> ユーザー
                         </button>
                     </div>
 
@@ -234,67 +279,85 @@ export default function AdminDeletedPage() {
                     <div className="card">
                         <h2>
                             <FontAwesomeIcon icon={faTrash} /> 削除済み一覧
-                            <span className="badge">{filteredItems.length}件</span>
+                            <span className="badge">{items.length}{hasMore ? '+' : ''}件</span>
                         </h2>
 
-                        {isLoadingItems ? (
+                        {isLoadingItems && items.length === 0 ? (
                             <div className="loading">
                                 <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
                             </div>
-                        ) : filteredItems.length === 0 ? (
+                        ) : items.length === 0 ? (
                             <div className="empty-state">削除済みのデータはありません</div>
                         ) : (
-                            <div className="deleted-list">
-                                {filteredItems.map(item => (
-                                    <div key={`${item.collection}-${item.id}`} className="deleted-item">
-                                        <div className="item-icon">
-                                            <FontAwesomeIcon icon={getCollectionIcon(item.collection)} />
-                                        </div>
-                                        <div className="item-info">
-                                            <div className="item-title">
-                                                {item.title || item.name || item.id}
+                            <>
+                                <div className="deleted-list">
+                                    {items.map(item => (
+                                        <div key={`${item.collection}-${item.id}`} className="deleted-item">
+                                            <div className="item-icon">
+                                                <FontAwesomeIcon icon={getCollectionIcon(item.collection)} />
                                             </div>
-                                            <div className="item-meta">
-                                                <span className="collection-badge">
-                                                    {getCollectionLabel(item.collection)}
-                                                </span>
-                                                <span className="item-date">
-                                                    <FontAwesomeIcon icon={faCalendarAlt} />
-                                                    {formatDate(item.deletedAt)}
-                                                </span>
-                                                <span className="item-by">
-                                                    削除者: {item.deletedBy}
-                                                </span>
+                                            <div className="item-info">
+                                                <div className="item-title">
+                                                    {item.title || item.name || item.id}
+                                                </div>
+                                                <div className="item-meta">
+                                                    <span className="collection-badge">
+                                                        {getCollectionLabel(item.collection)}
+                                                    </span>
+                                                    <span className="item-date">
+                                                        <FontAwesomeIcon icon={faCalendarAlt} />
+                                                        {formatDate(item.deletedAt)}
+                                                    </span>
+                                                    <span className="item-by">
+                                                        削除者: {item.deletedBy}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="item-days" style={{ color: getDaysColor(item.daysSinceDeleted) }}>
+                                                <span className="days-number">{item.daysSinceDeleted}</span>
+                                                <span className="days-label">日経過</span>
+                                                {item.daysSinceDeleted >= 25 && (
+                                                    <FontAwesomeIcon icon={faExclamationTriangle} className="warning-icon" />
+                                                )}
+                                            </div>
+                                            <div className="item-actions">
+                                                <button
+                                                    onClick={() => handleRestore(item)}
+                                                    disabled={isProcessing}
+                                                    className="btn btn-sm btn-secondary"
+                                                    title="復元"
+                                                >
+                                                    <FontAwesomeIcon icon={faUndo} /> 復元
+                                                </button>
+                                                <button
+                                                    onClick={() => { setActionTarget({ item, action: 'delete' }); setDeleteConfirmCount(0); }}
+                                                    disabled={isProcessing}
+                                                    className="btn btn-sm btn-danger"
+                                                    title="完全削除"
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} /> 完全削除
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="item-days" style={{ color: getDaysColor(item.daysSinceDeleted) }}>
-                                            <span className="days-number">{item.daysSinceDeleted}</span>
-                                            <span className="days-label">日経過</span>
-                                            {item.daysSinceDeleted >= 25 && (
-                                                <FontAwesomeIcon icon={faExclamationTriangle} className="warning-icon" />
+                                    ))}
+                                </div>
+
+                                {hasMore && (
+                                    <div className="load-more-container">
+                                        <button
+                                            className="btn btn-secondary load-more-btn"
+                                            onClick={handleLoadMore}
+                                            disabled={isLoadingMore}
+                                        >
+                                            {isLoadingMore ? (
+                                                <><FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...</>
+                                            ) : (
+                                                <><FontAwesomeIcon icon={faChevronDown} /> もっと見る</>
                                             )}
-                                        </div>
-                                        <div className="item-actions">
-                                            <button
-                                                onClick={() => handleRestore(item)}
-                                                disabled={isProcessing}
-                                                className="btn btn-sm btn-secondary"
-                                                title="復元"
-                                            >
-                                                <FontAwesomeIcon icon={faUndo} /> 復元
-                                            </button>
-                                            <button
-                                                onClick={() => { setActionTarget({ item, action: 'delete' }); setDeleteConfirmCount(0); }}
-                                                disabled={isProcessing}
-                                                className="btn btn-sm btn-danger"
-                                                title="完全削除"
-                                            >
-                                                <FontAwesomeIcon icon={faTrash} /> 完全削除
-                                            </button>
-                                        </div>
+                                        </button>
                                     </div>
-                                ))}
-                            </div>
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -303,11 +366,11 @@ export default function AdminDeletedPage() {
                         <div className="modal-overlay" onClick={() => { setActionTarget(null); setDeleteConfirmCount(0); }}>
                             <div className="modal delete-modal" onClick={(e) => e.stopPropagation()}>
                                 <h2><FontAwesomeIcon icon={faExclamationTriangle} /> 完全削除の確認</h2>
-                                
+
                                 <div className="delete-warning severe">
                                     <p><strong>警告:</strong> この操作は取り消せません！</p>
                                     <p>「{actionTarget.item.title || actionTarget.item.name || actionTarget.item.id}」を<br />
-                                    データベースから完全に削除しますか？</p>
+                                        データベースから完全に削除しますか？</p>
                                 </div>
 
                                 <div className="delete-progress">
@@ -317,13 +380,13 @@ export default function AdminDeletedPage() {
                                 </div>
 
                                 <div className="modal-actions">
-                                    <button 
-                                        onClick={() => { setActionTarget(null); setDeleteConfirmCount(0); }} 
+                                    <button
+                                        onClick={() => { setActionTarget(null); setDeleteConfirmCount(0); }}
                                         className="btn btn-secondary"
                                     >
                                         キャンセル
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={handlePermanentDelete}
                                         disabled={isProcessing}
                                         className="btn btn-danger"
@@ -344,6 +407,17 @@ export default function AdminDeletedPage() {
             <Footer />
 
             <style jsx>{`
+                .load-more-container {
+                    display: flex;
+                    justify-content: center;
+                    margin-top: 1.5rem;
+                }
+                
+                .load-more-btn {
+                    width: 100%;
+                    padding: 0.8rem;
+                }
+
                 .filter-bar {
                     display: flex;
                     gap: 0.5rem;
@@ -373,7 +447,7 @@ export default function AdminDeletedPage() {
                 .filter-btn.active {
                     background: rgba(100, 255, 218, 0.1);
                     border-color: rgba(100, 255, 218, 0.3);
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .deleted-list {
@@ -438,7 +512,7 @@ export default function AdminDeletedPage() {
                 .collection-badge {
                     padding: 0.125rem 0.5rem;
                     background: rgba(100, 255, 218, 0.1);
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     border-radius: 4px;
                     font-size: 0.7rem;
                     border: 1px solid rgba(100, 255, 218, 0.18);

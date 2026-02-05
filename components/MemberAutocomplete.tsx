@@ -255,7 +255,7 @@ export default function MemberAutocomplete({
 
                 .suggestion-xid {
                     font-size: 0.85rem;
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     opacity: 0.9;
                 }
 
@@ -304,7 +304,7 @@ export default function MemberAutocomplete({
                     display: inline-block;
                     width: 8px;
                     height: 8px;
-                    background: #64ffda;
+                    background: var(--accent-primary);
                     border-radius: 50%;
                     animation: pulse 1s infinite;
                 }

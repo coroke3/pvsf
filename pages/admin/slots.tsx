@@ -740,7 +740,7 @@ export default function AdminSlotsPage() {
 
                 .event-id {
                     font-size: 0.8rem;
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .event-updated {

@@ -92,11 +92,11 @@ export default function AdminVideosPage() {
     const [success, setSuccess] = useState('');
     const [showShortcuts, setShowShortcuts] = useState(false);
     const [showEventFilter, setShowEventFilter] = useState(false);
-    
+
     // Sort state
     const [sortField, setSortField] = useState<SortField>('startTime');
     const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
-    
+
     // Bulk member input
     const [bulkMemberInput, setBulkMemberInput] = useState('');
 
@@ -128,13 +128,13 @@ export default function AdminVideosPage() {
             const name = parts[0]?.trim() || '';
             const xid = parts[1]?.trim() || '';
             const role = parts[2]?.trim() || '';
-            
+
             if (name || xid) {
-                newMembers.push({ 
-                    name, 
-                    xid, 
+                newMembers.push({
+                    name,
+                    xid,
                     role,
-                    editApproved: false 
+                    editApproved: false
                 });
             }
         }
@@ -193,7 +193,7 @@ export default function AdminVideosPage() {
 
         // Event checkbox filter (if any events selected)
         if (selectedEvents.size > 0) {
-            result = result.filter(v => 
+            result = result.filter(v =>
                 v.eventIds.some(eventId => selectedEvents.has(eventId))
             );
         }
@@ -519,7 +519,7 @@ export default function AdminVideosPage() {
                                 className="search-input"
                             />
                         </div>
-                        <button 
+                        <button
                             className={`filter-btn ${showEventFilter ? 'active' : ''} ${selectedEvents.size > 0 ? 'has-filter' : ''}`}
                             onClick={() => setShowEventFilter(!showEventFilter)}
                         >
@@ -529,7 +529,7 @@ export default function AdminVideosPage() {
                         </button>
                         <div className="sort-controls">
                             <span className="sort-label">並び替え:</span>
-                            <button 
+                            <button
                                 className={`sort-btn ${sortField === 'startTime' ? 'active' : ''}`}
                                 onClick={() => toggleSort('startTime')}
                             >
@@ -538,7 +538,7 @@ export default function AdminVideosPage() {
                                     <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />
                                 )}
                             </button>
-                            <button 
+                            <button
                                 className={`sort-btn ${sortField === 'title' ? 'active' : ''}`}
                                 onClick={() => toggleSort('title')}
                             >
@@ -547,7 +547,7 @@ export default function AdminVideosPage() {
                                     <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />
                                 )}
                             </button>
-                            <button 
+                            <button
                                 className={`sort-btn ${sortField === 'viewCount' ? 'active' : ''}`}
                                 onClick={() => toggleSort('viewCount')}
                             >
@@ -556,7 +556,7 @@ export default function AdminVideosPage() {
                                     <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />
                                 )}
                             </button>
-                            <button 
+                            <button
                                 className={`sort-btn ${sortField === 'likeCount' ? 'active' : ''}`}
                                 onClick={() => toggleSort('likeCount')}
                             >
@@ -578,7 +578,7 @@ export default function AdminVideosPage() {
                         <div className="event-filter-panel">
                             <div className="event-filter-header">
                                 <span>イベントで絞り込み</span>
-                                <button 
+                                <button
                                     className="select-all-btn"
                                     onClick={() => {
                                         if (selectedEvents.size === uniqueEvents.length) {
@@ -890,7 +890,7 @@ export default function AdminVideosPage() {
                                         <span className="bulk-role-label">全員に役職を設定:</span>
                                         <div className="bulk-role-checkboxes">
                                             {ROLE_OPTIONS.map((role) => {
-                                                const allHaveRole = editingVideo.members.every(m => 
+                                                const allHaveRole = editingVideo.members.every(m =>
                                                     m.role?.split(',').map(r => r.trim()).includes(role)
                                                 );
                                                 return (
@@ -1024,7 +1024,7 @@ export default function AdminVideosPage() {
                         <div className="modal-overlay" onClick={cancelDelete}>
                             <div className="modal delete-modal" onClick={(e) => e.stopPropagation()}>
                                 <h2><FontAwesomeIcon icon={faTrash} /> 動画を削除</h2>
-                                
+
                                 <div className="delete-video-info">
                                     <Image
                                         src={`https://i.ytimg.com/vi/${deleteTarget.id}/mqdefault.jpg`}
@@ -1099,59 +1099,59 @@ export default function AdminVideosPage() {
                             <>
                                 <div className="video-grid">
                                     {filteredVideos.map((video) => (
-                                    <div key={video.id} className="video-card">
-                                        <div className="video-card-thumbnail">
-                                            <Image
-                                                src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
-                                                alt={video.title || '動画サムネイル'}
-                                                width={320}
-                                                height={180}
-                                                unoptimized
-                                            />
-                                            {video.privacyStatus !== 'public' && (
-                                                <span className="video-card-status">{video.privacyStatus}</span>
-                                            )}
-                                            <a
-                                                href={`https://www.youtube.com/watch?v=${video.id}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="video-card-link"
-                                            >
-                                                <FontAwesomeIcon icon={faExternalLinkAlt} />
-                                            </a>
-                                        </div>
-                                        <div className="video-card-content">
-                                            <h3 className="video-card-title">{video.title}</h3>
-                                            <div className="video-card-author">
-                                                <FontAwesomeIcon icon={faUser} />
-                                                <span>{video.authorName}</span>
-                                                <span className="video-card-xid">@{video.authorXid}</span>
+                                        <div key={video.id} className="video-card">
+                                            <div className="video-card-thumbnail">
+                                                <Image
+                                                    src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
+                                                    alt={video.title || '動画サムネイル'}
+                                                    width={320}
+                                                    height={180}
+                                                    unoptimized
+                                                />
+                                                {video.privacyStatus !== 'public' && (
+                                                    <span className="video-card-status">{video.privacyStatus}</span>
+                                                )}
+                                                <a
+                                                    href={`https://www.youtube.com/watch?v=${video.id}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="video-card-link"
+                                                >
+                                                    <FontAwesomeIcon icon={faExternalLinkAlt} />
+                                                </a>
                                             </div>
-                                            <div className="video-card-meta">
-                                                <div className="video-card-events">
-                                                    {video.eventIds.map((eventId, i) => (
-                                                        <span key={i} className="video-card-event">{eventId}</span>
-                                                    ))}
+                                            <div className="video-card-content">
+                                                <h3 className="video-card-title">{video.title}</h3>
+                                                <div className="video-card-author">
+                                                    <FontAwesomeIcon icon={faUser} />
+                                                    <span>{video.authorName}</span>
+                                                    <span className="video-card-xid">@{video.authorXid}</span>
                                                 </div>
-                                                <span className="video-card-date">{formatDate(video.startTime)}</span>
-                                            </div>
-                                            <div className="video-card-stats">
-                                                <span><FontAwesomeIcon icon={faEye} /> {video.viewCount.toLocaleString()}</span>
-                                                <span><FontAwesomeIcon icon={faThumbsUp} /> {video.likeCount.toLocaleString()}</span>
-                                            </div>
-                                            <div className="video-card-actions">
-                                                <button onClick={() => startEdit(video)} className="btn btn-sm btn-secondary">
-                                                    <FontAwesomeIcon icon={faEdit} /> 編集
-                                                </button>
-                                                <button onClick={() => startDeleteProcess(video)} className="btn btn-sm btn-danger">
-                                                    <FontAwesomeIcon icon={faTrash} /> 削除
-                                                </button>
+                                                <div className="video-card-meta">
+                                                    <div className="video-card-events">
+                                                        {video.eventIds.map((eventId, i) => (
+                                                            <span key={i} className="video-card-event">{eventId}</span>
+                                                        ))}
+                                                    </div>
+                                                    <span className="video-card-date">{formatDate(video.startTime)}</span>
+                                                </div>
+                                                <div className="video-card-stats">
+                                                    <span><FontAwesomeIcon icon={faEye} /> {video.viewCount.toLocaleString()}</span>
+                                                    <span><FontAwesomeIcon icon={faThumbsUp} /> {video.likeCount.toLocaleString()}</span>
+                                                </div>
+                                                <div className="video-card-actions">
+                                                    <button onClick={() => startEdit(video)} className="btn btn-sm btn-secondary">
+                                                        <FontAwesomeIcon icon={faEdit} /> 編集
+                                                    </button>
+                                                    <button onClick={() => startDeleteProcess(video)} className="btn btn-sm btn-danger">
+                                                        <FontAwesomeIcon icon={faTrash} /> 削除
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                                 </div>
-                                
+
                                 {/* 無限スクロール用のセンチネル要素 */}
                                 {hasMore && (
                                     <div ref={sentinelRef} style={{ height: '1px', marginTop: '20px' }}>
@@ -1162,7 +1162,7 @@ export default function AdminVideosPage() {
                                         )}
                                     </div>
                                 )}
-                                
+
                                 {!hasMore && filteredVideos.length > 0 && (
                                     <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
                                         すべての動画を読み込みました
@@ -1329,7 +1329,7 @@ export default function AdminVideosPage() {
                 .video-card-event {
                     padding: 0.125rem 0.5rem;
                     background: rgba(100, 255, 218, 0.1);
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     border-radius: 4px;
                     font-size: 0.75rem;
                 }
@@ -1478,7 +1478,7 @@ export default function AdminVideosPage() {
 
                 .form-section-divider span {
                     font-size: 0.85rem;
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     font-weight: 600;
                     white-space: nowrap;
                 }
@@ -1516,7 +1516,7 @@ export default function AdminVideosPage() {
                 }
 
                 .bulk-role-label {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     font-size: 0.8rem;
                     font-weight: 500;
                 }
@@ -1591,7 +1591,7 @@ export default function AdminVideosPage() {
                 }
 
                 .role-checkbox-small input:checked + span {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .member-actions {
@@ -1646,7 +1646,7 @@ export default function AdminVideosPage() {
                     border-radius: 50%;
                     background: rgba(100, 255, 218, 0.1);
                     border: 1px solid rgba(100, 255, 218, 0.3);
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     cursor: pointer;
                     display: flex;
                     align-items: center;
@@ -1693,7 +1693,7 @@ export default function AdminVideosPage() {
                     border-radius: 4px;
                     font-family: monospace;
                     font-size: 0.8rem;
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .shortcut-item span {

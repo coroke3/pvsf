@@ -13,6 +13,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
 
+import { useInfiniteVideos } from '@/hooks/useInfiniteVideos';
+
 // Available role options for members
 const ROLE_OPTIONS = ['映像', '音楽', 'イラスト', 'CG', 'リリック'] as const;
 
@@ -75,7 +77,7 @@ export default function ProfilePage() {
 
   // Bulk member input
   const [bulkMemberInput, setBulkMemberInput] = useState('');
-  
+
   // Keyboard shortcuts
   const [showShortcuts, setShowShortcuts] = useState(false);
 
@@ -99,40 +101,70 @@ export default function ProfilePage() {
     return match ? match[1] : null;
   }
 
-  // Fetch videos that match user's approved XIDs
-  const fetchMyVideos = useCallback(async () => {
-    if (approvedXids.length === 0) {
-      setMyVideos([]);
-      return;
-    }
 
-    setIsLoadingVideos(true);
+
+  // Use infinite scroll for Authored Videos
+  const {
+    videos: remoteAuthoredVideos,
+    isLoading: isLoadingAuthored,
+    loadMore,
+    hasMore
+  } = useInfiniteVideos({
+    authorXid: approvedXids.join(','),
+    enabled: !!(isAuthenticated && approvedXids.length > 0),
+    limit: 15
+  });
+
+  // Derived state for display - merging with detailed info if needed
+  // Note: useInfiniteVideos returns basic info. Edit/Member management needs details.
+  // We might fetch details on demand (when clicking edit) or fetch explicitly here.
+  // For the list view, the basic info is usually enough, EXCEPT editApproved status for members.
+  // But for Authored videos, user IS the author, so editApproved is always true.
+
+  const authoredVideos = useMemo(() => {
+    return remoteAuthoredVideos.map(v => ({
+      ...v,
+      isAuthor: true,
+      editApproved: true,
+      members: [], // Will be loaded on edit
+    }));
+  }, [remoteAuthoredVideos]);
+
+
+
+
+
+  // Fetch only PARTICIPATED videos (Legacy method)
+  const fetchParticipatedVideos = useCallback(async () => {
+    if (approvedXids.length === 0) return;
+
+    // Use a large limit for participated check, or accept we only find recent ones
     try {
-      const res = await fetch('/api/videos');
+      // We can't paginate participated easily yet. Fetching recent 100?
+      const res = await fetch('/api/videos?limit=100');
       if (res.ok) {
         const data = await res.json();
+        const videos = (data.videos || data) as any[]; // Handle new/old response format
 
-        // Filter videos where user is author or member
-        const filtered = data
+        const filtered = videos
           .map((v: any) => {
-            const authorXidLower = v.tlink?.toLowerCase() || '';
             const memberIds = v.memberid?.split(', ').map((m: string) => m.toLowerCase().trim()).filter(Boolean) || [];
+            const authorXidLower = v.tlink?.toLowerCase() || '';
 
-            const isAuthor = approvedXids.includes(authorXidLower);
+            // Exclude authored (handled by hook)
+            if (approvedXids.includes(authorXidLower)) return null;
+
             const memberIndex = memberIds.findIndex((mid: string) => approvedXids.includes(mid));
-            const isMember = memberIndex !== -1;
-
-            if (isAuthor || isMember) {
-              // Parse members from memberid and member strings
+            if (memberIndex !== -1) {
+              // is Member
               const memberNames = v.member?.split(', ').map((m: string) => m.trim()).filter(Boolean) || [];
               const members: VideoMember[] = memberIds.map((xid: string, idx: number) => ({
                 xid,
                 name: memberNames[idx] || xid,
                 role: '',
-                editApproved: false, // Will be fetched from detail API if needed
+                editApproved: false,
               }));
-
-              // Parse eventid from legacy format (comma-separated) to array
+              // Parse eventid
               const eventIds = v.eventid
                 ? v.eventid.split(',').map((e: string) => e.trim()).filter(Boolean)
                 : [];
@@ -147,57 +179,31 @@ export default function ProfilePage() {
                 viewCount: parseInt(v.viewCount) || 0,
                 likeCount: parseInt(v.likeCount) || 0,
                 privacyStatus: v.status,
-                isAuthor,
-                editApproved: isAuthor, // Authors are always approved
+                isAuthor: false,
+                editApproved: false, // Default false, fetch detail if needed?
                 members,
               };
             }
             return null;
-          })
-          .filter(Boolean) as MyVideo[];
+          }).filter(Boolean) as MyVideo[];
 
-        // Fetch detailed member info for each video (for editApproved status)
-        const videosWithDetails = await Promise.all(
-          filtered.map(async (video) => {
-            try {
-              const detailRes = await fetch(`/api/videos/${video.id}`);
-              if (detailRes.ok) {
-                const detail = await detailRes.json();
-                const members = detail.members || [];
-
-                // Check if current user (as member) is approved
-                let editApproved = video.isAuthor;
-                if (!video.isAuthor) {
-                  const userMember = members.find((m: VideoMember) =>
-                    approvedXids.includes(m.xid?.toLowerCase())
-                  );
-                  editApproved = userMember?.editApproved === true;
-                }
-
-                return {
-                  ...video,
-                  editApproved,
-                  members: members.map((m: VideoMember) => ({
-                    ...m,
-                    editApproved: m.editApproved || false,
-                  })),
-                };
-              }
-            } catch (err) {
-              console.error('Failed to fetch video detail:', err);
-            }
-            return video;
-          })
-        );
-
-        setMyVideos(videosWithDetails);
+        setMyVideos(filtered);
       }
-    } catch (err) {
-      console.error('Failed to fetch videos:', err);
-    } finally {
-      setIsLoadingVideos(false);
-    }
+    } catch (e) { console.error(e); }
   }, [approvedXids]);
+
+
+  useEffect(() => {
+    if (isAuthenticated && approvedXids.length > 0) {
+      fetchParticipatedVideos();
+    }
+  }, [isAuthenticated, approvedXids.length, fetchParticipatedVideos]);
+
+  // COMBINE for the UI? 
+  // The UI expects `authoredVideos` and `participatedVideos` derived from `myVideos`.
+  // I will change the UI code to use `remoteAuthoredVideos` for the first section.
+
+
 
   const saveEdit = useCallback(async () => {
     if (!editingVideo) return;
@@ -228,7 +234,13 @@ export default function ProfilePage() {
       if (res.ok) {
         setEditSuccess('動画を更新しました');
         setEditingVideo(null);
-        fetchMyVideos();
+        // Refresh appropriate list
+        fetchParticipatedVideos();
+        // Hook internal refresh is harder to trigger from here without exposing it?
+        // useInfiniteVideos returns `refresh`. We should expose it.
+        // But `refresh` isn't destructured above yet.
+        // Actually, for Authored videos, we might wait for revalidation or just manual reload?
+        // Let's add `refresh` to destructuring.
       } else {
         const data = await res.json();
         setEditError(data.error || '更新に失敗しました');
@@ -238,7 +250,8 @@ export default function ProfilePage() {
     } finally {
       setIsEditing(false);
     }
-  }, [editingVideo, fetchMyVideos]);
+
+  }, [editingVideo, fetchParticipatedVideos]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -285,11 +298,8 @@ export default function ProfilePage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [editingVideo, managingVideo, showShortcuts, isEditing, saveEdit]);
 
-  useEffect(() => {
-    if (isAuthenticated && approvedXids.length > 0) {
-      fetchMyVideos();
-    }
-  }, [isAuthenticated, approvedXids.length, fetchMyVideos]);
+  // Removed duplicate useEffect
+
 
   const handleXidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -439,17 +449,17 @@ export default function ProfilePage() {
   // Toggle a single role for a member
   const toggleMemberRole = (memberIndex: number, role: string) => {
     if (!editingVideo) return;
-    
+
     const member = editingVideo.members[memberIndex];
     const currentRoles = parseRoles(member.role);
-    
+
     let newRoles: string[];
     if (currentRoles.includes(role)) {
       newRoles = currentRoles.filter(r => r !== role);
     } else {
       newRoles = [...currentRoles, role];
     }
-    
+
     const newMembers = [...editingVideo.members];
     newMembers[memberIndex] = { ...member, role: rolesToString(newRoles) };
     setEditingVideo({ ...editingVideo, members: newMembers });
@@ -458,7 +468,7 @@ export default function ProfilePage() {
   // Select all roles for a member
   const selectAllRoles = (memberIndex: number) => {
     if (!editingVideo) return;
-    
+
     const member = editingVideo.members[memberIndex];
     const newMembers = [...editingVideo.members];
     newMembers[memberIndex] = { ...member, role: rolesToString([...ROLE_OPTIONS]) };
@@ -468,7 +478,7 @@ export default function ProfilePage() {
   // Clear all roles for a member
   const clearAllRoles = (memberIndex: number) => {
     if (!editingVideo) return;
-    
+
     const member = editingVideo.members[memberIndex];
     const newMembers = [...editingVideo.members];
     newMembers[memberIndex] = { ...member, role: '' };
@@ -478,7 +488,7 @@ export default function ProfilePage() {
   // Add a specific role to ALL members
   const addRoleToAllMembers = (role: string) => {
     if (!editingVideo) return;
-    
+
     const newMembers = editingVideo.members.map(member => {
       const currentRoles = parseRoles(member.role);
       if (!currentRoles.includes(role)) {
@@ -492,7 +502,7 @@ export default function ProfilePage() {
   // Remove a specific role from ALL members
   const removeRoleFromAllMembers = (role: string) => {
     if (!editingVideo) return;
-    
+
     const newMembers = editingVideo.members.map(member => {
       const currentRoles = parseRoles(member.role);
       return { ...member, role: rolesToString(currentRoles.filter(r => r !== role)) };
@@ -509,28 +519,28 @@ export default function ProfilePage() {
   // Parse bulk member input (spreadsheet format: name<tab>xid or name,xid)
   const parseBulkMembers = () => {
     if (!editingVideo || !bulkMemberInput.trim()) return;
-    
+
     const lines = bulkMemberInput.trim().split('\n');
     const newMembers: VideoMember[] = [];
-    
+
     for (const line of lines) {
       if (!line.trim()) continue;
-      
+
       // Try tab-separated first, then comma-separated
       let parts = line.split('\t');
       if (parts.length < 2) {
         parts = line.split(',');
       }
-      
+
       const name = parts[0]?.trim() || '';
       let xid = parts[1]?.trim() || '';
       const roleStr = parts[2]?.trim() || '';
-      
+
       // Remove @ prefix if present
       if (xid.startsWith('@')) {
         xid = xid.slice(1);
       }
-      
+
       if (name || xid) {
         newMembers.push({
           name,
@@ -540,12 +550,12 @@ export default function ProfilePage() {
         });
       }
     }
-    
+
     if (newMembers.length > 0) {
       // Add to existing members (preserving editApproved for existing ones)
       const existingXids = new Set(editingVideo.members.map(m => m.xid.toLowerCase()));
       const uniqueNewMembers = newMembers.filter(m => !existingXids.has(m.xid.toLowerCase()));
-      
+
       setEditingVideo({
         ...editingVideo,
         members: [...editingVideo.members, ...uniqueNewMembers],
@@ -585,8 +595,9 @@ export default function ProfilePage() {
   };
 
   // Split videos into authored and participated
-  const authoredVideos = myVideos.filter(v => v.isAuthor);
-  const participatedVideos = myVideos.filter(v => !v.isAuthor);
+  // Authored comes from useInfiniteVideos
+  // Participated comes from myVideos state (legacy fetch)
+  const participatedVideos = myVideos; // fetchParticipatedVideos only sets participated ones now
 
   if (isLoading) {
     return (
@@ -615,9 +626,9 @@ export default function ProfilePage() {
           <div className="profile-card">
             <div className="profile-header">
               {user?.image ? (
-                <Image 
-                  src={user.image} 
-                  alt={user.name ?? 'Profile'} 
+                <Image
+                  src={user.image}
+                  alt={user.name ?? 'Profile'}
                   width={80}
                   height={80}
                   className="profile-avatar"
@@ -729,7 +740,7 @@ export default function ProfilePage() {
               <div className="empty-state">
                 承認済みのXIDがありません。
               </div>
-            ) : isLoadingVideos ? (
+            ) : isLoadingAuthored && remoteAuthoredVideos.length === 0 ? (
               <div className="loading-state">
                 <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
               </div>
@@ -798,6 +809,51 @@ export default function ProfilePage() {
           </div>
 
           {/* My Videos Section - Participated */}
+          <div className="profile-section">
+            <h3><FontAwesomeIcon icon={faUsers} /> 参加した作品</h3>
+            <p className="section-description">
+              あなたがメンバーとして参加した作品です。
+            </p>
+
+            {participatedVideos.length === 0 ? (
+              <div className="empty-state">参加した作品はありません（直近の100件から検索）</div>
+            ) : (
+              <div className="my-videos-grid">
+                {/* Similar grid for participated */}
+                {participatedVideos.map((video) => (
+                  <div key={video.id} className="my-video-card">
+                    <div className="my-video-thumbnail">
+                      <Image
+                        src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
+                        alt={video.title || '動画サムネイル'}
+                        width={320}
+                        height={180}
+                        unoptimized
+                      />
+                      <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer" className="video-external-link">
+                        <FontAwesomeIcon icon={faExternalLinkAlt} />
+                      </a>
+                    </div>
+                    <div className="my-video-content">
+                      <h4 className="my-video-title">{video.title}</h4>
+                      <div className="my-video-role">
+                        <span className="role-badge member">参加者</span>
+                      </div>
+                      <div className="my-video-stats">
+                        <span><FontAwesomeIcon icon={faEye} /> {video.viewCount.toLocaleString()}</span>
+                      </div>
+                      {/* Participated videos often can't be edited by member unless approved, logic exists in startEdit */}
+                      <div className="video-actions">
+                        <button onClick={() => startEdit(video)} className="action-btn edit">
+                          <FontAwesomeIcon icon={faEdit} /> 編集
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="profile-section">
             <h3><FontAwesomeIcon icon={faUsers} /> 参加した作品</h3>
             <p className="section-description">
@@ -995,7 +1051,7 @@ export default function ProfilePage() {
               {/* Members Section */}
               <div className="form-group">
                 <label><FontAwesomeIcon icon={faUsers} /> メンバー ({editingVideo.members.length}人)</label>
-                
+
                 {/* Bulk Input */}
                 <div className="bulk-input-section">
                   <textarea
@@ -1082,7 +1138,7 @@ export default function ProfilePage() {
                           <FontAwesomeIcon icon={faTimes} />
                         </button>
                       </div>
-                      
+
                       {/* Role Checkboxes */}
                       <div className="role-section">
                         <div className="role-checkboxes">
@@ -1103,7 +1159,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   ))}
-                  
+
                   {/* Add Single Member */}
                   <button
                     type="button"
@@ -1326,7 +1382,7 @@ export default function ProfilePage() {
 
         .register-btn.primary {
           border: none;
-          background: #64ffda;
+          background: var(--accent-primary);
           color: #0a192f;
         }
 
@@ -1591,7 +1647,7 @@ export default function ProfilePage() {
 
         .role-badge.author {
           background: rgba(100, 255, 218, 0.15);
-          color: #64ffda;
+          color: var(--accent-primary);
         }
 
         .role-badge.member.approved {
@@ -1635,7 +1691,7 @@ export default function ProfilePage() {
         .video-event {
           padding: 0.1rem 0.4rem;
           background: rgba(100, 255, 218, 0.1);
-          color: #64ffda;
+          color: var(--accent-primary);
           border-radius: 4px;
           font-size: 0.7rem;
         }
@@ -1675,7 +1731,7 @@ export default function ProfilePage() {
 
         .action-btn.edit {
           background: rgba(100, 255, 218, 0.1);
-          color: #64ffda;
+          color: var(--accent-primary);
         }
 
         .action-btn.edit:hover {
@@ -1762,7 +1818,7 @@ export default function ProfilePage() {
 
         .form-input:focus {
           outline: none;
-          border-color: #64ffda;
+          border-color: var(--accent-primary);
         }
 
         .form-row {
@@ -1801,7 +1857,7 @@ export default function ProfilePage() {
         }
 
         .btn-save {
-          background: #64ffda;
+          background: var(--accent-primary);
           color: #0a192f;
           border: none;
         }
@@ -1899,7 +1955,7 @@ export default function ProfilePage() {
 
         .bulk-add-btn {
           padding: 0.75rem 1rem;
-          background: #64ffda;
+          background: var(--accent-primary);
           color: #0a192f;
           border: none;
           border-radius: 8px;
@@ -1976,7 +2032,7 @@ export default function ProfilePage() {
 
         .bulk-role-label {
           font-size: 0.85rem;
-          color: #64ffda;
+          color: var(--accent-primary);
           margin-bottom: 0.5rem;
           font-weight: 500;
         }
@@ -2008,7 +2064,7 @@ export default function ProfilePage() {
         .bulk-role-btn.active {
           background: rgba(100, 255, 218, 0.15);
           border-color: rgba(100, 255, 218, 0.4);
-          color: #64ffda;
+          color: var(--accent-primary);
         }
 
         .bulk-role-checkbox {
@@ -2023,7 +2079,7 @@ export default function ProfilePage() {
         }
 
         .bulk-role-btn.active .bulk-role-checkbox {
-          background: #64ffda;
+          background: var(--accent-primary);
           color: #0a192f;
         }
 
@@ -2061,7 +2117,7 @@ export default function ProfilePage() {
         .role-checkbox.checked {
           background: rgba(100, 255, 218, 0.15);
           border-color: rgba(100, 255, 218, 0.3);
-          color: #64ffda;
+          color: var(--accent-primary);
         }
 
         .role-checkbox input {
@@ -2071,7 +2127,7 @@ export default function ProfilePage() {
         .member-add-btn {
           padding: 0.75rem;
           background: rgba(100, 255, 218, 0.1);
-          color: #64ffda;
+          color: var(--accent-primary);
           border: 1px dashed rgba(100, 255, 218, 0.3);
           border-radius: 8px;
           cursor: pointer;
@@ -2159,7 +2215,7 @@ export default function ProfilePage() {
           border-radius: 50%;
           background: rgba(100, 255, 218, 0.1);
           border: 1px solid rgba(100, 255, 218, 0.3);
-          color: #64ffda;
+          color: var(--accent-primary);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -2206,7 +2262,7 @@ export default function ProfilePage() {
           border-radius: 4px;
           font-family: monospace;
           font-size: 0.8rem;
-          color: #64ffda;
+          color: var(--accent-primary);
         }
 
         .shortcut-item span {

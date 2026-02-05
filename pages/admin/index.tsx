@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
+import {
   faUpload, faUsers, faVideo, faCalendarAlt, faSpinner, faCog,
   faChartLine, faArrowRight, faTrash
 } from '@fortawesome/free-solid-svg-icons';
@@ -35,22 +35,22 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       if (!isAdmin) return;
-      
+
       setIsLoadingStats(true);
       try {
-        const [videosRes, usersRes] = await Promise.all([
-          fetch('/api/videos'),
-          fetch('/api/admin/users')
-        ]);
-        
-        const videos = videosRes.ok ? await videosRes.json() : [];
-        const users = usersRes.ok ? await usersRes.json() : [];
-        
-        setStats({
-          videoCount: Array.isArray(videos) ? videos.length : 0,
-          userCount: Array.isArray(users) ? users.length : 0,
-          slotCount: 0 // Slots are event-specific
-        });
+        const res = await fetch('/api/admin/stats');
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        } else {
+          // Fallback or error handling
+          console.error('Failed to fetch stats');
+          setStats({
+            videoCount: 0,
+            userCount: 0,
+            slotCount: 0
+          });
+        }
       } catch (err) {
         console.error('Failed to fetch stats:', err);
       } finally {
@@ -135,9 +135,9 @@ export default function AdminDashboard() {
           <div className="card user-card">
             <div className="user-card-content">
               {user?.image && (
-                <Image 
-                  src={user.image} 
-                  alt={user.name || 'User'} 
+                <Image
+                  src={user.image}
+                  alt={user.name || 'User'}
                   width={40}
                   height={40}
                   className="user-card-avatar"
@@ -273,7 +273,7 @@ export default function AdminDashboard() {
 
         .stat-card :global(.stat-icon) {
           font-size: 1.5rem;
-          color: #64ffda;
+          color: var(--accent-primary);
           opacity: 0.8;
         }
 
@@ -377,12 +377,12 @@ export default function AdminDashboard() {
           background: rgba(100, 255, 218, 0.1);
           border-radius: 4px;
           font-size: 0.7rem;
-          color: #64ffda;
+          color: var(--accent-primary);
           font-weight: 500;
         }
 
         .tool-arrow {
-          color: #64ffda;
+          color: var(--accent-primary);
           opacity: 0;
           transform: translateX(-8px);
           transition: all 0.2s ease;

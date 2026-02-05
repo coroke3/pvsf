@@ -780,9 +780,9 @@ export default function VideoRegisterPage() {
                                     />
                                     <div className="icon-preview-container">
                                         {iconPreview ? (
-                                            <Image 
-                                                src={iconPreview} 
-                                                alt="アイコンプレビュー" 
+                                            <Image
+                                                src={iconPreview}
+                                                alt="アイコンプレビュー"
                                                 width={72}
                                                 height={72}
                                                 className="icon-preview"
@@ -1197,25 +1197,17 @@ export default function VideoRegisterPage() {
                 .page-container {
                     min-height: 100vh;
                     padding: 2rem 1rem;
-                    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+                    background: var(--bg-main);
                     position: relative;
-                    width: 100%;
+                    width: calc(100% - 380px);
+                    margin-left: 380px;
                     box-sizing: border-box;
                     overflow-x: hidden;
                 }
 
+                /* Removed weird gradients as requested */
                 .page-container::before {
-                    content: '';
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: 
-                        radial-gradient(ellipse at 20% 20%, rgba(100, 255, 218, 0.03) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 80%, rgba(102, 126, 234, 0.03) 0%, transparent 50%);
-                    pointer-events: none;
-                    z-index: 0;
+                    display: none;
                 }
 
                 .loading-container {
@@ -1223,7 +1215,9 @@ export default function VideoRegisterPage() {
                     justify-content: center;
                     align-items: center;
                     min-height: 100vh;
-                    color: #64ffda;
+                    color: var(--accent-primary);
+                    width: calc(100% - 380px);
+                    margin-left: 380px;
                 }
 
                 .form-container {
@@ -1239,14 +1233,15 @@ export default function VideoRegisterPage() {
                 .form-container h1 {
                     font-size: 2.25rem;
                     font-weight: 700;
-                    color: #fff;
+                    color: var(--text-main);
                     text-align: center;
                     margin-bottom: 0.5rem;
+                    font-family: var(--font-title);
                     letter-spacing: -0.02em;
                 }
 
                 .form-container h1 :global(svg) {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .notice-card {
@@ -1316,13 +1311,13 @@ export default function VideoRegisterPage() {
                 .type-btn.active {
                     background: rgba(100, 255, 218, 0.1);
                     border-color: rgba(100, 255, 218, 0.5);
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     box-shadow: 0 0 20px rgba(100, 255, 218, 0.1);
                 }
 
                 .type-btn.active :global(svg) {
                     opacity: 1;
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .alert {
@@ -1343,19 +1338,19 @@ export default function VideoRegisterPage() {
 
                 .alert-error {
                     background: rgba(239, 68, 68, 0.15);
-                    border: 1px solid rgba(239, 68, 68, 0.3);
-                    color: #f87171;
+                    border: 1px solid var(--accent-error);
+                    color: var(--accent-error);
                 }
 
                 .alert-success {
                     background: rgba(34, 197, 94, 0.15);
-                    border: 1px solid rgba(34, 197, 94, 0.3);
-                    color: #4ade80;
+                    border: 1px solid var(--accent-primary);
+                    color: var(--accent-primary);
                 }
 
                 .form-section {
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border-main);
                     border-radius: 16px;
                     padding: 1.75rem;
                     margin-bottom: 1.25rem;
@@ -1366,38 +1361,39 @@ export default function VideoRegisterPage() {
                 }
 
                 .form-section:hover {
-                    border-color: rgba(255, 255, 255, 0.1);
-                    background: rgba(255, 255, 255, 0.03);
+                    border-color: var(--border-active);
+                    background: rgba(255, 255, 255, 0.05);
                 }
 
                 .form-section h2 {
                     font-size: 1.1rem;
                     font-weight: 600;
-                    color: #fff;
+                    color: var(--text-main);
                     margin-bottom: 1.25rem;
                     display: flex;
                     align-items: center;
                     gap: 0.75rem;
                     padding-bottom: 0.75rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                    border-bottom: 1px solid var(--border-main);
+                    font-family: var(--font-jp);
                 }
 
                 .form-section h2 :global(svg) {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                     font-size: 1rem;
                 }
 
                 .retrospective-section {
-                    border-color: rgba(100, 255, 218, 0.15);
-                    background: linear-gradient(135deg, rgba(100, 255, 218, 0.02) 0%, rgba(100, 255, 218, 0.01) 100%);
+                    border-color: rgba(100, 255, 218, 0.3);
+                    background: rgba(100, 255, 218, 0.05);
                 }
 
                 .retrospective-section h2 {
-                    color: #64ffda;
+                    color: var(--accent-primary);
                 }
 
                 .help-text {
-                    color: #6b7280;
+                    color: var(--text-sub);
                     font-size: 0.8rem;
                     margin-bottom: 1rem;
                     line-height: 1.5;
@@ -1415,7 +1411,7 @@ export default function VideoRegisterPage() {
 
                 .form-group label {
                     display: block;
-                    color: #9ca3af;
+                    color: var(--text-sub);
                     font-size: 0.8rem;
                     font-weight: 500;
                     margin-bottom: 0.5rem;
@@ -1427,10 +1423,10 @@ export default function VideoRegisterPage() {
                     width: 100%;
                     max-width: 100%;
                     padding: 0.875rem 1rem;
-                    background: rgba(0, 0, 0, 0.2);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: var(--bg-input);
+                    border: 1px solid var(--border-main);
                     border-radius: 10px;
-                    color: #fff;
+                    color: var(--text-main);
                     font-size: 0.95rem;
                     transition: all 0.2s ease;
                     box-sizing: border-box;
@@ -1438,19 +1434,19 @@ export default function VideoRegisterPage() {
 
                 .form-input::placeholder,
                 .form-textarea::placeholder {
-                    color: rgba(255, 255, 255, 0.25);
+                    color: var(--text-muted);
                 }
 
                 .form-input:hover,
                 .form-textarea:hover {
-                    border-color: rgba(255, 255, 255, 0.2);
+                    border-color: var(--border-active);
                 }
 
                 .form-input:focus,
                 .form-textarea:focus {
                     outline: none;
-                    border-color: #64ffda;
-                    background: rgba(0, 0, 0, 0.3);
+                    border-color: var(--accent-primary);
+                    background: var(--bg-surface-2);
                     box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.1);
                 }
 
@@ -1496,7 +1492,7 @@ export default function VideoRegisterPage() {
                 }
 
                 .input-with-prefix:focus-within {
-                    border-color: #64ffda;
+                    border-color: var(--accent-primary);
                     box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.1);
                 }
 
@@ -1915,8 +1911,14 @@ export default function VideoRegisterPage() {
                 /* Responsive */
                 @media (max-width: 768px) {
                     .page-container {
+                        margin-left: 0;
+                        width: 100%;
                         padding: 1rem 0.75rem;
                         overflow-x: hidden;
+                    }
+                    .loading-container {
+                        margin-left: 0;
+                        width: 100%;
                     }
 
                     .form-container {
