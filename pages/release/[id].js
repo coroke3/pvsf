@@ -9,12 +9,29 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faYoutube, faTiktok } from "@fortawesome/free-brands-svg-icons";
 import { faUser, faClock as faClockSolid, faCalendarDays as faCalendarSolid, faGlobe, faVideo, faPlay, faExternalLinkAlt, faFilm, faTrophy } from "@fortawesome/free-solid-svg-icons";
 
+// HTML やエラーページを返された場合に備えた安全な JSON パース
+async function safeParseJson(res) {
+  const text = await res.text();
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("application/json") && text.trimStart().startsWith("<")) {
+    return null; // HTML の場合は null
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 // 静的ページの生成に必要なパスを取得
 export async function getStaticPaths() {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const works = await res.json();
+  const works = await safeParseJson(res);
+  if (!works || !Array.isArray(works)) {
+    return { paths: [], fallback: "blocking" };
+  }
 
   // 有効なIDのみを対象にし、重複を排除
   const seen = new Set();
@@ -47,7 +64,10 @@ export async function getStaticProps({ params }) {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const works = await res.json();
+  const works = await safeParseJson(res);
+  if (!works || !Array.isArray(works)) {
+    return { notFound: true };
+  }
 
   // Decode the URL-encoded ID to match against original timestamps
   const decodedId = decodeURIComponent(params.id);
@@ -67,13 +87,11 @@ export async function getStaticProps({ params }) {
   try {
     const usersRes = await fetch("https://pvsf-cash.vercel.app/api/users");
     if (usersRes.ok) {
-      externalUsers = await usersRes.json();
-      // デバッグ用：最初の3ユーザーの情報を出力
-      if (externalUsers.length > 0) {
-      }
-    } else {
+      const data = await safeParseJson(usersRes);
+      externalUsers = Array.isArray(data) ? data : [];
     }
   } catch (error) {
+    // エラー時は空配列のまま
   }
 
   // PVSF動画データを取得
@@ -81,15 +99,16 @@ export async function getStaticProps({ params }) {
   try {
     const videosRes = await fetch("https://pvsf-cash.vercel.app/api/videos");
     if (videosRes.ok) {
-      const allVideos = await videosRes.json();
-      // eventidに"PVSFSummary"が含まれるものと、statusが"private"のものを除外
-      pvsfVideos = allVideos.filter(video =>
-        (!video.eventid || !video.eventid.includes("PVSFSummary")) &&
-        (!video.status || video.status !== "private")
-      );
-    } else {
+      const allVideos = await safeParseJson(videosRes);
+      if (Array.isArray(allVideos)) {
+        pvsfVideos = allVideos.filter(video =>
+          (!video.eventid || !video.eventid.includes("PVSFSummary")) &&
+          (!video.status || video.status !== "private")
+        );
+      }
     }
   } catch (error) {
+    // エラー時は空配列のまま
   }
 
   return {

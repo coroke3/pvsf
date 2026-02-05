@@ -12,24 +12,36 @@ import { useRouter } from "next/router";
 
 const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJPFEyi1zr0h6w0oQ0KoURc';
 
+// HTML やエラーページを返された場合に備えた安全な JSON パース
+async function safeParseJson(res) {
+  const text = await res.text();
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("application/json") && text.trimStart().startsWith("<")) {
+    return null;
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 export const getStaticProps = async () => {
   // リリースデータの取得
   const releaseRes = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const release = await releaseRes.json();
+  const release = await safeParseJson(releaseRes) || [];
 
   let usernames = [];
   try {
-    // ユーザーIDのリストを取得
     const usersRes = await fetch("https://pvsf-cash.vercel.app/api/users");
-    const users = await usersRes.json();
-
-    // ユーザー名の配列を作成
-    usernames = users.map(user => user.username);
+    const users = await safeParseJson(usersRes);
+    if (Array.isArray(users)) {
+      usernames = users.map(user => user.username);
+    }
   } catch (error) {
     console.error("Failed to fetch users:", error);
-    // エラーが発生した場合は空の配列を使用
   }
 
   return {
