@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:pages": "cross-env WRANGLER_BUILD_PLATFORM=node WRANGLER_BUILD_CONDITIONS= npx @opennextjs/cloudflare build",
+    "build:pages": "cross-env WRANGLER_BUILD_PLATFORM=node WRANGLER_BUILD_CONDITIONS= npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare populateCache local && node scripts/fix-cloudflare-pages.mjs",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint"

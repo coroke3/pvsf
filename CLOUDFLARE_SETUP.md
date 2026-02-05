@@ -113,9 +113,15 @@ R2 未設定の場合は ISR のキャッシュが制限されますが、ビル
 
 `experimental-edge` ランタイムは OpenNext と互換性がありません。該当ページから `export const runtime = 'experimental-edge';` を削除してください。
 
-### トップページ以外にアクセスできない・404 になる
+### トップページ・静的アセットで 404 になる
 
-`wrangler.jsonc` の `run_worker_first` を `true` に設定してください。これによりすべてのリクエストが Worker を経由し、Next.js のルーティングが正しく動作します。コストは増えますが、ダイナミックルートやリライトが必要な場合は必須です。
+`scripts/fix-cloudflare-pages.mjs` が `build:pages` の最後に自動実行されます。このスクリプトは以下を行います：
+
+1. **アセットをルートにコピー**: HTML が参照する `/_next/static/` と実際のファイルパスを一致させます
+2. **`_routes.json` の作成**: 静的アセットを CDN から直接配信するようルーティングを設定します
+3. **`_worker.js` の生成**: Cloudflare Pages の Worker モード用エントリーポイントを用意します
+
+`wrangler.jsonc` の `run_worker_first` が `true` の場合は、すべてのリクエストが Worker を経由します。ダイナミックルートやリライトが必要な場合は必須です。
 
 ---
 
