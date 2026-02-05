@@ -4,10 +4,20 @@ import { db } from '@/libs/firebase';
 import {
     collection, query, where, getDocs, getDoc, doc,
     setDoc, updateDoc, addDoc, serverTimestamp,
-    orderBy, limit, Timestamp
+    orderBy, limit, Timestamp, arrayContains, startAfter
 } from 'firebase/firestore';
 import type { VideoDocument, VideoMember, SnsUploadPlan } from '@/types/video';
 import { extractYouTubeId, generateThumbnails } from '@/libs/videoConverter';
+
+// キャッシュ設定
+interface VideoCacheEntry {
+    videos: VideoDocument[];
+    timestamp: number;
+    filters: string; // フィルタのハッシュ
+}
+
+let videoCache: Map<string, VideoCacheEntry> = new Map();
+const CACHE_TTL = 2 * 60 * 1000; // 2分間キャッシュ
 
 // Interface for video creation data
 export interface CreateVideoData {
@@ -47,8 +57,9 @@ export interface CreateVideoData {
 export interface VideoFilters {
     eventId?: string;
     authorXid?: string;
-    limit?: number;
+    limit?: number | null; // null または undefined で全件取得
     includeDeleted?: boolean;
+    startAfter?: any; // ページネーション用（最後のドキュメント）
 }
 
 // Interface for update data
@@ -91,26 +102,62 @@ function toDate(value: any): Date {
 }
 
 /**
- * Get all videos with optional filters
+ * Get all videos with optional filters (最適化版)
  */
 export async function getVideos(filters: VideoFilters = {}): Promise<VideoDocument[]> {
     try {
+        // キャッシュキーを生成
+        const cacheKey = JSON.stringify(filters);
+        const cached = videoCache.get(cacheKey);
+        const now = Date.now();
+
+        // キャッシュが有効な場合は返す
+        if (cached && (now - cached.timestamp) < CACHE_TTL) {
+            return cached.videos;
+        }
+
         const videosRef = collection(db, 'videos');
         let q = query(videosRef);
 
-        // Filter by deleted status
+        // 最適化: != ではなく == false を使用（インデックス活用）
         if (!filters.includeDeleted) {
-            q = query(videosRef, where('isDeleted', '!=', true));
+            q = query(videosRef, where('isDeleted', '==', false));
+        }
+
+        // サーバーサイドフィルタリング: eventId（array-contains を使用）
+        if (filters.eventId) {
+            q = query(q, where('eventIds', 'array-contains', filters.eventId));
+        }
+
+        // サーバーサイドフィルタリング: authorXid
+        if (filters.authorXid) {
+            q = query(q, where('authorXidLower', '==', filters.authorXid.toLowerCase()));
+        }
+
+        // デフォルトで作成日時でソート（最新順）
+        q = query(q, orderBy('createdAt', 'desc'));
+
+        // ページネーション: startAfterが指定されている場合
+        if (filters.startAfter) {
+            q = query(q, startAfter(filters.startAfter));
         }
 
         // Apply limit
-        if (filters.limit) {
-            q = query(q, limit(filters.limit));
+        // limitがnullまたはundefinedの場合は全件取得（制限なし）
+        // ただし、パフォーマンスを考慮してデフォルトは100件
+        if (filters.limit !== null && filters.limit !== undefined) {
+            if (filters.limit > 0) {
+                q = query(q, limit(filters.limit));
+            }
+            // limitが0以下の場合は全件取得（制限なし）
+        } else {
+            // limitが指定されていない場合はデフォルトで100件
+            q = query(q, limit(100));
         }
 
         const snapshot = await getDocs(q);
 
-        let videos = snapshot.docs.map(docSnap => {
+        const videos = snapshot.docs.map(docSnap => {
             const data = docSnap.data();
             return {
                 ...data,
@@ -121,18 +168,17 @@ export async function getVideos(filters: VideoFilters = {}): Promise<VideoDocume
             } as VideoDocument;
         });
 
-        // Client-side filtering for eventId
-        if (filters.eventId) {
-            videos = videos.filter(v =>
-                v.eventIds?.includes(filters.eventId!)
-            );
-        }
+        // キャッシュに保存
+        videoCache.set(cacheKey, {
+            videos,
+            timestamp: now,
+            filters: cacheKey,
+        });
 
-        // Client-side filtering for authorXid
-        if (filters.authorXid) {
-            videos = videos.filter(v =>
-                v.authorXidLower === filters.authorXid!.toLowerCase()
-            );
+        // キャッシュサイズ制限（メモリリーク防止）
+        if (videoCache.size > 10) {
+            const firstKey = videoCache.keys().next().value;
+            videoCache.delete(firstKey);
         }
 
         return videos;
@@ -140,6 +186,84 @@ export async function getVideos(filters: VideoFilters = {}): Promise<VideoDocume
         console.error('Failed to get videos:', error);
         throw error;
     }
+}
+
+/**
+ * ビデオキャッシュをクリア（更新後に呼び出す）
+ */
+export function clearVideoCache(): void {
+    videoCache.clear();
+}
+
+/**
+ * 全件取得用のヘルパー関数（ページネーションを使用）
+ * Firestoreの制限を考慮して、バッチで取得する
+ */
+export async function getAllVideos(
+    filters: Omit<VideoFilters, 'limit' | 'startAfter'> = {},
+    batchSize: number = 500
+): Promise<VideoDocument[]> {
+    const allVideos: VideoDocument[] = [];
+    let lastDocSnap: any = null;
+    let hasMore = true;
+
+    const videosRef = collection(db, 'videos');
+    
+    while (hasMore) {
+        let q = query(videosRef);
+
+        // フィルタリング
+        if (!filters.includeDeleted) {
+            q = query(q, where('isDeleted', '==', false));
+        }
+
+        if (filters.eventId) {
+            q = query(q, where('eventIds', 'array-contains', filters.eventId));
+        }
+
+        if (filters.authorXid) {
+            q = query(q, where('authorXidLower', '==', filters.authorXid.toLowerCase()));
+        }
+
+        q = query(q, orderBy('createdAt', 'desc'));
+
+        // ページネーション
+        if (lastDocSnap) {
+            q = query(q, startAfter(lastDocSnap));
+        }
+
+        q = query(q, limit(batchSize));
+
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            hasMore = false;
+            break;
+        }
+
+        const batch = snapshot.docs.map(docSnap => {
+            const data = docSnap.data();
+            return {
+                ...data,
+                id: docSnap.id,
+                startTime: toDate(data.startTime),
+                createdAt: toDate(data.createdAt),
+                updatedAt: toDate(data.updatedAt),
+            } as VideoDocument;
+        });
+
+        allVideos.push(...batch);
+
+        // 次のバッチがあるかチェック
+        if (snapshot.docs.length < batchSize) {
+            hasMore = false;
+        } else {
+            // 最後のドキュメントスナップショットを取得
+            lastDocSnap = snapshot.docs[snapshot.docs.length - 1];
+        }
+    }
+
+    return allVideos;
 }
 
 /**
@@ -225,7 +349,7 @@ export async function createVideo(
             daysSincePublished: 0,
             lastStatsFetch: null,
             slotId: null,
-            isDeleted: false,
+            isDeleted: false, // 明示的にfalseを設定（インデックス最適化のため）
             deletedAt: null,
             deletedBy: null,
         };
@@ -236,6 +360,9 @@ export async function createVideo(
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
         });
+
+        // キャッシュをクリア
+        clearVideoCache();
 
         return docRef.id;
     } catch (error) {
@@ -287,6 +414,9 @@ export async function updateVideo(
         if (data.members !== undefined) updateData.members = data.members;
 
         await updateDoc(docRef, updateData);
+
+        // キャッシュをクリア
+        clearVideoCache();
     } catch (error) {
         console.error('Failed to update video:', error);
         throw error;
@@ -305,6 +435,9 @@ export async function deleteVideo(videoId: string, userId: string): Promise<void
             deletedBy: userId,
             updatedAt: serverTimestamp(),
         });
+
+        // キャッシュをクリア
+        clearVideoCache();
     } catch (error) {
         console.error('Failed to delete video:', error);
         throw error;
@@ -323,6 +456,9 @@ export async function restoreVideo(videoId: string): Promise<void> {
             deletedBy: null,
             updatedAt: serverTimestamp(),
         });
+
+        // キャッシュをクリア
+        clearVideoCache();
     } catch (error) {
         console.error('Failed to restore video:', error);
         throw error;

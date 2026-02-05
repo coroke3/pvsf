@@ -127,8 +127,99 @@ export default async function handler(
     }
 
     try {
-        // Get all videos from Firestore
-        const videosSnapshot = await adminDb.collection('videos').get();
+        // クエリパラメータを取得
+        const { eventid, limit: limitParam, all, startAfter: startAfterParam } = req.query;
+
+        // 最適化: サーバーサイドでフィルタリング（クライアントサイドフィルタリングを削減）
+        let videosQuery: FirebaseFirestore.Query = adminDb.collection('videos');
+
+        // 削除されていない動画のみ取得
+        videosQuery = videosQuery.where('isDeleted', '==', false);
+
+        // eventidでフィルタリング（サーバーサイド）
+        if (eventid && typeof eventid === 'string') {
+            videosQuery = videosQuery.where('eventIds', 'array-contains', eventid);
+        }
+
+        // デフォルトで作成日時でソート（最新順）
+        videosQuery = videosQuery.orderBy('createdAt', 'desc');
+
+        // limitパラメータの処理
+        if (all === 'true' || all === '1') {
+            // 全件取得モード: ページネーションを使用して全件取得
+            const allVideos: VideoApiResponse[] = [];
+            let lastDoc: FirebaseFirestore.QueryDocumentSnapshot | null = null;
+            let hasMore = true;
+            const batchSize = 500; // Firestoreの推奨バッチサイズ
+
+            while (hasMore) {
+                let batchQuery: FirebaseFirestore.Query = videosQuery;
+                if (lastDoc) {
+                    batchQuery = batchQuery.startAfter(lastDoc);
+                }
+                batchQuery = batchQuery.limit(batchSize);
+
+                const batchSnapshot = await batchQuery.get();
+
+                if (batchSnapshot.empty) {
+                    hasMore = false;
+                    break;
+                }
+
+                const batchVideos = batchSnapshot.docs.map(doc => {
+                    const data = doc.data() as VideoDocument;
+                    return convertToLegacyFormat({
+                        ...data,
+                        id: doc.id,
+                    });
+                });
+
+                allVideos.push(...batchVideos);
+
+                if (batchSnapshot.docs.length < batchSize) {
+                    hasMore = false;
+                } else {
+                    lastDoc = batchSnapshot.docs[batchSnapshot.docs.length - 1];
+                }
+            }
+
+            // 全件取得モードではページネーション情報なし
+            return res.status(200).json({
+                videos: allVideos,
+                pagination: {
+                    hasMore: false,
+                    lastDocId: null,
+                    count: allVideos.length,
+                },
+            });
+        } else {
+            // 通常モード: limitパラメータに応じて制限
+            const limitValue = limitParam 
+                ? parseInt(limitParam as string, 10) 
+                : 15; // デフォルト15件（無限スクロール用）
+
+            // ページネーション: startAfterパラメータがある場合
+            if (startAfterParam && typeof startAfterParam === 'string') {
+                try {
+                    // startAfterパラメータはドキュメントID
+                    // ドキュメントを取得してstartAfterに使用
+                    const docRef = adminDb.collection('videos').doc(startAfterParam);
+                    const docSnap = await docRef.get();
+                    if (docSnap.exists) {
+                        videosQuery = videosQuery.startAfter(docSnap);
+                    }
+                } catch (err) {
+                    console.warn('startAfter parameter invalid, ignoring:', err);
+                }
+            }
+
+            if (limitValue > 0) {
+                videosQuery = videosQuery.limit(limitValue);
+            }
+            // limitValueが0以下の場合は全件取得（ページネーション使用）
+        }
+
+        const videosSnapshot = await videosQuery.get();
 
         if (videosSnapshot.empty) {
             // If no data in Firestore, fallback to legacy API
@@ -145,34 +236,30 @@ export default async function handler(
             return res.status(200).json([]);
         }
 
-        // Convert Firestore documents to legacy format (excluding soft-deleted)
-        const videos: VideoApiResponse[] = videosSnapshot.docs
-            .filter(doc => {
-                const data = doc.data() as VideoDocument;
-                return !data.isDeleted; // Exclude soft-deleted videos
-            })
-            .map(doc => {
-                const data = doc.data() as VideoDocument;
-                return convertToLegacyFormat({
-                    ...data,
-                    id: doc.id,
-                });
+        // Convert Firestore documents to legacy format
+        const videos: VideoApiResponse[] = videosSnapshot.docs.map(doc => {
+            const data = doc.data() as VideoDocument;
+            return convertToLegacyFormat({
+                ...data,
+                id: doc.id,
             });
+        });
 
-        // Optional: Filter by eventid (supports filtering by any event in the array)
-        const { eventid } = req.query;
-        if (eventid && typeof eventid === 'string') {
-            // Filter videos where eventid contains the queried event
-            // (eventid in legacy format is comma-separated string)
-            const filtered = videos.filter(v => {
-                if (!v.eventid) return false;
-                const eventIds = v.eventid.split(',').map(e => e.trim());
-                return eventIds.includes(eventid);
-            });
-            return res.status(200).json(filtered);
-        }
+        // ページネーション用の情報を追加
+        const lastDoc = videosSnapshot.docs.length > 0 
+            ? videosSnapshot.docs[videosSnapshot.docs.length - 1] 
+            : null;
+        const hasMore = videosSnapshot.docs.length === (limitParam ? parseInt(limitParam as string, 10) : 15);
 
-        return res.status(200).json(videos);
+        // レスポンスにメタデータを追加（無限スクロール用）
+        return res.status(200).json({
+            videos,
+            pagination: {
+                hasMore,
+                lastDocId: lastDoc?.id || null,
+                count: videos.length,
+            },
+        });
 
     } catch (error) {
         console.error('Videos API error:', error);

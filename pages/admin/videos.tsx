@@ -12,6 +12,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
 import type { VideoMember } from '@/types/video';
+import { useInfiniteVideos } from '@/hooks/useInfiniteVideos';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 // Role options for member editing
 const ROLE_OPTIONS = ['映像', '音楽', 'イラスト', 'CG', 'リリック'];
@@ -65,9 +67,22 @@ export default function AdminVideosPage() {
     const { isAdmin, isLoading, isAuthenticated } = useAuth();
     const searchInputRef = useRef<HTMLInputElement>(null);
 
+    // 無限スクロール用のフック
+    const {
+        videos: infiniteVideos,
+        isLoading: isLoadingVideos,
+        isLoadingMore,
+        hasMore,
+        error: videosError,
+        loadMore,
+        refresh: refreshVideos,
+    } = useInfiniteVideos({
+        limit: 15,
+        enabled: isAdmin,
+    });
+
     const [videos, setVideos] = useState<Video[]>([]);
     const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
-    const [isLoadingVideos, setIsLoadingVideos] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
     const [editingVideo, setEditingVideo] = useState<EditingVideo | null>(null);
@@ -83,6 +98,14 @@ export default function AdminVideosPage() {
     
     // Bulk member input
     const [bulkMemberInput, setBulkMemberInput] = useState('');
+
+    // 無限スクロール用のセンチネル要素
+    const sentinelRef = useInfiniteScroll({
+        onLoadMore: loadMore,
+        hasMore,
+        isLoading: isLoadingMore,
+        threshold: 300,
+    });
 
     useEffect(() => {
         if (!isLoading && (!isAuthenticated || !isAdmin)) {
@@ -140,47 +163,19 @@ export default function AdminVideosPage() {
         setEditingVideo({ ...editingVideo, members: newMembers });
     };
 
-    const fetchVideos = useCallback(async () => {
-        setIsLoadingVideos(true);
-        try {
-            const res = await fetch('/api/videos');
-            if (res.ok) {
-                const data = await res.json();
-                const mapped = data.map((v: any) => {
-                    // Parse eventid from legacy format (comma-separated) to array
-                    const eventIds = v.eventid
-                        ? v.eventid.split(',').map((e: string) => e.trim()).filter(Boolean)
-                        : [];
-                    
-                    return {
-                        id: extractYouTubeId(v.ylink) || v.ylink,
-                        title: v.title,
-                        videoUrl: v.ylink,
-                        authorXid: v.tlink,
-                        authorName: v.creator,
-                        eventIds,
-                        startTime: v.time,
-                        viewCount: parseInt(v.viewCount) || 0,
-                        likeCount: parseInt(v.likeCount) || 0,
-                        slotId: null,
-                        privacyStatus: v.status,
-                    };
-                });
-                setVideos(mapped);
-                setFilteredVideos(mapped);
-            }
-        } catch (err) {
-            setError('動画の取得に失敗しました');
-        } finally {
-            setIsLoadingVideos(false);
-        }
-    }, []);
-
+    // 無限スクロールから取得した動画をvideosステートに反映
     useEffect(() => {
-        if (isAdmin) {
-            fetchVideos();
+        if (infiniteVideos.length > 0) {
+            setVideos(infiniteVideos);
         }
-    }, [isAdmin, fetchVideos]);
+    }, [infiniteVideos]);
+
+    // エラーハンドリング
+    useEffect(() => {
+        if (videosError) {
+            setError(videosError);
+        }
+    }, [videosError]);
 
     useEffect(() => {
         let result = videos;
@@ -1090,15 +1085,16 @@ export default function AdminVideosPage() {
                             </h2>
                         </div>
 
-                        {isLoadingVideos ? (
+                        {isLoadingVideos && videos.length === 0 ? (
                             <div className="loading">
                                 <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
                             </div>
                         ) : filteredVideos.length === 0 ? (
                             <div className="empty-state">動画がありません</div>
                         ) : (
-                            <div className="video-grid">
-                                {filteredVideos.map((video) => (
+                            <>
+                                <div className="video-grid">
+                                    {filteredVideos.map((video) => (
                                     <div key={video.id} className="video-card">
                                         <div className="video-card-thumbnail">
                                             <img
@@ -1147,7 +1143,25 @@ export default function AdminVideosPage() {
                                         </div>
                                     </div>
                                 ))}
-                            </div>
+                                </div>
+                                
+                                {/* 無限スクロール用のセンチネル要素 */}
+                                {hasMore && (
+                                    <div ref={sentinelRef} style={{ height: '1px', marginTop: '20px' }}>
+                                        {isLoadingMore && (
+                                            <div className="loading" style={{ padding: '20px', textAlign: 'center' }}>
+                                                <FontAwesomeIcon icon={faSpinner} spin /> さらに読み込み中...
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                
+                                {!hasMore && filteredVideos.length > 0 && (
+                                    <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                                        すべての動画を読み込みました
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

@@ -103,7 +103,7 @@ async function getAllMemberSuggestions(): Promise<MemberSuggestion[]> {
         const videosRef = collection(db, 'videos');
         const videosQuery = query(
             videosRef,
-            where('isDeleted', '!=', true),
+            where('isDeleted', '==', false), // 最適化: != を == false に変更
             limit(500)
         );
 

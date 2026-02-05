@@ -26,7 +26,15 @@ function initializeFirebase() {
         } else {
             app = getApp();
         }
-        db = getFirestore(app);
+        // Firestore設定を最適化（パフォーマンス向上）
+        db = getFirestore(app, {
+            // キャッシュを有効化してオフライン対応とパフォーマンス向上
+            experimentalForceLongPolling: false,
+            // ローカルキャッシュを有効化
+            localCache: {
+                kind: 'persistent',
+            },
+        });
         auth = getAuth(app);
         storage = getStorage(app);
     }

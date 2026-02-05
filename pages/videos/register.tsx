@@ -713,29 +713,23 @@ export default function VideoRegisterPage() {
                             </div>
                             <div className="form-group">
                                 <label>X ID *</label>
-                                {isAdmin ? (
-                                    <div className="input-with-prefix">
-                                        <span>@</span>
-                                        <input
-                                            type="text"
-                                            value={authorXid}
-                                            onChange={(e) => setAuthorXid(e.target.value)}
-                                            className="form-input"
-                                            required
-                                        />
-                                    </div>
-                                ) : (
-                                    <select
+                                <div className="input-with-prefix">
+                                    <span>@</span>
+                                    <input
+                                        type="text"
                                         value={authorXid}
                                         onChange={(e) => setAuthorXid(e.target.value)}
                                         className="form-input"
                                         required
-                                    >
+                                        list="approved-xids"
+                                        placeholder="承認済みIDを選択 または 新規入力"
+                                    />
+                                    <datalist id="approved-xids">
                                         {approvedXids.map((xid: string) => (
-                                            <option key={xid} value={xid}>@{xid}</option>
+                                            <option key={xid} value={xid} />
                                         ))}
-                                    </select>
-                                )}
+                                    </datalist>
+                                </div>
                             </div>
                             <div className="form-group">
                                 <label>映像歴</label>
@@ -817,7 +811,90 @@ export default function VideoRegisterPage() {
                             </div>
                         </div>
 
-                        {/* Members */}
+
+
+                        {/* Video Info */}
+                        <div className="form-section">
+                            <h2><FontAwesomeIcon icon={faVideo} /> 動画情報</h2>
+                            <div className="form-group">
+                                <label>YouTube URL *</label>
+                                <input
+                                    type="url"
+                                    value={videoUrl}
+                                    onChange={(e) => setVideoUrl(e.target.value)}
+                                    placeholder="https://www.youtube.com/watch?v=..."
+                                    className="form-input"
+                                    required={registrationType !== 'slot'}
+                                />
+                                {registrationType === 'slot' && (
+                                    <div className="help-text" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+                                        ※枠あり登録の場合は、あとから編集で入力できます
+                                    </div>
+                                )}
+                            </div>
+                            {/* Thumbnail Preview */}
+                            {videoUrl && (() => {
+                                const match = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+                                const ytId = match ? match[1] : null;
+                                if (!ytId) return null;
+                                return (
+                                    <div className="thumbnail-preview">
+                                        <img
+                                            src={`https://i.ytimg.com/vi/${ytId}/mqdefault.jpg`}
+                                            alt="サムネイルプレビュー"
+                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                        />
+                                    </div>
+                                );
+                            })()}
+                            <div className="form-group">
+                                <label>タイトル *</label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Music Info */}
+                        <div className="form-section">
+                            <h2>
+                                <FontAwesomeIcon icon={faMusic} /> 楽曲情報
+                            </h2>
+                            <div className="form-group">
+                                <label>曲名</label>
+                                <input
+                                    type="text"
+                                    value={music}
+                                    onChange={(e) => setMusic(e.target.value)}
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>作曲者（クレジット）</label>
+                                <textarea
+                                    value={credit}
+                                    onChange={(e) => setCredit(e.target.value)}
+                                    rows={2}
+                                    className="form-textarea"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>楽曲リンク</label>
+                                <input
+                                    type="url"
+                                    value={musicUrl}
+                                    onChange={(e) => setMusicUrl(e.target.value)}
+                                    placeholder="https://..."
+                                    className="form-input"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Members (Moved here) */}
                         <div className="form-section">
                             <h2>メンバー（複数人の場合）</h2>
                             <div className="help-text">
@@ -888,82 +965,6 @@ export default function VideoRegisterPage() {
                             >
                                 <FontAwesomeIcon icon={faPlus} /> メンバーを追加
                             </button>
-                        </div>
-
-                        {/* Video Info */}
-                        <div className="form-section">
-                            <h2><FontAwesomeIcon icon={faVideo} /> 動画情報</h2>
-                            <div className="form-group">
-                                <label>YouTube URL *</label>
-                                <input
-                                    type="url"
-                                    value={videoUrl}
-                                    onChange={(e) => setVideoUrl(e.target.value)}
-                                    placeholder="https://www.youtube.com/watch?v=..."
-                                    className="form-input"
-                                    required
-                                />
-                            </div>
-                            {/* Thumbnail Preview */}
-                            {videoUrl && (() => {
-                                const match = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
-                                const ytId = match ? match[1] : null;
-                                if (!ytId) return null;
-                                return (
-                                    <div className="thumbnail-preview">
-                                        <img
-                                            src={`https://i.ytimg.com/vi/${ytId}/mqdefault.jpg`}
-                                            alt="サムネイルプレビュー"
-                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                        />
-                                    </div>
-                                );
-                            })()}
-                            <div className="form-group">
-                                <label>タイトル *</label>
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    className="form-input"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* Music Info */}
-                        <div className="form-section">
-                            <h2>
-                                <FontAwesomeIcon icon={faMusic} /> 楽曲情報
-                            </h2>
-                            <div className="form-group">
-                                <label>曲名</label>
-                                <input
-                                    type="text"
-                                    value={music}
-                                    onChange={(e) => setMusic(e.target.value)}
-                                    className="form-input"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>作曲者（クレジット）</label>
-                                <textarea
-                                    value={credit}
-                                    onChange={(e) => setCredit(e.target.value)}
-                                    rows={2}
-                                    className="form-textarea"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>楽曲リンク</label>
-                                <input
-                                    type="url"
-                                    value={musicUrl}
-                                    onChange={(e) => setMusicUrl(e.target.value)}
-                                    placeholder="https://..."
-                                    className="form-input"
-                                />
-                            </div>
                         </div>
 
                         {/* SNS Upload Plans */}
@@ -1187,6 +1188,9 @@ export default function VideoRegisterPage() {
                     padding: 2rem 1rem;
                     background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
                     position: relative;
+                    width: 100%;
+                    box-sizing: border-box;
+                    overflow-x: hidden;
                 }
 
                 .page-container::before {
@@ -1216,6 +1220,9 @@ export default function VideoRegisterPage() {
                     margin: 0 auto;
                     position: relative;
                     z-index: 1;
+                    width: 100%;
+                    box-sizing: border-box;
+                    padding: 0 1rem;
                 }
 
                 .form-container h1 {
@@ -1343,6 +1350,8 @@ export default function VideoRegisterPage() {
                     margin-bottom: 1.25rem;
                     backdrop-filter: blur(5px);
                     transition: all 0.3s ease;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .form-section:hover {
@@ -1385,6 +1394,8 @@ export default function VideoRegisterPage() {
 
                 .form-group {
                     margin-bottom: 1.25rem;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .form-group:last-child {
@@ -1403,6 +1414,7 @@ export default function VideoRegisterPage() {
                 .form-input,
                 .form-textarea {
                     width: 100%;
+                    max-width: 100%;
                     padding: 0.875rem 1rem;
                     background: rgba(0, 0, 0, 0.2);
                     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1410,6 +1422,7 @@ export default function VideoRegisterPage() {
                     color: #fff;
                     font-size: 0.95rem;
                     transition: all 0.2s ease;
+                    box-sizing: border-box;
                 }
 
                 .form-input::placeholder,
@@ -1454,6 +1467,8 @@ export default function VideoRegisterPage() {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
                     gap: 1rem;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .input-with-prefix {
@@ -1464,6 +1479,9 @@ export default function VideoRegisterPage() {
                     border-radius: 10px;
                     overflow: hidden;
                     transition: all 0.2s ease;
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .input-with-prefix:focus-within {
@@ -1482,6 +1500,9 @@ export default function VideoRegisterPage() {
                     border: none;
                     padding-left: 0.25rem;
                     flex: 1;
+                    min-width: 0;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .input-with-prefix input:focus {
@@ -1495,15 +1516,21 @@ export default function VideoRegisterPage() {
                 .movie-year-selector {
                     display: flex;
                     gap: 0.75rem;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .movie-year-type {
                     width: 150px;
                     flex-shrink: 0;
+                    max-width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .movie-year-input {
                     flex: 1;
+                    min-width: 0;
+                    box-sizing: border-box;
                 }
 
                 .icon-upload-area {
@@ -1549,12 +1576,18 @@ export default function VideoRegisterPage() {
                     gap: 0.75rem;
                     margin-bottom: 1rem;
                     align-items: flex-start;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .bulk-input-area textarea {
                     flex: 1;
                     font-family: 'Monaco', 'Menlo', monospace;
                     font-size: 0.85rem;
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                    min-width: 0;
                 }
 
                 .slots-grid {
@@ -1619,6 +1652,9 @@ export default function VideoRegisterPage() {
                     background: rgba(0, 0, 0, 0.15);
                     border-radius: 10px;
                     border: 1px solid rgba(255, 255, 255, 0.05);
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .sns-row {
@@ -1869,6 +1905,11 @@ export default function VideoRegisterPage() {
                 @media (max-width: 768px) {
                     .page-container {
                         padding: 1rem 0.75rem;
+                        overflow-x: hidden;
+                    }
+
+                    .form-container {
+                        padding: 0 0.5rem;
                     }
 
                     .form-container h1 {
@@ -1892,22 +1933,34 @@ export default function VideoRegisterPage() {
                     .form-section {
                         padding: 1.25rem;
                         border-radius: 12px;
+                        width: 100%;
+                        max-width: 100%;
+                        box-sizing: border-box;
                     }
 
                     .form-row {
                         grid-template-columns: 1fr;
+                        width: 100%;
+                        max-width: 100%;
+                        box-sizing: border-box;
                     }
 
                     .member-row {
                         grid-template-columns: 1fr 1fr;
                         padding: 0.5rem;
+                        width: 100%;
+                        max-width: 100%;
+                        box-sizing: border-box;
                     }
 
-                    .member-row .form-input,
-                    .member-row select {
-                        padding: 0.625rem 0.75rem;
-                        font-size: 0.875rem;
-                    }
+                .member-row .form-input,
+                .member-row select {
+                    padding: 0.625rem 0.75rem;
+                    font-size: 0.875rem;
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                }
 
                     .sns-row {
                         grid-template-columns: 1fr;
@@ -1921,10 +1974,15 @@ export default function VideoRegisterPage() {
                     .movie-year-selector {
                         flex-direction: column;
                         gap: 0.5rem;
+                        width: 100%;
+                        max-width: 100%;
+                        box-sizing: border-box;
                     }
 
                     .movie-year-type {
                         width: 100%;
+                        max-width: 100%;
+                        box-sizing: border-box;
                     }
 
                     .icon-upload-area {
@@ -1947,10 +2005,21 @@ export default function VideoRegisterPage() {
                 @media (max-width: 480px) {
                     .member-row {
                         grid-template-columns: 1fr;
+                        width: 100%;
+                        max-width: 100%;
+                        box-sizing: border-box;
                     }
 
                     .slots-grid {
                         grid-template-columns: 1fr 1fr;
+                        width: 100%;
+                        max-width: 100%;
+                        box-sizing: border-box;
+                    }
+
+                    .form-input,
+                    .form-textarea {
+                        font-size: 16px; /* iOSでズームを防ぐ */
                     }
                 }
             `}</style>
