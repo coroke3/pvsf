@@ -7,6 +7,7 @@ const nextConfig = {
       "i.ytimg.com",
       "cdn.discordapp.com",
       "lh3.googleusercontent.com",
+      "drive.google.com",
       "images.microcms-assets.io",
       "firebasestorage.googleapis.com",
       "pbs.twimg.com",
@@ -47,6 +48,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
         pathname: '/**',
       },
       {

@@ -330,12 +330,11 @@ const UserInfo = ({ release, styles }) => {
       {release.icon && (
         <Image
           src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
-          alt={release.title || 'アイコン'}
+          alt={`${release.creator || release.title || 'アイコン'}`}
           width={100}
           height={100}
           className={styles.icon}
           unoptimized
-          alt={`${release.creator} アイコン`}
         />
       )}
 
@@ -447,17 +446,23 @@ const MemberTable = ({ memberInfo, styles }) => {
                 <td>{index + 1}</td>
                 <td className={styles.memberIconCell}>
                   {externalUser?.processedIconUrl ? (
-                    <img
+                    <Image
                       src={externalUser.processedIconUrl}
                       alt={`${username.trim()} アイコン`}
+                      width={50}
+                      height={50}
                       className={styles.memberIcon}
-                      tabIndex="0"
+                      tabIndex={0}
                       role="img"
                       aria-label={`${username.trim()}のプロフィール画像`}
                       onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
+                        const img = e.target;
+                        if (img && img.nextSibling) {
+                          img.style.display = 'none';
+                          img.nextSibling.style.display = 'flex';
+                        }
                       }}
+                      unoptimized
                     />
                   ) : null}
                   <div
@@ -545,13 +550,19 @@ const MemberTable = ({ memberInfo, styles }) => {
 
             <div className={styles.memberCardIcon}>
               {externalUser?.processedIconUrl ? (
-                <img
+                <Image
                   src={externalUser.processedIconUrl}
                   alt={`${username.trim()} アイコン`}
+                  width={50}
+                  height={50}
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
+                    const img = e.target;
+                    if (img && img.nextSibling) {
+                      img.style.display = 'none';
+                      img.nextSibling.style.display = 'flex';
+                    }
                   }}
+                  unoptimized
                 />
               ) : null}
               <div

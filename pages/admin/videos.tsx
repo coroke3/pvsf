@@ -317,7 +317,7 @@ export default function AdminVideosPage() {
         }
     };
 
-    const saveEdit = async () => {
+    const saveEdit = useCallback(async () => {
         if (!editingVideo) return;
 
         setIsEditing(true);
@@ -357,7 +357,7 @@ export default function AdminVideosPage() {
             if (res.ok) {
                 setSuccess('動画を更新しました');
                 setEditingVideo(null);
-                fetchVideos();
+                refreshVideos();
             } else {
                 const data = await res.json();
                 setError(data.error || '更新に失敗しました');
@@ -367,7 +367,7 @@ export default function AdminVideosPage() {
         } finally {
             setIsEditing(false);
         }
-    };
+    }, [editingVideo, refreshVideos]);
 
     // Delete confirmation state (3 confirmations required)
     const [deleteTarget, setDeleteTarget] = useState<Video | null>(null);
@@ -400,7 +400,7 @@ export default function AdminVideosPage() {
                 setSuccess('動画を削除しました');
                 setDeleteTarget(null);
                 setDeleteConfirmCount(0);
-                fetchVideos();
+                refreshVideos();
             } else {
                 const data = await res.json();
                 setError(data.error || '削除に失敗しました');
@@ -470,7 +470,7 @@ export default function AdminVideosPage() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [editingVideo, deleteTarget, searchQuery, isEditing, showShortcuts]);
+    }, [editingVideo, deleteTarget, searchQuery, isEditing, showShortcuts, saveEdit]);
 
     // Collect all unique events from all videos
     const uniqueEvents = Array.from(new Set(videos.flatMap(v => v.eventIds).filter(Boolean)));

@@ -86,10 +86,12 @@ export default function ProfilePage() {
     }
   }, [isLoading, isAuthenticated, router]);
 
-  // Get approved XIDs
-  const approvedXids = user?.xidClaims
-    ?.filter((claim: any) => claim.status === 'approved')
-    .map((claim: any) => claim.xid.toLowerCase()) || [];
+  // Get approved XIDs (memoized to prevent unnecessary re-renders)
+  const approvedXids = useMemo(() => {
+    return user?.xidClaims
+      ?.filter((claim: any) => claim.status === 'approved')
+      .map((claim: any) => claim.xid.toLowerCase()) || [];
+  }, [user?.xidClaims]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -134,7 +136,7 @@ export default function ProfilePage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [editingVideo, managingVideo, showShortcuts, isEditing]);
+  }, [editingVideo, managingVideo, showShortcuts, isEditing, saveEdit]);
 
   // Fetch videos that match user's approved XIDs
   const fetchMyVideos = useCallback(async () => {
@@ -234,13 +236,13 @@ export default function ProfilePage() {
     } finally {
       setIsLoadingVideos(false);
     }
-  }, [approvedXids.join(',')]);
+  }, [approvedXids]);
 
   useEffect(() => {
     if (isAuthenticated && approvedXids.length > 0) {
       fetchMyVideos();
     }
-  }, [isAuthenticated, fetchMyVideos]);
+  }, [isAuthenticated, approvedXids.length, fetchMyVideos]);
 
   function extractYouTubeId(url: string): string | null {
     if (!url) return null;
@@ -331,7 +333,7 @@ export default function ProfilePage() {
     }
   };
 
-  const saveEdit = async () => {
+  const saveEdit = useCallback(async () => {
     if (!editingVideo) return;
 
     setIsEditing(true);
@@ -370,7 +372,7 @@ export default function ProfilePage() {
     } finally {
       setIsEditing(false);
     }
-  };
+  }, [editingVideo, fetchMyVideos]);
 
   const toggleMemberApproval = async (videoId: string, memberXid: string, currentApproved: boolean) => {
     setIsUpdatingMember(memberXid);
