@@ -31,7 +31,6 @@ function Header() {
   const router = useRouter();
   const [isHide, setIsHide] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const { resolvedTheme } = useTheme();
   const [imageSrc, setImageSrc] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,68 +40,48 @@ function Header() {
   const { user, isAuthenticated, isLoading, login, logout, isAdmin } = useAuth();
 
   useEffect(() => {
+    // ルーター準備完了まで待機（本番ビルドでパスが正しく取れるように）
+    if (!router.isReady || typeof window === "undefined") return;
+
+    const isHomePage = router.asPath === "/" || router.asPath === "";
+
     const handleScroll = () => {
-      // パスに応じて異なるスクロール動作を設定
-      switch (router.pathname) {
-        case "/":
-          // トップページ: 1画面分スクロールで表示/非表示
-          if (window.scrollY > (window.innerHeight * 0.75)) {
-            setIsHide(false);
-          } else {
-            setIsHide(true);
-          }
-
-          // モバイル時のヘッダーバー表示/非表示
-
-          break;
-
-        default:
-          // その他のページ: 常に表示
-          setIsHide(false);
-          break;
+      if (!isHomePage) {
+        setIsHide(false);
+        return;
+      }
+      // トップページ: 1画面分スクロールで表示/非表示
+      if (window.scrollY > window.innerHeight * 0.75) {
+        setIsHide(false);
+      } else {
+        setIsHide(true);
       }
     };
 
-    const handleRouteChange = (url) => {
-      console.log("現在のパス:", url); // URLをログに出力
-    };
-
-    // スクロールイベントを監視するパスを指定
-    const shouldWatchScroll = ["/"].includes(router.pathname);
-    if (shouldWatchScroll) {
-      window.addEventListener('scroll', handleScroll);
+    // 初回状態を設定
+    if (isHomePage) {
+      handleScroll();
+      window.addEventListener("scroll", handleScroll);
     } else {
-      // その他のページでは常に表示
       setIsHide(false);
     }
 
-    // ルート変更イベントを監視
-    router.events.on('routeChangeComplete', handleRouteChange);
-
-    // 初回レンダリング時に現在のパスをログに出力
-    console.log("初期パス:", router.pathname);
-    switch (router.pathname) {
-      case "/":
-        // トップページ: 1画面分スクロールで表示/非表示
-        if (window.scrollY > window.innerHeight) {
-          setIsHide(false);
-        } else {
-          setIsHide(true);
-        }
-        break;
-
-      default:
-        // その他のページ: 常に表示
+    const handleRouteChange = (url) => {
+      const isNowHome = url === "/" || url === "";
+      if (isNowHome) {
+        handleScroll();
+      } else {
         setIsHide(false);
-        break;
-    }
-
-    // クリーンアップ
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      router.events.off('routeChangeComplete', handleRouteChange);
+      }
     };
-  }, [router.pathname, router.events, lastScrollY]);
+
+    router.events.on("routeChangeComplete", handleRouteChange);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, [router.isReady, router.asPath, router.events]);
 
   // Close user menu when clicking outside
   useEffect(() => {
