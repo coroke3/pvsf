@@ -26,15 +26,10 @@ function initializeFirebase() {
         } else {
             app = getApp();
         }
-        // Firestore設定を最適化（パフォーマンス向上）
-        db = getFirestore(app, {
-            // キャッシュを有効化してオフライン対応とパフォーマンス向上
-            experimentalForceLongPolling: false,
-            // ローカルキャッシュを有効化
-            localCache: {
-                kind: 'persistent',
-            },
-        });
+        // Firestore初期化（デフォルト設定を使用）
+        // Firebase v10では getFirestore は設定オブジェクトを受け取らないため、
+        // デフォルト設定を使用します（デフォルトで最適化されています）
+        db = getFirestore(app);
         auth = getAuth(app);
         storage = getStorage(app);
     }
