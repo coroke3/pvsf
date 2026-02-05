@@ -9,10 +9,15 @@ let adminAuth: Auth;
 
 function initializeAdmin() {
     if (!getApps().length) {
-        // Use service account credentials
-        const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
-            ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
-            : undefined;
+        let serviceAccount: object | undefined;
+        const key = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+        if (key) {
+            try {
+                serviceAccount = JSON.parse(key);
+            } catch (e) {
+                console.warn('FIREBASE_SERVICE_ACCOUNT_KEY parse failed:', e);
+            }
+        }
 
         if (serviceAccount) {
             adminApp = initializeApp({

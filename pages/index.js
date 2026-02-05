@@ -16,7 +16,7 @@ const nextDates = [
   { date: "03/29", year: "2026", day: "Sun" },
 ];
 
-export default function Home({ blog, top }) {
+export default function Home({ blog = [], top = {} }) {
   const [isHide, setIsHide] = useState(true);
   const [activeItems, setActiveItems] = useState(new Set());
   const aboutItemRefs = useRef([]);

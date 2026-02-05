@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { SessionProvider } from 'next-auth/react';
@@ -18,7 +19,11 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 
   useEffect(() => {
     const handleRouterChange = (url) => {
-      gtag.pageview(url);
+      try {
+        gtag.pageview(url);
+      } catch (e) {
+        // gtag 未設定時は無視
+      }
     };
     router.events.on("routeChangeComplete", handleRouterChange);
     return () => {
@@ -51,24 +56,30 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
         <Analytics />
-        <Script
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}
-        />
-        <Script
-          id="gtag-init"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${gtag.GA_MEASUREMENT_ID}');
-          `,
-          }}
-        />
+        {gtag.GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}
+            />
+            <Script
+              id="gtag-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gtag.GA_MEASUREMENT_ID}');
+              `,
+              }}
+            />
+          </>
+        )}
         <Layout>
-          <Component {...pageProps} />
+          <ErrorBoundary>
+            <Component {...pageProps} />
+          </ErrorBoundary>
         </Layout>
       </AuthProvider>
     </SessionProvider>
