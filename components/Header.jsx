@@ -20,10 +20,10 @@ const isExternalLink = (href) => {
 };
 
 const menuItems = [
-  { title: "PVSF2025S", subtitle: "企画概要", href: "../../page/pvsf2025s" },
-  { title: "JOIN", subtitle: "参加する", href: "../../page/join" },
-  { title: "RELEASES", subtitle: "投稿予定のご案内", href: "../../release" },
-  { title: "Q&A", subtitle: "質問", href: "../../page/qanda" },
+  { title: "PVSF2025S", subtitle: "企画概要", href: "/page/pvsf2025s" },
+  { title: "JOIN", subtitle: "参加する", href: "/page/join" },
+  { title: "RELEASES", subtitle: "投稿予定のご案内", href: "/release" },
+  { title: "Q&A", subtitle: "質問", href: "/page/qanda" },
   { title: "ARCHIVES", subtitle: "過去の作品(外部サイト)", href: "https://archive.pvsf.jp", external: true },
 ];
 
@@ -131,7 +131,7 @@ function Header() {
     <header className={`site-header ${isHide ? "Hide" : ""} ${isMobileMenuOpen ? "mobile-open" : ""}`}>
       <div className="header-content">
         <div className={`logo-area `}>
-          <a href={"../../../"}>
+          <Link href="/">
 
             <p className="event-type">movie event</p>
             <div className="logo-title">
@@ -153,7 +153,7 @@ function Header() {
                 <p>映像連続投稿祭</p>
               </div>
             </div>
-          </a>
+          </Link>
         </div>
 
         <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
@@ -188,7 +188,7 @@ function Header() {
                       </div>
                     </a>
                   ) : (
-                    <a href={item.href}>
+                    <Link href={item.href}>
                       <div className="menu-title text-split">
                         {[...item.title].map((char, index) => (
                           <span key={index} data-random={index}>{char}</span>
@@ -199,7 +199,7 @@ function Header() {
                           <span key={index} data-random={index}>{char}</span>
                         ))}
                       </div>
-                    </a>
+                    </Link>
                   )}
                 </li>
               );

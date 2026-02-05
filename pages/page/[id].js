@@ -313,7 +313,7 @@ export default function PageId({ page, top }) {
                           </div>
                         ))}
                       </div>
-                      <p><Link href={`../page/${top.management.path}`}>運営一覧ページ {"->"}</Link></p>
+                      <p><Link href={`/page/${top.management.path}`}>運営一覧ページ {"->"}</Link></p>
                     </>
                   ) : (
                     <div>

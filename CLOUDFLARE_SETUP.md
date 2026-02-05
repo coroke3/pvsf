@@ -8,9 +8,8 @@
 
 1. **`open-next.config.ts`** - OpenNext の設定ファイル
 2. **`wrangler.jsonc`** - Cloudflare Pages 用設定
-3. **`package.json`** - `build:pages` スクリプト
-4. **`.node-version`** / **`.tool-versions`** - Node.js バージョン指定
-5. **`.env`** - ビルド用環境変数（WRANGLER_BUILD_PLATFORM 等）
+3. **`package.json`** - `build:pages` スクリプト（WRANGLER 変数を内蔵）
+4. **`.node-version`** / **`.tool-versions`** - Node.js 20 指定
 
 ---
 
@@ -34,15 +33,13 @@
 
 **Settings → Build & deployments → Build system version** で **v3** を選択
 
-### 4. 環境変数（必須）
+### 4. 環境変数
 
 **Settings → Environment variables** で以下の環境変数を設定してください。
 
-```
-# OpenNext ビルド用（必須 - @emotion/jose 等のモジュール解決エラーを防ぐ）
-WRANGLER_BUILD_PLATFORM=node
-WRANGLER_BUILD_CONDITIONS=
+> ✅ `WRANGLER_BUILD_PLATFORM` と `WRANGLER_BUILD_CONDITIONS` は `build:pages` スクリプトに内蔵済みのため、ダッシュボードでの設定は不要です。
 
+```
 # Firebase (本番環境)
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
@@ -64,8 +61,6 @@ NEXTAUTH_URL=https://your-domain.pages.dev
 DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
 ```
-
-> ⚠️ **重要**: `WRANGLER_BUILD_PLATFORM=node` と `WRANGLER_BUILD_CONDITIONS=` を必ず設定してください。これがないと @emotion/react、jose、@panva/hkdf 等のパッケージ解決に失敗します。
 
 > ⚠️ `FIREBASE_PRIVATE_KEY` は改行を `\n` に置換して1行にしてください。
 
@@ -104,9 +99,7 @@ R2 未設定の場合は ISR のキャッシュが制限されますが、ビル
 
 ### ビルドエラー: Could not resolve "@emotion/react" または "jose"
 
-Cloudflare ダッシュボードで以下を設定してください：
-- `WRANGLER_BUILD_PLATFORM=node`
-- `WRANGLER_BUILD_CONDITIONS=`（空文字）
+`package.json` の `build:pages` に `WRANGLER_BUILD_PLATFORM=node` が含まれているか確認してください。含まれていない場合は手動で追加するか、Cloudflare ダッシュボードで設定してください。
 
 ### ビルドエラー: node-build: definition not found: 22
 
@@ -120,6 +113,10 @@ Cloudflare ダッシュボードで以下を設定してください：
 
 `experimental-edge` ランタイムは OpenNext と互換性がありません。該当ページから `export const runtime = 'experimental-edge';` を削除してください。
 
+### トップページ以外にアクセスできない・404 になる
+
+`wrangler.jsonc` の `run_worker_first` を `true` に設定してください。これによりすべてのリクエストが Worker を経由し、Next.js のルーティングが正しく動作します。コストは増えますが、ダイナミックルートやリライトが必要な場合は必須です。
+
 ---
 
 ## 確認コマンド
@@ -130,6 +127,8 @@ Cloudflare ダッシュボードで以下を設定してください：
 npm install
 npm run build:pages
 ```
+
+> **Windows ユーザー**: `cross-env` により Windows でもローカルビルドが可能です。
 
 ローカルプレビュー：
 
@@ -147,4 +146,4 @@ npx wrangler pages dev .open-next
 | Build command | `npm run build:pages` |
 | Build output directory | `.open-next` |
 | Node.js version | 20 |
-| 必須環境変数 | WRANGLER_BUILD_PLATFORM=node, WRANGLER_BUILD_CONDITIONS= |
+| ビルド用環境変数 | build:pages スクリプトに内蔵 |
