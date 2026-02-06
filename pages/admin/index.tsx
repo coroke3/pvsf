@@ -43,7 +43,6 @@ export default function AdminDashboard() {
           const data = await res.json();
           setStats(data);
         } else {
-          // Fallback or error handling
           console.error('Failed to fetch stats');
           setStats({
             videoCount: 0,
@@ -90,7 +89,7 @@ export default function AdminDashboard() {
       icon: faCalendarAlt,
       href: '/admin/slots',
       color: '#f59e0b',
-      stat: null
+      stat: stats?.slotCount
     },
     {
       title: 'ユーザー管理',
@@ -151,57 +150,76 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Quick Stats */}
-          {!isLoadingStats && stats && (
-            <div className="stats-row">
-              <div className="stat-card">
-                <FontAwesomeIcon icon={faVideo} className="stat-icon" />
-                <div className="stat-info">
-                  <span className="stat-value">{stats.videoCount}</span>
-                  <span className="stat-label">登録動画</span>
-                </div>
+          {/* Stats Overview */}
+          <div className="stats-row">
+            <div className="stat-card">
+              <div className="stat-icon" style={{ color: '#8b5cf6', background: 'rgba(139, 92, 246, 0.1)' }}>
+                <FontAwesomeIcon icon={faVideo} />
               </div>
-              <div className="stat-card">
-                <FontAwesomeIcon icon={faUsers} className="stat-icon" />
-                <div className="stat-info">
-                  <span className="stat-value">{stats.userCount}</span>
-                  <span className="stat-label">ユーザー</span>
-                </div>
-              </div>
-              <div className="stat-card">
-                <FontAwesomeIcon icon={faChartLine} className="stat-icon" />
-                <div className="stat-info">
-                  <span className="stat-value status-online">稼働中</span>
-                  <span className="stat-label">システム</span>
-                </div>
+              <div className="stat-info">
+                <span className="stat-value">
+                  {isLoadingStats ? <FontAwesomeIcon icon={faSpinner} spin size="sm" /> : stats?.videoCount.toLocaleString() ?? '-'}
+                </span>
+                <span className="stat-label">登録動画</span>
               </div>
             </div>
-          )}
+            <div className="stat-card">
+              <div className="stat-icon" style={{ color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)' }}>
+                <FontAwesomeIcon icon={faCalendarAlt} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-value">
+                  {isLoadingStats ? <FontAwesomeIcon icon={faSpinner} spin size="sm" /> : stats?.slotCount.toLocaleString() ?? '-'}
+                </span>
+                <span className="stat-label">登録枠数</span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon" style={{ color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)' }}>
+                <FontAwesomeIcon icon={faUsers} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-value">
+                  {isLoadingStats ? <FontAwesomeIcon icon={faSpinner} spin size="sm" /> : stats?.userCount.toLocaleString() ?? '-'}
+                </span>
+                <span className="stat-label">ユーザー</span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon" style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.1)' }}>
+                <FontAwesomeIcon icon={faChartLine} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-value status-online" style={{ fontSize: '1.2rem', marginTop: '0.3rem' }}>稼働中</span>
+                <span className="stat-label">システム</span>
+              </div>
+            </div>
+          </div>
 
           {/* Tools grid */}
           <h2 className="section-title">管理ツール</h2>
           <div className="tools-grid">
             {adminTools.map((tool, index) => (
-              <Link href={tool.href} key={index} className="tool-card">
-                <div className="tool-icon" style={{ backgroundColor: tool.color }}>
+              <Link href={tool.href} key={index} className="tool-card" style={{ borderLeft: `4px solid ${tool.color}` }}>
+                <div className="tool-icon" style={{ backgroundColor: `${tool.color}20`, color: tool.color }}>
                   <FontAwesomeIcon icon={tool.icon} />
                 </div>
                 <div className="tool-info">
-                  <h3>{tool.title}</h3>
+                  <h3>
+                    {tool.title}
+                    {tool.stat !== null && tool.stat !== undefined && (
+                      <span className="tool-stat-badge">{tool.stat}</span>
+                    )}
+                  </h3>
                   <p>{tool.description}</p>
-                  {tool.stat !== null && tool.stat !== undefined && (
-                    <span className="tool-stat">{tool.stat} 件</span>
-                  )}
                 </div>
-                <div className="tool-arrow">
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </div>
+                <FontAwesomeIcon icon={faArrowRight} className="tool-arrow" />
               </Link>
             ))}
           </div>
 
           {/* System status */}
-          <div className="card">
+          <div className="card" style={{ marginTop: '2rem' }}>
             <h2>System Info</h2>
             <div className="status-grid">
               <div className="status-item">
@@ -225,7 +243,7 @@ export default function AdminDashboard() {
 
       <style jsx>{`
         .user-card {
-          margin-bottom: 1.5rem;
+          margin-bottom: 2rem;
         }
 
         .user-card-content {
@@ -239,7 +257,7 @@ export default function AdminDashboard() {
           height: 48px;
           border-radius: 50%;
           object-fit: cover;
-          border: 2px solid rgba(100, 255, 218, 0.3);
+          border: 2px solid var(--c-primary);
         }
 
         .user-card-info {
@@ -251,30 +269,51 @@ export default function AdminDashboard() {
         .user-card-name {
           font-weight: 600;
           font-size: 1.1rem;
+          color: var(--c-text);
+        }
+
+        .badge {
+            background: var(--c-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
 
         /* Stats Row */
         .stats-row {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-bottom: 2rem;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1.5rem;
+          margin-bottom: 2.5rem;
         }
 
         .stat-card {
           display: flex;
           align-items: center;
           gap: 1rem;
-          padding: 1.25rem;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 1.5rem;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 12px;
+          transition: transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.05);
         }
 
-        .stat-card :global(.stat-icon) {
+        .stat-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           font-size: 1.5rem;
-          color: var(--accent-primary);
-          opacity: 0.8;
+          flex-shrink: 0;
         }
 
         .stat-info {
@@ -283,43 +322,43 @@ export default function AdminDashboard() {
         }
 
         .stat-value {
-          font-size: 1.5rem;
+          font-size: 1.75rem;
           font-weight: 700;
           color: #fff;
+          line-height: 1.2;
         }
 
         .stat-label {
-          font-size: 0.75rem;
-          color: #8892b0;
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.5);
           text-transform: uppercase;
           letter-spacing: 0.05em;
+          margin-top: 0.25rem;
         }
 
         .section-title {
-          font-size: 1rem;
-          font-weight: 600;
-          color: #8892b0;
+          font-size: 1.2rem;
+          font-weight: 700;
+          color: #fff;
           margin-bottom: 1rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          border: none;
-          padding: 0;
+          padding-left: 0.5rem;
+          border-left: 4px solid var(--c-primary);
         }
 
         .tools-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 1rem;
-          margin-bottom: 2rem;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1.5rem;
+          margin-bottom: 2.5rem;
         }
 
         .tool-card {
           display: flex;
           align-items: center;
           gap: 1rem;
-          padding: 1.25rem;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 1.5rem;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 12px;
           transition: all 0.2s ease;
           text-decoration: none;
@@ -327,9 +366,9 @@ export default function AdminDashboard() {
         }
 
         .tool-card:hover {
-          background: rgba(255, 255, 255, 0.05);
-          transform: translateX(4px);
-          border-color: rgba(255, 255, 255, 0.12);
+          background: rgba(255, 255, 255, 0.06);
+          transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.2);
         }
 
         .tool-card:hover .tool-arrow {
@@ -345,7 +384,6 @@ export default function AdminDashboard() {
           height: 48px;
           border-radius: 12px;
           font-size: 1.25rem;
-          color: white;
           flex-shrink: 0;
         }
 
@@ -355,89 +393,68 @@ export default function AdminDashboard() {
         }
 
         .tool-info h3 {
-          margin: 0 0 0.25rem;
-          font-size: 1rem;
+          margin: 0 0 0.5rem;
+          font-size: 1.1rem;
           font-weight: 600;
           color: #fff;
-          border: none;
-          padding: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        
+        .tool-stat-badge {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: normal;
         }
 
         .tool-info p {
           margin: 0;
-          font-size: 0.8rem;
-          color: #6b7280;
+          font-size: 0.85rem;
+          color: rgba(255, 255, 255, 0.5);
           line-height: 1.4;
         }
 
-        .tool-stat {
-          display: inline-block;
-          margin-top: 0.5rem;
-          padding: 0.25rem 0.5rem;
-          background: rgba(100, 255, 218, 0.1);
-          border-radius: 4px;
-          font-size: 0.7rem;
-          color: var(--accent-primary);
-          font-weight: 500;
-        }
-
         .tool-arrow {
-          color: var(--accent-primary);
-          opacity: 0;
-          transform: translateX(-8px);
+          color: rgba(255, 255, 255, 0.3);
+          opacity: 0.5;
+          transform: translateX(-4px);
           transition: all 0.2s ease;
         }
 
         .status-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 0.75rem;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1rem;
         }
 
         .status-item {
           display: flex;
           flex-direction: column;
           gap: 0.25rem;
-          padding: 0.75rem;
-          background: rgba(255, 255, 255, 0.02);
+          padding: 1rem;
+          background: rgba(0, 0, 0, 0.2);
           border-radius: 8px;
         }
 
         .status-label {
-          font-size: 0.7rem;
-          color: #6b7280;
+          font-size: 0.75rem;
+          color: rgba(255, 255, 255, 0.4);
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
 
         .status-value {
-          font-size: 0.875rem;
+          font-size: 1rem;
           color: #fff;
-          font-weight: 500;
+          font-weight: 600;
         }
 
         .status-online {
-          color: #4ade80;
-        }
-
-        @media screen and (max-width: 768px) {
-          .stats-row {
-            grid-template-columns: 1fr;
-          }
-
-          .tools-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .status-grid {
-            grid-template-columns: 1fr 1fr;
-          }
-        }
-
-        @media screen and (max-width: 480px) {
-          .status-grid {
-            grid-template-columns: 1fr;
-          }
+          color: #10b981;
         }
       `}</style>
     </>

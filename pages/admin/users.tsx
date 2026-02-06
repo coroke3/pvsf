@@ -265,13 +265,13 @@ export default function AdminUsers() {
                                 <div className="user-main">
                                     <div className="user-identity">
                                         {user.discordAvatar ? (
-                                            <Image 
-                                              src={user.discordAvatar} 
-                                              alt={user.discordUsername || 'User'} 
-                                              width={40}
-                                              height={40}
-                                              className="avatar"
-                                              unoptimized
+                                            <Image
+                                                src={user.discordAvatar}
+                                                alt={user.discordUsername || 'User'}
+                                                width={40}
+                                                height={40}
+                                                className="avatar"
+                                                unoptimized
                                             />
                                         ) : (
                                             <div className="avatar placeholder"><FontAwesomeIcon icon={faDiscord} /></div>
@@ -405,8 +405,8 @@ export default function AdminUsers() {
                     align-items: center;
                     justify-content: center;
                     border-radius: 50%;
-                    background: rgba(255,255,255,0.1);
-                    color: white;
+                    background: var(--bg-surface-2);
+                    color: var(--c-text);
                     transition: background 0.2s;
                 }
                 .back-link:hover {
@@ -421,17 +421,17 @@ export default function AdminUsers() {
                 .filter-btn {
                     position: relative;
                     padding: 0.5rem 1rem;
-                    background: rgba(255,255,255,0.05);
-                    border: 1px solid rgba(255,255,255,0.1);
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-radius: 6px;
-                    color: rgba(255,255,255,0.7);
+                    color: var(--c-muted);
                     cursor: pointer;
                     transition: all 0.2s;
                 }
 
                 .filter-btn.active {
                     background: #5865F2;
-                    color: white;
+                    color: var(--c-text);
                     border-color: #5865F2;
                 }
 
@@ -442,8 +442,8 @@ export default function AdminUsers() {
                 }
 
                 .user-card {
-                    background: rgba(255,255,255,0.05);
-                    border: 1px solid rgba(255,255,255,0.1);
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-radius: 8px;
                     padding: 1rem;
                 }
@@ -473,7 +473,7 @@ export default function AdminUsers() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: white;
+                    color: var(--c-text);
                     font-size: 1.5rem;
                 }
 
@@ -495,7 +495,7 @@ export default function AdminUsers() {
 
                 .badge.admin {
                     background: #ef4444;
-                    color: white;
+                    color: var(--c-text);
                     font-size: 0.7rem;
                     padding: 0.1rem 0.4rem;
                     border-radius: 4px;
@@ -503,7 +503,7 @@ export default function AdminUsers() {
 
                 .id {
                     font-size: 0.75rem;
-                    color: rgba(255,255,255,0.4);
+                    color: var(--c-muted);
                 }
 
                 .claims-section {
@@ -515,7 +515,7 @@ export default function AdminUsers() {
                 .claims-section h4 {
                     margin: 0 0 0.5rem;
                     font-size: 0.8rem;
-                    color: rgba(255,255,255,0.5);
+                    color: var(--c-muted);
                 }
 
                 .claim-item {
@@ -562,11 +562,11 @@ export default function AdminUsers() {
 
                 .btn.approve {
                     background: #10b981;
-                    color: white;
+                    color: var(--c-text);
                 }
                 .btn.reject {
                     background: #ef4444;
-                    color: white;
+                    color: var(--c-text);
                 }
 
                 .status-badge {
@@ -590,18 +590,18 @@ export default function AdminUsers() {
                 .help-icon {
                     background: none;
                     border: none;
-                    color: rgba(255,255,255,0.5);
+                    color: var(--c-muted);
                     cursor: pointer;
                     font-size: 1.25rem;
                     transition: color 0.2s;
                 }
                 .help-icon:hover {
-                    color: white;
+                    color: var(--c-text);
                 }
 
                 .user-card {
-                    background: rgba(255,255,255,0.05);
-                    border: 1px solid rgba(255,255,255,0.1);
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-radius: 8px;
                     padding: 1rem;
                     transition: all 0.2s;
@@ -616,7 +616,7 @@ export default function AdminUsers() {
 
                 .btn.revoke {
                     background: none;
-                    color: rgba(255,255,255,0.4);
+                    color: var(--c-muted);
                 }
                 .btn.revoke:hover {
                     color: #ef4444;
@@ -639,10 +639,10 @@ export default function AdminUsers() {
                 }
 
                 .shortcuts-card {
-                    background: #1a1a1a;
+                    background: var(--bg-surface-1);
                     border-radius: 12px;
                     padding: 2rem;
-                    border: 1px solid #333;
+                    border: 1px solid var(--border-main);
                     min-width: 320px;
                     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
                 }
@@ -652,7 +652,7 @@ export default function AdminUsers() {
                     margin-bottom: 1.5rem;
                     display: flex;
                     align-items: center;
-                    color: #fff;
+                    color: var(--c-text);
                     font-size: 1.2rem;
                     border-bottom: 2px solid #5865F2; /* H3 horizontal line */
                     padding-bottom: 0.5rem;
@@ -674,12 +674,12 @@ export default function AdminUsers() {
                     display: flex;
                     align-items: center;
                     gap: 1rem;
-                    color: rgba(255,255,255,0.9);
+                    color: var(--c-text);
                 }
 
                 kbd {
-                    background: #2b2d31;
-                    border: 1px solid #444;
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-bottom-width: 3px;
                     border-radius: 4px;
                     padding: 0.2rem 0.6rem;
@@ -687,7 +687,7 @@ export default function AdminUsers() {
                     font-weight: bold;
                     min-width: 2rem;
                     text-align: center;
-                    color: #fff;
+                    color: var(--c-text);
                     font-size: 0.9rem;
                 }
 

@@ -38,11 +38,28 @@ function parseSlotsInput(input: string): Date[] {
         }
 
         if (parts.length >= 2) {
-            const date = parts[0].trim();
-            const time = parts[1].trim();
+            const dateStr = parts[0].trim();
+            const timeStr = parts[1].trim();
 
-            if (/^\d{4}-\d{2}-\d{2}$/.test(date) && /^\d{2}:\d{2}$/.test(time)) {
-                slots.push(new Date(`${date}T${time}:00`));
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr) && /^\d{1,3}:\d{2}$/.test(timeStr)) {
+                // Parse time components
+                const [hStr, mStr] = timeStr.split(':');
+                let hour = parseInt(hStr, 10);
+                const minute = parseInt(mStr, 10);
+
+                // Create base date object
+                const dateObj = new Date(`${dateStr}T00:00:00`);
+
+                // Handle cross-day times (e.g. 25:00 -> Next day 01:00)
+                if (hour >= 24) {
+                    const extraDays = Math.floor(hour / 24);
+                    hour = hour % 24;
+                    dateObj.setDate(dateObj.getDate() + extraDays);
+                }
+
+                // Set time
+                dateObj.setHours(hour, minute, 0, 0);
+                slots.push(dateObj);
             }
         }
     }

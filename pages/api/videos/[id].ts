@@ -102,18 +102,18 @@ export default async function handler(
             }
 
             const video = videoDoc.data() as VideoDocument;
-            
+
             // Check if soft-deleted (only admins can view deleted videos with special param)
             if (video.isDeleted) {
                 const session = await getServerSession(req, res, authOptions);
                 const user = session?.user as any;
                 const { includeDeleted } = req.query;
-                
+
                 if (user?.role !== 'admin' || includeDeleted !== 'true') {
                     return res.status(404).json({ error: 'Video not found' });
                 }
             }
-            
+
             return res.status(200).json({ ...video, id: videoDoc.id });
 
         } catch (error) {
@@ -165,53 +165,68 @@ export default async function handler(
             // Parse update data
             const updateData = req.body;
 
-            // Fields that can be updated by author or approved members
-            // Note: type and type2 are NOT editable by regular users
-            const allowedFields = [
-                'title', 'description', 'music', 'credit',
-                'musicUrl', 'otherSns', 'rightType', 'software',
-                'beforeComment', 'afterComment', 'listen', 'episode', 'endMessage',
-                'members', 'homepageComment', 'link', 'snsPlans'
+            // Determine publication status
+            const now = new Date();
+            const startTime = video.startTime instanceof Date ? video.startTime :
+                (video.startTime as any).toDate ? (video.startTime as any).toDate() :
+                    new Date(video.startTime);
+
+            const isPublished = startTime <= now;
+
+            // Define field sets
+            // 公開済み動画でも編集可能なフィールド
+            const alwaysEditable = [
+                'snsPlans', 'homepageComment', 'otherSns', 'description',
+                'software', 'beforeComment', 'afterComment', 'listen', 'episode',
+                'endMessage', 'members', 'agreedToTerms'
             ];
+
+            // 公開前のみ編集可能なフィールド
+            const prePublicationOnly = [
+                'title', 'music', 'credit', 'musicUrl', 'role',
+                'movieYear', 'videoUrl', 'rightType', 'link',
+                'authorChannelUrl', 'authorIconUrl', 'authorName', 'authorXid'
+            ];
+
+            // Base allowed fields
+            let allowedFields = [...alwaysEditable];
+
+            // Add pre-publication fields if not published yet
+            if (!isPublished) {
+                allowedFields = [...allowedFields, ...prePublicationOnly];
+            }
+            // 公開済み動画: alwaysEditableのみ許可（videoUrl, link, authorIconUrl等は編集不可）
 
             const updates: Partial<VideoDocument> = {};
 
-            for (const field of allowedFields) {
+            // Helper to add field if present
+            const addIfPresent = (field: string) => {
                 if (updateData[field] !== undefined) {
                     (updates as any)[field] = updateData[field];
                 }
+            };
+
+            // Apply updates based on allowed fields
+            for (const field of allowedFields) {
+                addIfPresent(field);
             }
 
-            // When updating members, only author can change editApproved status
-            // Approved members can only update member names/roles, not editApproved
-            if (updateData.members !== undefined && !permission.isAuthor && user.role !== 'admin') {
-                // Preserve editApproved from original members
-                const originalMembers = video.members || [];
-                updates.members = updateData.members.map((newMember: any) => {
-                    const original = originalMembers.find(
-                        m => m.xid.toLowerCase() === newMember.xid?.toLowerCase()
-                    );
-                    return {
-                        ...newMember,
-                        editApproved: original?.editApproved || false,
-                    };
-                });
-            }
+            // Exceptions or special handling
+            // If admin, allowing everything is handled below, but this block handles general users.
 
-            // Admin-only fields (including eventIds - regular users cannot change events)
+            // Admin Override
             if (user.role === 'admin') {
                 const adminFields = [
                     'authorXid', 'authorName', 'authorIconUrl', 'authorChannelUrl',
                     'eventIds', 'startTime', 'slotId', 'videoUrl', 'type', 'type2',
-                    'musicUrl', 'otherSns', 'rightType', 'software', 
+                    'musicUrl', 'otherSns', 'rightType', 'software',
                     'beforeComment', 'afterComment', 'listen', 'episode', 'endMessage',
-                    'members', 'movieYear', 'snsPlans', 'homepageComment', 'link', 'agreedToTerms'
+                    'members', 'movieYear', 'snsPlans', 'homepageComment', 'link', 'agreedToTerms',
+                    'title', 'description', 'music', 'credit'
                 ];
 
                 for (const field of adminFields) {
-                    if (updateData[field] !== undefined) {
-                        (updates as any)[field] = updateData[field];
-                    }
+                    addIfPresent(field);
                 }
 
                 // Update authorXidLower if authorXid is changed
@@ -306,6 +321,31 @@ export default async function handler(
         }
     }
 
+    // PATCH: Update specific fields (e.g., Restore / Soft Delete toggle)
+    if (req.method === 'PATCH') {
+        const session = await getServerSession(req, res, authOptions);
+        if (!session?.user || (session.user as any).role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { restore } = req.body;
+
+        try {
+            if (restore) {
+                // Restore logic
+                await adminDb.collection('videos').doc(id).update({
+                    isDeleted: false,
+                    deletedAt: null,
+                    updatedAt: new Date()
+                });
+                return res.status(200).json({ success: true, message: 'Video restored' });
+            }
+        } catch (error) {
+            console.error('Error restoring video:', error);
+            return res.status(500).json({ error: 'Failed to restore video' });
+        }
+    }
+
     // DELETE: Soft-delete video (admin only)
     if (req.method === 'DELETE') {
         const session = await getServerSession(req, res, authOptions);
@@ -320,6 +360,8 @@ export default async function handler(
             return res.status(403).json({ error: 'Admin access required' });
         }
 
+        const { force } = req.query;
+
         try {
             // Check if video exists
             const videoDoc = await adminDb.collection('videos').doc(id).get();
@@ -328,8 +370,17 @@ export default async function handler(
                 return res.status(404).json({ error: 'Video not found' });
             }
 
+            // Force Delete (Hard Delete)
+            if (force === 'true') {
+                await adminDb.collection('videos').doc(id).delete();
+                return res.status(200).json({
+                    success: true,
+                    message: 'Video permanently deleted.'
+                });
+            }
+
             const video = videoDoc.data() as VideoDocument;
-            
+
             // Check if already deleted
             if (video.isDeleted) {
                 return res.status(400).json({ error: 'Video is already deleted' });

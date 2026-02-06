@@ -68,7 +68,7 @@ export default function VideoRegisterPage() {
     const [credit, setCredit] = useState('');
     const [musicUrl, setMusicUrl] = useState('');
     const [type, setType] = useState('個人');
-    const [type2, setType2] = useState('一般');
+    const [type2, setType2] = useState('個人');
     const [movieYear, setMovieYear] = useState('');
     const [movieYearType, setMovieYearType] = useState<'number' | 'text' | 'hidden'>('number');
     const [software, setSoftware] = useState('');
@@ -90,7 +90,10 @@ export default function VideoRegisterPage() {
 
     // Icon upload
     const [iconPreview, setIconPreview] = useState('');
+
     const [isCompressingIcon, setIsCompressingIcon] = useState(false);
+    const [historyIcons, setHistoryIcons] = useState<string[]>([]);
+    const [showIconHistory, setShowIconHistory] = useState(false);
 
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -322,11 +325,37 @@ export default function VideoRegisterPage() {
             const compressedDataUrl = await compressImage(file);
             setAuthorIconUrl(compressedDataUrl);
             setIconPreview(compressedDataUrl);
+            setShowIconHistory(false);
         } catch (err) {
             setError('画像の圧縮に失敗しました');
         } finally {
             setIsCompressingIcon(false);
         }
+    };
+
+    // Fetch icon history
+    const fetchIconHistory = async () => {
+        if (historyIcons.length > 0) {
+            setShowIconHistory(!showIconHistory);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/user/icons');
+            if (res.ok) {
+                const data = await res.json();
+                setHistoryIcons(data.icons || []);
+                setShowIconHistory(true);
+            }
+        } catch (err) {
+            console.error('Failed to fetch icon history', err);
+        }
+    };
+
+    const selectHistoryIcon = (url: string) => {
+        setAuthorIconUrl(url);
+        setIconPreview(url);
+        setShowIconHistory(false);
     };
 
     // Add member
@@ -690,8 +719,8 @@ export default function VideoRegisterPage() {
                                         className="form-input"
                                         required
                                     >
-                                        <option value="一般">一般</option>
-                                        <option value="ビギナー">ビギナー</option>
+                                        <option value="個人">個人</option>
+                                        <option value="複数人">複数人</option>
                                     </select>
                                 </div>
                             </div>
@@ -905,78 +934,80 @@ export default function VideoRegisterPage() {
                             </div>
                         </div>
 
-                        {/* Members (Moved here) */}
-                        <div className="form-section">
-                            <h2>メンバー（複数人の場合）</h2>
-                            <div className="help-text">
-                                スプレッドシートからコピー&ペーストできます（名前, XID, 役割 をタブまたはカンマ区切り）
-                            </div>
-                            <div className="bulk-input-area">
-                                <textarea
-                                    value={bulkMemberInput}
-                                    onChange={(e) => setBulkMemberInput(e.target.value)}
-                                    placeholder="例:&#10;田中太郎&#9;tanaka&#9;映像&#10;鈴木花子&#9;suzuki&#9;イラスト"
-                                    rows={3}
-                                    className="form-textarea"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={parseBulkMembers}
-                                    className="btn btn-secondary"
-                                    disabled={!bulkMemberInput.trim()}
-                                >
-                                    <FontAwesomeIcon icon={faPlus} /> 一括追加
-                                </button>
-                            </div>
-                            <div className="members-list">
-                                {members.map((member, index) => (
-                                    <div key={index} className="member-row">
-                                        <input
-                                            type="text"
-                                            value={member.name}
-                                            onChange={(e) => updateMember(index, 'name', e.target.value)}
-                                            placeholder="名前"
-                                            className="form-input"
-                                        />
-                                        <div className="input-with-prefix small">
-                                            <span>@</span>
+                        {/* Members (Only shown when type2 is '複数人') */}
+                        {type2 === '複数人' && (
+                            <div className="form-section">
+                                <h2>メンバー（複数人の場合）</h2>
+                                <div className="help-text">
+                                    スプレッドシートからコピー&ペーストできます（名前, XID, 役割 をタブまたはカンマ区切り）
+                                </div>
+                                <div className="bulk-input-area">
+                                    <textarea
+                                        value={bulkMemberInput}
+                                        onChange={(e) => setBulkMemberInput(e.target.value)}
+                                        placeholder="例:&#10;田中太郎&#9;tanaka&#9;映像&#10;鈴木花子&#9;suzuki&#9;イラスト"
+                                        rows={3}
+                                        className="form-textarea"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={parseBulkMembers}
+                                        className="btn btn-secondary"
+                                        disabled={!bulkMemberInput.trim()}
+                                    >
+                                        <FontAwesomeIcon icon={faPlus} /> 一括追加
+                                    </button>
+                                </div>
+                                <div className="members-list">
+                                    {members.map((member, index) => (
+                                        <div key={index} className="member-row">
                                             <input
                                                 type="text"
-                                                value={member.xid}
-                                                onChange={(e) => updateMember(index, 'xid', e.target.value)}
-                                                placeholder="XID"
+                                                value={member.name}
+                                                onChange={(e) => updateMember(index, 'name', e.target.value)}
+                                                placeholder="名前"
                                                 className="form-input"
                                             />
+                                            <div className="input-with-prefix small">
+                                                <span>@</span>
+                                                <input
+                                                    type="text"
+                                                    value={member.xid}
+                                                    onChange={(e) => updateMember(index, 'xid', e.target.value)}
+                                                    placeholder="XID"
+                                                    className="form-input"
+                                                />
+                                            </div>
+                                            <select
+                                                value={member.role}
+                                                onChange={(e) => updateMember(index, 'role', e.target.value)}
+                                                className="form-input"
+                                            >
+                                                <option value="">役割を選択</option>
+                                                {AVAILABLE_ROLES.map(role => (
+                                                    <option key={role} value={role}>{role}</option>
+                                                ))}
+                                                <option value="その他">その他</option>
+                                            </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeMember(index)}
+                                                className="btn btn-icon btn-danger"
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
                                         </div>
-                                        <select
-                                            value={member.role}
-                                            onChange={(e) => updateMember(index, 'role', e.target.value)}
-                                            className="form-input"
-                                        >
-                                            <option value="">役割を選択</option>
-                                            {AVAILABLE_ROLES.map(role => (
-                                                <option key={role} value={role}>{role}</option>
-                                            ))}
-                                            <option value="その他">その他</option>
-                                        </select>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeMember(index)}
-                                            className="btn btn-icon btn-danger"
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={addMember}
+                                    className="btn btn-secondary"
+                                >
+                                    <FontAwesomeIcon icon={faPlus} /> メンバーを追加
+                                </button>
                             </div>
-                            <button
-                                type="button"
-                                onClick={addMember}
-                                className="btn btn-secondary"
-                            >
-                                <FontAwesomeIcon icon={faPlus} /> メンバーを追加
-                            </button>
-                        </div>
+                        )}
 
                         {/* SNS Upload Plans */}
                         <div className="form-section">

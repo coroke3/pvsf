@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +10,8 @@ import {
     faVideo, faSearch, faEdit, faTrash,
     faSpinner, faCheck, faTimes,
     faEye, faThumbsUp, faExternalLinkAlt, faUser, faPlus, faKeyboard,
-    faSort, faSortUp, faSortDown, faFilter
+    faSort, faSortUp, faSortDown, faFilter,
+    faTable, faList, faFileExport, faFileCsv, faFileCode, faDownload, faUpload, faTrashRestore
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
 import type { VideoMember } from '@/types/video';
@@ -29,12 +31,14 @@ interface Video {
     videoUrl: string;
     authorXid: string;
     authorName: string;
+    authorIconUrl?: string;
     eventIds: string[]; // Array of event IDs
     startTime: string;
     viewCount: number;
     likeCount: number;
     slotId: string | null;
     privacyStatus: string;
+    isDeleted?: boolean;
 }
 
 interface EditingVideo {
@@ -68,6 +72,18 @@ export default function AdminVideosPage() {
     const { isAdmin, isLoading, isAuthenticated } = useAuth();
     const searchInputRef = useRef<HTMLInputElement>(null);
 
+    const [showDeleted, setShowDeleted] = useState(false);
+    const [success, setSuccess] = useState(''); // Moved up for use in handler
+    const [error, setError] = useState('');     // Moved up for use in handler
+
+    // 無限スクロール用のフック定義の前にハンドラが必要かは微妙だが、refreshVideosを使うなら後で定義する必要がある。
+    // しかし showDeleted はフックに渡す必要がある。
+    // success/error はハンドラ内で使う。
+    // refreshVideos はフックから返る。
+    // 循環依存...
+    // 解決策: showDeleted だけ先に定義。handleRestore はフックの後で定義（refreshVideosを使うため）。
+    // 今回のエラーは `includeDeleted: showDeleted` で showDeleted が未定義だったこと。
+
     // 無限スクロール用のフック
     const {
         videos: infiniteVideos,
@@ -80,6 +96,7 @@ export default function AdminVideosPage() {
     } = useInfiniteVideos({
         limit: 15,
         enabled: isAdmin,
+        includeDeleted: showDeleted,
     });
 
     const [videos, setVideos] = useState<Video[]>([]);
@@ -88,14 +105,90 @@ export default function AdminVideosPage() {
     const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
     const [editingVideo, setEditingVideo] = useState<EditingVideo | null>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+
     const [showShortcuts, setShowShortcuts] = useState(false);
     const [showEventFilter, setShowEventFilter] = useState(false);
 
     // Sort state
     const [sortField, setSortField] = useState<SortField>('startTime');
     const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+    // View & Export state
+    const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
+    const [showExportMenu, setShowExportMenu] = useState(false);
+
+
+
+    const handleRestore = async (video: Video) => {
+        if (!confirm('この動画を復元しますか？')) return;
+        try {
+            const res = await fetch(`/api/videos/${video.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ restore: true }),
+            });
+            if (res.ok) {
+                setSuccess('動画を復元しました');
+                refreshVideos();
+            } else {
+                setError('復元に失敗しました');
+            }
+        } catch (err) {
+            setError('復元に失敗しました');
+        }
+    };
+
+    const handleExport = (format: 'json' | 'csv' | 'tsv') => {
+        let content = '';
+        let mimeType = '';
+        let extension = '';
+
+        const dataToExport = filteredVideos.length > 0 ? filteredVideos : videos;
+
+        if (format === 'json') {
+            content = JSON.stringify(dataToExport, null, 2);
+            mimeType = 'application/json';
+            extension = 'json';
+        } else if (format === 'csv') {
+            const headers = ['id', 'title', 'authorName', 'authorXid', 'eventIds', 'startTime', 'privacyStatus', 'viewCount', 'likeCount'];
+            const headerRow = headers.join(',');
+            const rows = dataToExport.map(v => {
+                return headers.map(h => {
+                    const val = v[h as keyof Video];
+                    if (Array.isArray(val)) return `"${val.join(',')}"`;
+                    return `"${String(val || '').replace(/"/g, '""')}"`;
+                }).join(',');
+            });
+            content = [headerRow, ...rows].join('\n');
+            mimeType = 'text/csv';
+            extension = 'csv';
+        } else if (format === 'tsv') {
+            // Internal Schema TSV (Comma separated arrays)
+            const headers = ['id', 'title', 'authorName', 'authorXid', 'eventIds', 'startTime', 'privacyStatus', 'viewCount', 'likeCount'];
+            const headerRow = headers.join('\t');
+            const rows = dataToExport.map(v => {
+                return headers.map(h => {
+                    const val = v[h as keyof Video];
+                    if (Array.isArray(val)) return val.join(',');
+                    return String(val || '').replace(/\t/g, '    ').replace(/\n/g, ' ');
+                }).join('\t');
+            });
+            content = [headerRow, ...rows].join('\n');
+            mimeType = 'text/tab-separated-values';
+            extension = 'tsv';
+        }
+
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pvsf_videos_${new Date().toISOString().slice(0, 10)}.${extension}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setShowExportMenu(false);
+    };
 
     // Bulk member input
     const [bulkMemberInput, setBulkMemberInput] = useState('');
@@ -203,7 +296,7 @@ export default function AdminVideosPage() {
             let comparison = 0;
             switch (sortField) {
                 case 'title':
-                    comparison = a.title.localeCompare(b.title, 'ja');
+                    comparison = (a.title || '').toString().localeCompare((b.title || '').toString(), 'ja');
                     break;
                 case 'authorName':
                     comparison = a.authorName.localeCompare(b.authorName, 'ja');
@@ -1087,19 +1180,154 @@ export default function AdminVideosPage() {
                                 <FontAwesomeIcon icon={faVideo} /> 動画一覧
                                 <span className="badge">{filteredVideos.length}件</span>
                             </h2>
+                            <div className="header-actions">
+                                <div className="view-toggle">
+                                    <button
+                                        className={`btn-icon ${viewMode === 'list' ? 'active' : ''}`}
+                                        onClick={() => setViewMode('list')}
+                                        title="リスト表示"
+                                    >
+                                        <FontAwesomeIcon icon={faList} />
+                                    </button>
+                                    <button
+                                        className={`btn-icon ${viewMode === 'table' ? 'active' : ''}`}
+                                        onClick={() => setViewMode('table')}
+                                        title="テーブル表示"
+                                    >
+                                        <FontAwesomeIcon icon={faTable} />
+                                    </button>
+                                    <div style={{ width: '1px', height: '24px', background: 'var(--border-main)', margin: '0 4px' }}></div>
+                                    <button
+                                        className={`btn-icon ${showDeleted ? 'active' : ''}`}
+                                        onClick={() => setShowDeleted(!showDeleted)}
+                                        title={showDeleted ? "ゴミ箱を隠す" : "ゴミ箱を表示"}
+                                        style={showDeleted ? { color: 'var(--c-danger)' } : {}}
+                                    >
+                                        <FontAwesomeIcon icon={faTrashRestore} />
+                                    </button>
+                                </div>
+                                <div className="action-buttons" style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <Link href="/admin/import" className="btn btn-secondary btn-sm" title="データインポート">
+                                        <FontAwesomeIcon icon={faUpload} />
+                                        <span className="hide-mobile">インポート</span>
+                                    </Link>
+                                    <div className="export-menu-container">
+                                        <button
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => setShowExportMenu(!showExportMenu)}
+                                            title="データエクスポート"
+                                        >
+                                            <FontAwesomeIcon icon={faFileExport} />
+                                            <span className="hide-mobile">エクスポート</span>
+                                        </button>
+                                        {showExportMenu && (
+                                            <div className="export-dropdown">
+                                                <button onClick={() => handleExport('json')}>
+                                                    <FontAwesomeIcon icon={faFileCode} /> JSON
+                                                </button>
+                                                <button onClick={() => handleExport('csv')}>
+                                                    <FontAwesomeIcon icon={faFileCsv} /> CSV
+                                                </button>
+                                                <button onClick={() => handleExport('tsv')}>
+                                                    <FontAwesomeIcon icon={faTable} /> TSV
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {isLoadingVideos && videos.length === 0 ? (
                             <div className="loading">
                                 <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
                             </div>
-                        ) : filteredVideos.length === 0 ? (
-                            <div className="empty-state">動画がありません</div>
+                        ) : viewMode === 'table' ? (
+                            <div className="video-table-container">
+                                <table className="video-table">
+                                    <thead>
+                                        <tr>
+                                            <th>サムネイル</th>
+                                            <th onClick={() => { if (sortField === 'title') setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); else { setSortField('title'); setSortOrder('asc'); } }} style={{ cursor: 'pointer' }}>
+                                                タイトル {sortField === 'title' && <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />}
+                                            </th>
+                                            <th onClick={() => { if (sortField === 'authorName') setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); else { setSortField('authorName'); setSortOrder('asc'); } }} style={{ cursor: 'pointer' }}>
+                                                作者 {sortField === 'authorName' && <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />}
+                                            </th>
+                                            <th>イベント</th>
+                                            <th onClick={() => { if (sortField === 'startTime') setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); else { setSortField('startTime'); setSortOrder('desc'); } }} style={{ cursor: 'pointer' }}>
+                                                公開日時 {sortField === 'startTime' && <FontAwesomeIcon icon={sortOrder === 'asc' ? faSortUp : faSortDown} />}
+                                            </th>
+                                            <th>ステータス</th>
+                                            <th>統計</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredVideos.map((video) => (
+                                            <tr key={video.id} className={video.isDeleted ? 'deleted-row' : ''} style={video.isDeleted ? { opacity: 0.6, background: 'rgba(255,0,0,0.05)' } : {}}>
+                                                <td className="col-thumb">
+                                                    <div className="table-thumb">
+                                                        <Image
+                                                            src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
+                                                            alt={video.title}
+                                                            width={80}
+                                                            height={45}
+                                                            unoptimized
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td className="col-title" title={video.title}>{video.title}</td>
+                                                <td className="col-author">
+                                                    <div className="author-cell">
+                                                        <span>{video.authorName}</span>
+                                                        <span className="muted">@{video.authorXid}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="col-events">
+                                                    <div className="events-cell">
+                                                        {video.eventIds.map(id => (
+                                                            <span key={id} className="event-tag">{id}</span>
+                                                        ))}
+                                                    </div>
+                                                </td>
+                                                <td>{formatDate(video.startTime)}</td>
+                                                <td>
+                                                    <span className={`status-badge ${video.privacyStatus}`}>
+                                                        {video.privacyStatus}
+                                                    </span>
+                                                </td>
+                                                <td className="col-stats">
+                                                    <span title="再生数"><FontAwesomeIcon icon={faEye} /> {video.viewCount}</span>
+                                                    <span title="高評価"><FontAwesomeIcon icon={faThumbsUp} /> {video.likeCount}</span>
+                                                </td>
+                                                <td className="col-actions">
+                                                    {video.isDeleted ? (
+                                                        <button onClick={() => handleRestore(video)} className="btn-icon" title="復元する" style={{ color: 'var(--c-success)' }}>
+                                                            <FontAwesomeIcon icon={faTrashRestore} />
+                                                        </button>
+                                                    ) : (
+                                                        <button onClick={() => startDeleteProcess(video)} className="btn-icon" title="削除">
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                        </button>
+                                                    )}
+                                                    <button onClick={() => startEdit(video)} className="btn-icon" title="編集">
+                                                        <FontAwesomeIcon icon={faEdit} />
+                                                    </button>
+                                                    <a href={`https://youtu.be/${video.id}`} target="_blank" rel="noreferrer" className="btn-icon" title="YouTubeで開く">
+                                                        <FontAwesomeIcon icon={faExternalLinkAlt} />
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         ) : (
                             <>
                                 <div className="video-grid">
                                     {filteredVideos.map((video) => (
-                                        <div key={video.id} className="video-card">
+                                        <div key={video.id} className={`video-card ${video.isDeleted ? 'deleted' : ''}`} style={video.isDeleted ? { opacity: 0.7, border: '1px solid var(--c-danger)' } : {}}>
                                             <div className="video-card-thumbnail">
                                                 <Image
                                                     src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
@@ -1123,7 +1351,22 @@ export default function AdminVideosPage() {
                                             <div className="video-card-content">
                                                 <h3 className="video-card-title">{video.title}</h3>
                                                 <div className="video-card-author">
-                                                    <FontAwesomeIcon icon={faUser} />
+                                                    {video.authorIconUrl ? (
+                                                        <>
+                                                            <img
+                                                                src={video.authorIconUrl}
+                                                                alt={video.authorName}
+                                                                className="author-icon"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                                }}
+                                                            />
+                                                            <span className="fallback-icon hidden"><FontAwesomeIcon icon={faUser} /></span>
+                                                        </>
+                                                    ) : (
+                                                        <FontAwesomeIcon icon={faUser} />
+                                                    )}
                                                     <span>{video.authorName}</span>
                                                     <span className="video-card-xid">@{video.authorXid}</span>
                                                 </div>
@@ -1143,9 +1386,15 @@ export default function AdminVideosPage() {
                                                     <button onClick={() => startEdit(video)} className="btn btn-sm btn-secondary">
                                                         <FontAwesomeIcon icon={faEdit} /> 編集
                                                     </button>
-                                                    <button onClick={() => startDeleteProcess(video)} className="btn btn-sm btn-danger">
-                                                        <FontAwesomeIcon icon={faTrash} /> 削除
-                                                    </button>
+                                                    {video.isDeleted ? (
+                                                        <button onClick={() => handleRestore(video)} className="btn btn-sm btn-success" style={{ background: 'var(--c-success)', color: 'white' }}>
+                                                            <FontAwesomeIcon icon={faTrashRestore} /> 復元
+                                                        </button>
+                                                    ) : (
+                                                        <button onClick={() => startDeleteProcess(video)} className="btn btn-sm btn-danger">
+                                                            <FontAwesomeIcon icon={faTrash} /> 削除
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -1215,6 +1464,158 @@ export default function AdminVideosPage() {
             </div>
 
             <style jsx>{`
+                .header-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+                
+                .view-toggle {
+                    display: flex;
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
+                    border-radius: 6px;
+                    padding: 2px;
+                }
+                
+                .view-toggle .btn-icon {
+                    width: 32px;
+                    height: 32px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 4px;
+                    color: var(--c-muted);
+                    background: transparent;
+                    border: none;
+                    cursor: pointer;
+                }
+                
+                .view-toggle .btn-icon.active {
+                    background: var(--c-primary);
+                    color: white;
+                }
+                
+                .export-menu-container {
+                    position: relative;
+                }
+                
+                .export-dropdown {
+                    position: absolute;
+                    top: 100%;
+                    right: 0;
+                    margin-top: 0.5rem;
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    z-index: 100;
+                    min-width: 150px;
+                    overflow: hidden;
+                }
+                
+                .export-dropdown button {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    width: 100%;
+                    padding: 0.75rem 1rem;
+                    border: none;
+                    background: transparent;
+                    color: var(--c-text);
+                    text-align: left;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                }
+                
+                .export-dropdown button:hover {
+                    background: var(--c-surface);
+                }
+
+                .video-table-container {
+                    overflow-x: auto;
+                    margin: 0 -1.5rem;
+                    padding: 0 1.5rem;
+                }
+
+                .video-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 0.9rem;
+                }
+
+                .video-table th, .video-table td {
+                    padding: 0.75rem;
+                    text-align: left;
+                    border-bottom: 1px solid var(--border-main);
+                }
+
+                .video-table th {
+                    font-weight: 600;
+                    color: var(--c-muted);
+                    white-space: nowrap;
+                }
+
+                .col-thumb { width: 100px; }
+                .table-thumb img { border-radius: 4px; }
+                
+                .col-title { 
+                    max-width: 200px; 
+                    white-space: nowrap; 
+                    overflow: hidden; 
+                    text-overflow: ellipsis; 
+                    font-weight: 600;
+                }
+
+                .author-cell {
+                    display: flex;
+                    flex-direction: column;
+                    line-height: 1.2;
+                }
+                .author-cell .muted { font-size: 0.8rem; color: var(--c-muted); }
+
+                .events-cell {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.25rem;
+                    max-width: 150px;
+                }
+                
+                .event-tag {
+                    font-size: 0.75rem;
+                    padding: 2px 6px;
+                    background: rgba(var(--accent-primary-rgb), 0.1);
+                    color: var(--accent-primary);
+                    border-radius: 4px;
+                }
+                
+                .status-badge {
+                    font-size: 0.75rem;
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
+                }
+                
+                .col-stats {
+                    white-space: nowrap;
+                    color: var(--c-muted);
+                }
+                .col-stats span { margin-right: 0.75rem; }
+
+                .col-actions {
+                    white-space: nowrap;
+                }
+                .col-actions .btn-icon {
+                    margin-right: 0.5rem;
+                    color: var(--c-text);
+                    background: transparent;
+                    border: none;
+                    cursor: pointer;
+                    padding: 4px;
+                }
+                .col-actions .btn-icon:hover { color: var(--c-primary); }
+
                 .video-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1223,15 +1624,15 @@ export default function AdminVideosPage() {
                 }
 
                 .video-card {
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-radius: 12px;
                     overflow: hidden;
                     transition: all 0.2s ease;
                 }
 
                 .video-card:hover {
-                    border-color: rgba(255, 255, 255, 0.12);
+                    border-color: var(--border-main);
                     transform: translateY(-2px);
                 }
 
@@ -1252,8 +1653,8 @@ export default function AdminVideosPage() {
                     top: 0.5rem;
                     left: 0.5rem;
                     padding: 0.25rem 0.5rem;
-                    background: rgba(239, 68, 68, 0.9);
-                    color: white;
+                    background: var(--c-danger); /* Specific red for status */
+                    color: var(--c-text-inverted);
                     border-radius: 4px;
                     font-size: 0.7rem;
                     font-weight: 600;
@@ -1268,8 +1669,8 @@ export default function AdminVideosPage() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: rgba(0, 0, 0, 0.7);
-                    color: white;
+                    background: rgba(0, 0, 0, 0.7); /* Dark overlay */
+                    color: var(--c-text-inverted);
                     border-radius: 50%;
                     opacity: 0;
                     transition: opacity 0.2s;
@@ -1287,7 +1688,7 @@ export default function AdminVideosPage() {
                     font-size: 0.95rem;
                     font-weight: 600;
                     margin: 0 0 0.75rem;
-                    color: #fff;
+                    color: var(--c-text);
                     display: -webkit-box;
                     -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;
@@ -1302,12 +1703,19 @@ export default function AdminVideosPage() {
                     align-items: center;
                     gap: 0.5rem;
                     font-size: 0.85rem;
-                    color: #ccd6f6;
+                    color: var(--c-text-light); /* Specific light blue */
                     margin-bottom: 0.5rem;
                 }
 
+                .video-card-author .author-icon {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+
                 .video-card-xid {
-                    color: #8892b0;
+                    color: var(--c-muted);
                     font-size: 0.8rem;
                 }
 
@@ -1316,7 +1724,7 @@ export default function AdminVideosPage() {
                     align-items: center;
                     gap: 0.75rem;
                     font-size: 0.8rem;
-                    color: #8892b0;
+                    color: var(--c-muted);
                     margin-bottom: 0.75rem;
                 }
 
@@ -1328,7 +1736,7 @@ export default function AdminVideosPage() {
 
                 .video-card-event {
                     padding: 0.125rem 0.5rem;
-                    background: rgba(100, 255, 218, 0.1);
+                    background: rgba(var(--accent-primary-rgb), 0.1);
                     color: var(--accent-primary);
                     border-radius: 4px;
                     font-size: 0.75rem;
@@ -1338,7 +1746,7 @@ export default function AdminVideosPage() {
                     display: flex;
                     gap: 1rem;
                     font-size: 0.8rem;
-                    color: #8892b0;
+                    color: var(--c-muted);
                     margin-bottom: 1rem;
                 }
 
@@ -1367,7 +1775,7 @@ export default function AdminVideosPage() {
                     display: flex;
                     gap: 1rem;
                     padding: 1rem;
-                    background: rgba(255, 255, 255, 0.03);
+                    background: var(--bg-surface-1);
                     border-radius: 8px;
                     margin-bottom: 1rem;
                 }
@@ -1387,26 +1795,26 @@ export default function AdminVideosPage() {
 
                 .delete-video-details strong {
                     font-size: 0.95rem;
-                    color: #fff;
+                    color: var(--c-text);
                 }
 
                 .delete-video-details span {
                     font-size: 0.85rem;
-                    color: #8892b0;
+                    color: var(--c-muted);
                 }
 
                 .delete-warning {
                     text-align: center;
                     padding: 1rem;
-                    background: rgba(239, 68, 68, 0.1);
-                    border: 1px solid rgba(239, 68, 68, 0.2);
+                    background: rgba(var(--c-danger-rgb), 0.1);
+                    border: 1px solid rgba(var(--c-danger-rgb), 0.2);
                     border-radius: 8px;
                     margin-bottom: 1rem;
                 }
 
                 .delete-warning p {
                     margin: 0.25rem 0;
-                    color: #ef4444;
+                    color: var(--c-danger);
                 }
 
                 .delete-progress {
@@ -1428,19 +1836,19 @@ export default function AdminVideosPage() {
                     align-items: center;
                     justify-content: center;
                     border-radius: 50%;
-                    background: rgba(255, 255, 255, 0.1);
-                    color: #8892b0;
+                    background: rgba(var(--c-text-rgb), 0.1);
+                    color: var(--c-muted);
                     font-weight: 600;
                     transition: all 0.3s ease;
                 }
 
                 .delete-step.confirmed {
-                    background: #ef4444;
-                    color: white;
+                    background: var(--c-danger);
+                    color: var(--c-text-inverted);
                 }
 
                 .delete-step-text {
-                    color: #8892b0;
+                    color: var(--c-muted);
                     font-size: 0.85rem;
                     margin: 0;
                 }
@@ -1450,8 +1858,8 @@ export default function AdminVideosPage() {
                 }
 
                 @keyframes pulse-danger {
-                    0%, 100% { background: #ef4444; }
-                    50% { background: #dc2626; }
+                    0%, 100% { background: var(--c-danger); }
+                    50% { background: var(--c-danger-dark); } /* Assuming a darker variant for animation */
                 }
 
                 /* Extended Edit Modal Styles */
@@ -1473,7 +1881,7 @@ export default function AdminVideosPage() {
                     content: '';
                     flex: 1;
                     height: 1px;
-                    background: rgba(255, 255, 255, 0.1);
+                    background: var(--border-main);
                 }
 
                 .form-section-divider span {
@@ -1490,7 +1898,7 @@ export default function AdminVideosPage() {
 
                 .bulk-member-section label {
                     display: block;
-                    color: #8892b0;
+                    color: var(--c-muted);
                     font-size: 0.8rem;
                     margin-bottom: 0.5rem;
                 }
@@ -1508,8 +1916,8 @@ export default function AdminVideosPage() {
                     align-items: center;
                     gap: 0.75rem;
                     padding: 0.75rem;
-                    background: rgba(100, 255, 218, 0.05);
-                    border: 1px solid rgba(100, 255, 218, 0.15);
+                    background: rgba(var(--accent-primary-rgb), 0.05);
+                    border: 1px solid rgba(var(--accent-primary-rgb), 0.15);
                     border-radius: 8px;
                     margin-bottom: 1rem;
                     flex-wrap: wrap;
@@ -1540,8 +1948,8 @@ export default function AdminVideosPage() {
                     align-items: center;
                     gap: 0.5rem;
                     padding: 0.5rem 0.75rem;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    background: var(--bg-surface-1);
+                    border: 1px solid var(--border-main);
                     border-radius: 8px;
                     flex-wrap: wrap;
                 }
@@ -1574,7 +1982,7 @@ export default function AdminVideosPage() {
                     align-items: center;
                     gap: 0.25rem;
                     padding: 0.25rem 0.5rem;
-                    background: rgba(255, 255, 255, 0.05);
+                    background: rgba(var(--c-text-rgb), 0.05);
                     border-radius: 4px;
                     font-size: 0.75rem;
                     cursor: pointer;
@@ -1582,7 +1990,7 @@ export default function AdminVideosPage() {
                 }
 
                 .role-checkbox-small:hover {
-                    background: rgba(255, 255, 255, 0.1);
+                    background: rgba(var(--c-text-rgb), 0.1);
                 }
 
                 .role-checkbox-small input {
@@ -1605,11 +2013,11 @@ export default function AdminVideosPage() {
                     align-items: center;
                     gap: 0.25rem;
                     padding: 0.25rem 0.5rem;
-                    background: rgba(74, 222, 128, 0.1);
+                    background: rgba(var(--c-success-rgb), 0.1);
                     border-radius: 4px;
                     font-size: 0.7rem;
                     cursor: pointer;
-                    color: #4ade80;
+                    color: var(--c-success);
                     white-space: nowrap;
                 }
 
@@ -1619,7 +2027,6 @@ export default function AdminVideosPage() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: rgba(239, 68, 68, 0.1);
                     border: 1px solid rgba(239, 68, 68, 0.2);
                     border-radius: 6px;
                     color: #ef4444;

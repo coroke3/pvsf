@@ -13,6 +13,7 @@ interface Video {
     likeCount: number;
     slotId: string | null;
     privacyStatus: string;
+    isDeleted?: boolean;
 }
 
 interface PaginationInfo {
@@ -26,6 +27,7 @@ interface UseInfiniteVideosOptions {
     authorXid?: string;
     limit?: number;
     enabled?: boolean;
+    includeDeleted?: boolean;
 }
 
 interface UseInfiniteVideosReturn {
@@ -41,16 +43,16 @@ interface UseInfiniteVideosReturn {
 export function useInfiniteVideos(
     options: UseInfiniteVideosOptions = {}
 ): UseInfiniteVideosReturn {
-    const { eventId, authorXid, limit = 15, enabled = true } = options;
-    
+    const { eventId, authorXid, limit = 15, enabled = true, includeDeleted = false } = options;
+
     const [videos, setVideos] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [lastDocId, setLastDocId] = useState<string | null>(null);
+    const lastDocIdRef = useRef<string | null>(null);
     const [isInitialized, setIsInitialized] = useState(false);
-    
+
     const abortControllerRef = useRef<AbortController | null>(null);
 
     // 動画データをパースする関数
@@ -58,14 +60,14 @@ export function useInfiniteVideos(
         const eventIds = v.eventid
             ? v.eventid.split(',').map((e: string) => e.trim()).filter(Boolean)
             : [];
-        
+
         // YouTube IDを抽出
         const extractYouTubeId = (url: string): string | null => {
             if (!url) return null;
             const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
             return match ? match[1] : null;
         };
-        
+
         return {
             id: extractYouTubeId(v.ylink) || v.ylink || v.id || '',
             title: v.title || '',
@@ -107,9 +109,10 @@ export function useInfiniteVideos(
             if (authorXid) {
                 params.append('authorXid', authorXid);
             }
-            params.append('limit', limit.toString());
-            if (isLoadMore && lastDocId) {
-                params.append('startAfter', lastDocId);
+            if (limit) params.append('limit', limit.toString());
+            if (includeDeleted) params.append('includeDeleted', 'true');
+            if (isLoadMore && lastDocIdRef.current) {
+                params.append('startAfter', lastDocIdRef.current);
             }
 
             const response = await fetch(`/api/videos?${params.toString()}`, {
@@ -117,15 +120,27 @@ export function useInfiniteVideos(
             });
 
             if (!response.ok) {
-                throw new Error('動画の取得に失敗しました');
+                let message = '動画の取得に失敗しました';
+                try {
+                    const errBody = await response.json();
+                    if (errBody?.error && typeof errBody.error === 'string') {
+                        message = errBody.error;
+                    } else {
+                        message = `${message} (${response.status})`;
+                    }
+                } catch {
+                    message = `${message} (${response.status})`;
+                }
+                setError(message);
+                return;
             }
 
             const data = await response.json();
-            
+
             // レスポンス形式の確認（新しい形式か古い形式か）
             let videoList: any[];
             let pagination: PaginationInfo;
-            
+
             if (data.videos && data.pagination) {
                 // 新しい形式（ページネーション情報付き）
                 videoList = data.videos;
@@ -141,7 +156,8 @@ export function useInfiniteVideos(
                     count: data.length,
                 };
             } else {
-                throw new Error('不正なレスポンス形式です');
+                setError('不正なレスポンス形式です');
+                return;
             }
 
             const parsedVideos = videoList.map(parseVideo);
@@ -155,7 +171,7 @@ export function useInfiniteVideos(
             }
 
             setHasMore(pagination.hasMore);
-            setLastDocId(pagination.lastDocId);
+            lastDocIdRef.current = pagination.lastDocId;
             setIsInitialized(true);
 
         } catch (err: any) {
@@ -169,12 +185,12 @@ export function useInfiniteVideos(
             setIsLoading(false);
             setIsLoadingMore(false);
         }
-    }, [eventId, authorXid, limit, enabled, lastDocId]);
+    }, [eventId, authorXid, limit, enabled, includeDeleted]);
 
     // 初回読み込み
     useEffect(() => {
         if (enabled && !isInitialized) {
-            setLastDocId(null); // リセット
+            lastDocIdRef.current = null; // リセット
             fetchVideos(false);
         }
     }, [enabled, isInitialized, fetchVideos]);
@@ -188,7 +204,7 @@ export function useInfiniteVideos(
 
     // リフレッシュ
     const refresh = useCallback(async () => {
-        setLastDocId(null);
+        lastDocIdRef.current = null;
         setVideos([]);
         setIsInitialized(false);
         await fetchVideos(false);

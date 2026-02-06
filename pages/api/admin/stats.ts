@@ -29,7 +29,7 @@ export default async function handler(
         // Run aggregation queries in parallel
         // Note: count() queries are efficient and don't download documents
         const [videosSnapshot, usersSnapshot, slotsSnapshot] = await Promise.all([
-            adminDb.collection('videos').where('isDeleted', '==', false).count().get(),
+            adminDb.collection('videos').count().get(),
             adminDb.collection('users').count().get(),
             adminDb.collection('eventSlots').count().get()
         ]);

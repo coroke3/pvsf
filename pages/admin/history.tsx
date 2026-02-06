@@ -416,129 +416,170 @@ export default function AdminHistoryPage() {
             </div>
 
             <style jsx>{`
+                .content {
+                    padding: 2rem 1rem;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+
                 .admin-header {
                     display: flex;
                     align-items: center;
                     gap: 1rem;
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+
+                .admin-header h2 {
+                    margin: 0;
+                    color: var(--c-text);
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
                 }
 
                 .back-link {
-                    color: var(--text-muted);
+                    color: var(--c-muted);
                     text-decoration: none;
+                    font-size: 1.1rem;
+                    transition: color 0.2s;
                 }
 
                 .back-link:hover {
-                    color: var(--primary);
+                    color: var(--c-primary);
                 }
 
                 .history-filters {
                     display: flex;
                     gap: 1rem;
                     flex-wrap: wrap;
-                    padding: 1rem;
-                    background: var(--surface);
-                    border-radius: 8px;
-                    margin-bottom: 1.5rem;
+                    padding: 1.5rem;
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
+                    border-radius: 12px;
+                    margin-bottom: 2rem;
                     align-items: flex-end;
                 }
 
                 .filter-group {
+                    flex: 1;
+                    min-width: 200px;
                     display: flex;
                     flex-direction: column;
-                    gap: 0.25rem;
+                    gap: 0.5rem;
                 }
 
                 .filter-group label {
-                    font-size: 0.8rem;
-                    color: var(--text-muted);
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    color: var(--c-muted);
                 }
 
                 .filter-group select,
                 .filter-group input {
-                    padding: 0.5rem;
-                    border: 1px solid var(--border);
-                    border-radius: 4px;
-                    background: var(--bg);
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-main);
+                    border-radius: 8px;
+                    background: var(--bg-surface-1);
+                    color: var(--c-text);
+                    font-size: 0.95rem;
+                }
+
+                .filter-group select:focus,
+                .filter-group input:focus {
+                    outline: none;
+                    border-color: var(--c-primary);
+                }
+
+                .filter-actions {
+                    display: flex;
+                    gap: 0.75rem;
                 }
 
                 .history-list {
                     display: flex;
                     flex-direction: column;
-                    gap: 0.5rem;
+                    gap: 1rem;
                 }
 
                 .history-item {
                     display: flex;
-                    gap: 1rem;
-                    padding: 1rem;
-                    background: var(--surface);
-                    border-radius: 8px;
-                    border-left: 4px solid var(--border);
+                    gap: 1.25rem;
+                    padding: 1.25rem;
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
+                    border-radius: 12px;
+                    border-left: 4px solid var(--border-main);
                     cursor: pointer;
                     transition: all 0.2s;
                 }
 
                 .history-item:hover {
-                    background: var(--surface-hover);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
                 }
 
-                .history-item.op-create { border-left-color: #10b981; }
-                .history-item.op-update { border-left-color: #3b82f6; }
-                .history-item.op-delete { border-left-color: #ef4444; }
+                .history-item.op-create { border-left-color: var(--c-success); }
+                .history-item.op-update { border-left-color: var(--c-primary); }
+                .history-item.op-delete { border-left-color: var(--c-danger); }
 
                 .history-icon {
-                    font-size: 1.25rem;
-                    color: var(--text-muted);
+                    font-size: 1.5rem;
+                    color: var(--c-muted);
+                    padding-top: 0.25rem;
                 }
 
                 .history-content {
                     flex: 1;
+                    min-width: 0;
                 }
 
                 .history-header {
                     display: flex;
-                    gap: 0.5rem;
+                    gap: 0.75rem;
                     align-items: center;
                     flex-wrap: wrap;
+                    margin-bottom: 0.5rem;
                 }
 
                 .operation-badge {
                     font-size: 0.75rem;
-                    padding: 0.25rem 0.5rem;
-                    border-radius: 4px;
-                    font-weight: 500;
+                    padding: 0.25rem 0.6rem;
+                    border-radius: 9999px;
+                    font-weight: 600;
+                    text-transform: uppercase;
                 }
 
-                .operation-badge.create { background: #d1fae5; color: #065f46; }
-                .operation-badge.update { background: #dbeafe; color: #1e40af; }
-                .operation-badge.delete { background: #fee2e2; color: #991b1b; }
+                .operation-badge.create { background: rgba(var(--c-success-rgb), 0.1); color: var(--c-success); }
+                .operation-badge.update { background: rgba(var(--c-primary-rgb), 0.1); color: var(--c-primary); }
+                .operation-badge.delete { background: rgba(var(--c-danger-rgb), 0.1); color: var(--c-danger); }
 
                 .collection-name {
-                    font-weight: 500;
+                    font-weight: 600;
+                    color: var(--c-text);
                 }
 
                 .doc-id {
                     font-size: 0.8rem;
-                    background: var(--bg);
-                    padding: 0.125rem 0.375rem;
+                    background: var(--bg-surface-1);
+                    padding: 0.2rem 0.5rem;
                     border-radius: 4px;
+                    font-family: monospace;
+                    color: var(--c-muted);
                 }
 
                 .history-meta {
-                    font-size: 0.8rem;
-                    color: var(--text-muted);
-                    margin-top: 0.25rem;
-                }
-
-                .history-meta span + span::before {
-                    content: ' · ';
+                    font-size: 0.85rem;
+                    color: var(--c-muted);
+                    display: flex;
+                    gap: 0.5rem;
+                    align-items: center;
                 }
 
                 .history-description {
-                    margin-top: 0.5rem;
-                    font-size: 0.9rem;
-                    color: var(--text-secondary);
+                    margin: 0.5rem 0 0;
+                    font-size: 0.95rem;
+                    color: var(--c-text);
+                    opacity: 0.8;
                 }
 
                 .history-actions {
@@ -546,65 +587,117 @@ export default function AdminHistoryPage() {
                     align-items: center;
                 }
 
-                .btn-restore {
-                    background: var(--primary);
-                    color: white;
+                .btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.6rem 1.2rem;
+                    border-radius: 8px;
                     border: none;
-                    padding: 0.375rem 0.75rem;
-                    border-radius: 4px;
+                    font-weight: 600;
                     cursor: pointer;
+                    transition: all 0.2s;
+                    font-size: 0.9rem;
+                }
+
+                .btn-primary {
+                    background: var(--c-primary);
+                    color: white;
+                }
+
+                .btn-secondary {
+                    background: var(--bg-surface-1);
+                    color: var(--c-text);
+                    border: 1px solid var(--border-main);
+                }
+                .btn-secondary:hover {
+                    background: var(--c-surface);
+                    border-color: var(--c-primary);
+                }
+
+                .btn-danger {
+                    background: rgba(var(--c-danger-rgb), 0.1);
+                    color: var(--c-danger);
+                    border: 1px solid rgba(var(--c-danger-rgb), 0.2);
+                }
+                .btn-danger:hover {
+                    background: var(--c-danger);
+                    color: white;
+                }
+
+                .btn-restore {
+                    background: var(--c-primary);
+                    color: white;
                     font-size: 0.8rem;
+                    padding: 0.4rem 0.8rem;
                 }
 
-                .btn-restore:hover {
-                    opacity: 0.9;
+                .btn:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
                 }
 
+                /* Modal */
                 .modal-overlay {
                     position: fixed;
                     inset: 0;
-                    background: rgba(0, 0, 0, 0.5);
+                    background: rgba(0, 0, 0, 0.7);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     z-index: 1000;
+                    backdrop-filter: blur(4px);
                 }
 
                 .modal-content {
-                    background: var(--surface);
-                    border-radius: 12px;
-                    max-width: 800px;
-                    max-height: 80vh;
-                    overflow: hidden;
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
+                    border-radius: 16px;
+                    width: 90%;
+                    max-width: 700px;
+                    max-height: 85vh;
                     display: flex;
                     flex-direction: column;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
                 }
 
                 .modal-header {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    padding: 1rem;
-                    border-bottom: 1px solid var(--border);
+                    padding: 1.5rem;
+                    border-bottom: 1px solid var(--border-main);
+                }
+
+                .modal-header h3 {
+                    margin: 0;
+                    color: var(--c-text);
                 }
 
                 .close-btn {
                     background: none;
                     border: none;
-                    font-size: 1.25rem;
+                    font-size: 1.5rem;
                     cursor: pointer;
-                    color: var(--text-muted);
+                    color: var(--c-muted);
+                    transition: color 0.2s;
+                }
+                .close-btn:hover {
+                    color: var(--c-text);
                 }
 
                 .modal-body {
-                    padding: 1rem;
+                    padding: 1.5rem;
                     overflow-y: auto;
                 }
 
                 .detail-info {
                     display: grid;
-                    gap: 0.5rem;
-                    margin-bottom: 1rem;
+                    gap: 1rem;
+                    margin-bottom: 2rem;
+                    background: var(--bg-surface-1);
+                    padding: 1.5rem;
+                    border-radius: 12px;
                 }
 
                 .detail-row {
@@ -613,81 +706,95 @@ export default function AdminHistoryPage() {
                 }
 
                 .detail-row .label {
-                    color: var(--text-muted);
-                    min-width: 100px;
+                    color: var(--c-muted);
+                    width: 120px;
+                    font-weight: 500;
+                }
+
+                .detail-row .value {
+                    color: var(--c-text);
+                    flex: 1;
+                    font-family: monospace;
+                }
+
+                .data-section {
+                    margin-top: 1.5rem;
                 }
 
                 .data-section h4 {
-                    margin-bottom: 0.5rem;
+                    margin: 0 0 0.75rem;
+                    color: var(--c-muted);
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
                 }
 
                 .data-section pre {
-                    background: var(--bg);
+                    background: #1e1e1e; /* Keep code dark */
+                    color: #e0e0e0;
                     padding: 1rem;
                     border-radius: 8px;
                     overflow-x: auto;
-                    font-size: 0.8rem;
-                    max-height: 200px;
+                    font-size: 0.85rem;
+                    line-height: 1.5;
+                    border: 1px solid var(--border-main);
                 }
 
                 .modal-footer {
-                    padding: 1rem;
-                    border-top: 1px solid var(--border);
+                    padding: 1.5rem;
+                    border-top: 1px solid var(--border-main);
                     display: flex;
-                    gap: 0.5rem;
+                    gap: 1rem;
                     justify-content: flex-end;
                 }
 
                 .alert {
-                    padding: 0.75rem 1rem;
+                    padding: 1rem;
                     border-radius: 8px;
-                    margin-bottom: 1rem;
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
                 }
 
                 .alert-error {
-                    background: #fee2e2;
-                    color: #991b1b;
+                    background: rgba(var(--c-danger-rgb), 0.1);
+                    color: var(--c-danger);
+                    border: 1px solid rgba(var(--c-danger-rgb), 0.2);
                 }
 
                 .alert-success {
-                    background: #d1fae5;
-                    color: #065f46;
+                    background: rgba(var(--c-success-rgb), 0.1);
+                    color: var(--c-success);
+                    border: 1px solid rgba(var(--c-success-rgb), 0.2);
                 }
 
                 .loading-state, .empty-state {
                     padding: 3rem;
                     text-align: center;
-                    color: var(--text-muted);
+                    color: var(--c-muted);
+                    font-size: 1.1rem;
                 }
 
-                .btn {
-                    padding: 0.5rem 1rem;
-                    border-radius: 6px;
-                    border: none;
-                    cursor: pointer;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.375rem;
-                }
+                @media (max-width: 768px) {
+                    .history-filters {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+                    
+                    .filter-actions {
+                        margin-top: 1rem;
+                    }
 
-                .btn-primary {
-                    background: var(--primary);
-                    color: white;
-                }
-
-                .btn-secondary {
-                    background: var(--surface-hover);
-                    color: var(--text);
-                }
-
-                .btn-danger {
-                    background: #ef4444;
-                    color: white;
-                }
-
-                .btn:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
+                    .detail-row {
+                        flex-direction: column;
+                        gap: 0.25rem;
+                    }
+                    
+                    .detail-row .label {
+                        width: auto;
+                        font-size: 0.85rem;
+                    }
                 }
             `}</style>
         </>

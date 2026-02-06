@@ -9,7 +9,7 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 import {
   faCheck, faClock, faTimes, faPlus, faVideo,
   faEdit, faSpinner, faEye, faThumbsUp, faExternalLinkAlt,
-  faUserCheck, faUserClock, faUsers, faLock, faKeyboard
+  faUserCheck, faUserClock, faUsers, faLock, faKeyboard, faUser
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
 
@@ -30,6 +30,7 @@ interface MyVideo {
   title: string;
   authorXid: string;
   authorName: string;
+  authorIconUrl?: string;
   eventIds: string[]; // Array of event IDs
   startTime: string;
   viewCount: number;
@@ -42,17 +43,48 @@ interface MyVideo {
 
 interface EditingVideo {
   id: string;
+  // Basic Info
   title: string;
-  description: string;
+  videoUrl: string;
+  authorName: string;
+  authorXid: string;
+  authorChannelUrl: string;
+  authorIconUrl: string;
   music: string;
   credit: string;
+  musicUrl: string;
+  movieYear: string;
+
+  // Editable always
+  description: string;
   software: string;
   beforeComment: string;
   afterComment: string;
   listen: string;
   episode: string;
   endMessage: string;
+
+  // New Fields
+  snsPlans: string[]; // Stores as JSON string or array? UI uses array of objects usually.
+  // Actually, register.tsx uses {platform, url}[], but here we might simplify or map.
+  // Let's use string[] for now if backend sends strings, or any[].
+  // Backend `snsPlans` is usually array of objects.
+  // Let's check register.tsx: `snsPlans: {platform, url}[]`.
+  // Backend `[id].ts` doesn't enforce type, just passes it.
+  // I will use `any[]` or defined type to be safe.
+  otherSns: string;
+  homepageComment: string;
+  link: string;
+
   members: VideoMember[];
+
+  // Logic
+  startTime: string;
+}
+
+interface SnsPlan {
+  platform: string;
+  url?: string;
 }
 
 export default function ProfilePage() {
@@ -74,6 +106,10 @@ export default function ProfilePage() {
   // Member management
   const [managingVideo, setManagingVideo] = useState<MyVideo | null>(null);
   const [isUpdatingMember, setIsUpdatingMember] = useState<string | null>(null);
+
+  // Icon History
+  const [historyIcons, setHistoryIcons] = useState<string[]>([]);
+  const [showIconHistory, setShowIconHistory] = useState(false);
 
   // Bulk member input
   const [bulkMemberInput, setBulkMemberInput] = useState('');
@@ -217,16 +253,31 @@ export default function ProfilePage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // Pass all fields - backend filters based on publication status
           title: editingVideo.title,
-          description: editingVideo.description,
+          videoUrl: editingVideo.videoUrl,
+          authorName: editingVideo.authorName,
+          authorXid: editingVideo.authorXid,
+          authorChannelUrl: editingVideo.authorChannelUrl,
+          authorIconUrl: editingVideo.authorIconUrl,
           music: editingVideo.music,
           credit: editingVideo.credit,
+          musicUrl: editingVideo.musicUrl,
+          movieYear: editingVideo.movieYear,
+
+          description: editingVideo.description,
           software: editingVideo.software,
           beforeComment: editingVideo.beforeComment,
           afterComment: editingVideo.afterComment,
           listen: editingVideo.listen,
           episode: editingVideo.episode,
           endMessage: editingVideo.endMessage,
+
+          snsPlans: editingVideo.snsPlans,
+          otherSns: editingVideo.otherSns,
+          homepageComment: editingVideo.homepageComment,
+          link: editingVideo.link,
+
           members: editingVideo.members,
         })
       });
@@ -234,13 +285,7 @@ export default function ProfilePage() {
       if (res.ok) {
         setEditSuccess('動画を更新しました');
         setEditingVideo(null);
-        // Refresh appropriate list
         fetchParticipatedVideos();
-        // Hook internal refresh is harder to trigger from here without exposing it?
-        // useInfiniteVideos returns `refresh`. We should expose it.
-        // But `refresh` isn't destructured above yet.
-        // Actually, for Authored videos, we might wait for revalidation or just manual reload?
-        // Let's add `refresh` to destructuring.
       } else {
         const data = await res.json();
         setEditError(data.error || '更新に失敗しました');
@@ -252,6 +297,31 @@ export default function ProfilePage() {
     }
 
   }, [editingVideo, fetchParticipatedVideos]);
+
+  // Fetch icon history
+  const fetchIconHistory = async () => {
+    if (historyIcons.length > 0) {
+      setShowIconHistory(!showIconHistory);
+      return;
+    }
+    try {
+      const res = await fetch('/api/user/icons');
+      if (res.ok) {
+        const data = await res.json();
+        setHistoryIcons(data.icons || []);
+        setShowIconHistory(true);
+      }
+    } catch (err) {
+      console.error('Failed to fetch icon history', err);
+    }
+  };
+
+  const selectHistoryIcon = (url: string) => {
+    if (editingVideo) {
+      setEditingVideo({ ...editingVideo, authorIconUrl: url });
+      setShowIconHistory(false);
+    }
+  };
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -360,21 +430,37 @@ export default function ProfilePage() {
         setEditingVideo({
           id: video.id,
           title: data.title || '',
-          description: data.description || '',
+          videoUrl: data.videoUrl || `https://youtube.com/watch?v=${video.id}`,
+          authorName: data.authorName || '',
+          authorXid: data.authorXid || '',
+          authorChannelUrl: data.authorChannelUrl || '',
+          authorIconUrl: data.authorIconUrl || '',
           music: data.music || '',
           credit: data.credit || '',
+          musicUrl: data.musicUrl || '',
+          movieYear: data.movieYear || '',
+
+          description: data.description || '',
           software: data.software || '',
           beforeComment: data.beforeComment || '',
           afterComment: data.afterComment || '',
           listen: data.listen || '',
           episode: data.episode || '',
           endMessage: data.endMessage || '',
+
+          snsPlans: data.snsPlans || [],
+          otherSns: data.otherSns || '',
+          homepageComment: data.homepageComment || '',
+          link: data.link || '',
+
           members: (data.members || []).map((m: VideoMember) => ({
             name: m.name || '',
             xid: m.xid || '',
             role: m.role || '',
             editApproved: m.editApproved || false,
           })),
+
+          startTime: data.startTime || new Date().toISOString(),
         });
       } else {
         setEditError('動画情報の取得に失敗しました');
@@ -595,9 +681,9 @@ export default function ProfilePage() {
   };
 
   // Split videos into authored and participated
-  // Authored comes from useInfiniteVideos
-  // Participated comes from myVideos state (legacy fetch)
-  const participatedVideos = myVideos; // fetchParticipatedVideos only sets participated ones now
+  // Authored comes from useInfiniteVideos (remoteAuthoredVideos)
+  // Participated comes from fetchParticipatedVideos (myVideos state)
+  const participatedVideos = myVideos;
 
   if (isLoading) {
     return (
@@ -808,52 +894,7 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* My Videos Section - Participated */}
-          <div className="profile-section">
-            <h3><FontAwesomeIcon icon={faUsers} /> 参加した作品</h3>
-            <p className="section-description">
-              あなたがメンバーとして参加した作品です。
-            </p>
 
-            {participatedVideos.length === 0 ? (
-              <div className="empty-state">参加した作品はありません（直近の100件から検索）</div>
-            ) : (
-              <div className="my-videos-grid">
-                {/* Similar grid for participated */}
-                {participatedVideos.map((video) => (
-                  <div key={video.id} className="my-video-card">
-                    <div className="my-video-thumbnail">
-                      <Image
-                        src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
-                        alt={video.title || '動画サムネイル'}
-                        width={320}
-                        height={180}
-                        unoptimized
-                      />
-                      <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer" className="video-external-link">
-                        <FontAwesomeIcon icon={faExternalLinkAlt} />
-                      </a>
-                    </div>
-                    <div className="my-video-content">
-                      <h4 className="my-video-title">{video.title}</h4>
-                      <div className="my-video-role">
-                        <span className="role-badge member">参加者</span>
-                      </div>
-                      <div className="my-video-stats">
-                        <span><FontAwesomeIcon icon={faEye} /> {video.viewCount.toLocaleString()}</span>
-                      </div>
-                      {/* Participated videos often can't be edited by member unless approved, logic exists in startEdit */}
-                      <div className="video-actions">
-                        <button onClick={() => startEdit(video)} className="action-btn edit">
-                          <FontAwesomeIcon icon={faEdit} /> 編集
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
           <div className="profile-section">
             <h3><FontAwesomeIcon icon={faUsers} /> 参加した作品</h3>
             <p className="section-description">
@@ -910,6 +951,15 @@ export default function ProfilePage() {
                         )}
                       </div>
                       <div className="my-video-author">
+                        {video.authorIconUrl ? (
+                          <img
+                            src={video.authorIconUrl}
+                            alt={video.authorName}
+                            className="author-icon"
+                          />
+                        ) : (
+                          <FontAwesomeIcon icon={faUser} />
+                        )}
                         <span>投稿者: {video.authorName}</span>
                         <span className="video-author-xid">@{video.authorXid}</span>
                       </div>
@@ -948,244 +998,357 @@ export default function ProfilePage() {
         {editingVideo && (
           <div className="modal-overlay" onClick={() => setEditingVideo(null)}>
             <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
-              <h3>作品を編集</h3>
-              <div className="form-group">
-                <label>タイトル</label>
-                <input
-                  type="text"
-                  value={editingVideo.title}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, title: e.target.value })}
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label>説明・コメント</label>
-                <textarea
-                  value={editingVideo.description}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, description: e.target.value })}
-                  rows={3}
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label>楽曲</label>
-                <input
-                  type="text"
-                  value={editingVideo.music}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, music: e.target.value })}
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label>クレジット</label>
-                <textarea
-                  value={editingVideo.credit}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, credit: e.target.value })}
-                  rows={2}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>使用編集ソフト</label>
-                <input
-                  type="text"
-                  value={editingVideo.software}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, software: e.target.value })}
-                  className="form-input"
-                  placeholder="例: AviUtl, Premiere Pro"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>上映前コメント</label>
-                <textarea
-                  value={editingVideo.beforeComment}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, beforeComment: e.target.value })}
-                  rows={2}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>上映後コメント</label>
-                <textarea
-                  value={editingVideo.afterComment}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, afterComment: e.target.value })}
-                  rows={2}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>聞いてほしいこと等</label>
-                <textarea
-                  value={editingVideo.listen}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, listen: e.target.value })}
-                  rows={2}
-                  className="form-input"
-                  placeholder="作品のこだわりポイントなど"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>最近のエピソード</label>
-                <textarea
-                  value={editingVideo.episode}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, episode: e.target.value })}
-                  rows={2}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>最後に</label>
-                <textarea
-                  value={editingVideo.endMessage}
-                  onChange={(e) => setEditingVideo({ ...editingVideo, endMessage: e.target.value })}
-                  rows={2}
-                  className="form-input"
-                />
-              </div>
-
-              {/* Members Section */}
-              <div className="form-group">
-                <label><FontAwesomeIcon icon={faUsers} /> メンバー ({editingVideo.members.length}人)</label>
-
-                {/* Bulk Input */}
-                <div className="bulk-input-section">
-                  <textarea
-                    value={bulkMemberInput}
-                    onChange={(e) => setBulkMemberInput(e.target.value)}
-                    placeholder="スプレッドシートからコピーして一括追加&#10;形式: 名前[Tab]XID または 名前,XID&#10;例:&#10;山田太郎	yamada_taro&#10;鈴木花子	suzuki_hanako"
-                    rows={3}
-                    className="form-input bulk-textarea"
-                  />
-                  <button
-                    type="button"
-                    onClick={parseBulkMembers}
-                    disabled={!bulkMemberInput.trim()}
-                    className="bulk-add-btn"
-                  >
-                    <FontAwesomeIcon icon={faPlus} /> 一括追加
-                  </button>
-                </div>
-
-                {/* Bulk Role Actions - Apply to ALL members */}
-                {editingVideo.members.length > 0 && (
-                  <div className="bulk-role-section">
-                    <div className="bulk-role-label">役職一括設定（全メンバーに適用）:</div>
-                    <div className="bulk-role-buttons">
-                      {ROLE_OPTIONS.map((role) => {
-                        const allHave = allMembersHaveRole(role);
-                        return (
-                          <button
-                            key={role}
-                            type="button"
-                            onClick={() => allHave ? removeRoleFromAllMembers(role) : addRoleToAllMembers(role)}
-                            className={`bulk-role-btn ${allHave ? 'active' : ''}`}
-                          >
-                            <span className="bulk-role-checkbox">
-                              {allHave ? <FontAwesomeIcon icon={faCheck} /> : null}
-                            </span>
-                            {role}
-                          </button>
-                        );
-                      })}
+              {(() => {
+                const isPublished = new Date(editingVideo.startTime) <= new Date();
+                return (
+                  <>
+                    <div className="modal-header">
+                      <h3>{isPublished ? '公開済み作品の編集' : '作品情報の編集'}</h3>
+                      {isPublished && <span className="status-badge published">公開済み（一部編集制限あり）</span>}
                     </div>
-                  </div>
-                )}
 
-                {/* Member List */}
-                <div className="members-edit-list">
-                  {editingVideo.members.map((member, index) => (
-                    <div key={index} className="member-edit-item">
-                      <div className="member-edit-header">
-                        <input
-                          type="text"
-                          value={member.name}
-                          onChange={(e) => {
-                            const newMembers = [...editingVideo.members];
-                            newMembers[index] = { ...member, name: e.target.value };
-                            setEditingVideo({ ...editingVideo, members: newMembers });
-                          }}
-                          placeholder="名前"
-                          className="form-input member-input"
-                        />
-                        <input
-                          type="text"
-                          value={member.xid}
-                          onChange={(e) => {
-                            const newMembers = [...editingVideo.members];
-                            newMembers[index] = { ...member, xid: e.target.value };
-                            setEditingVideo({ ...editingVideo, members: newMembers });
-                          }}
-                          placeholder="@XID"
-                          className="form-input member-input"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const memberName = member.name || member.xid || `メンバー${index + 1}`;
-                            if (confirm(`「${memberName}」を削除しますか？`)) {
-                              const newMembers = editingVideo.members.filter((_, i) => i !== index);
-                              setEditingVideo({ ...editingVideo, members: newMembers });
-                            }
-                          }}
-                          className="member-remove-btn"
-                          title="削除"
-                        >
-                          <FontAwesomeIcon icon={faTimes} />
-                        </button>
+                    <div className="modal-body-scroll">
+                      {/* Priority Fields */}
+                      <div className="form-section priority">
+                        <div className="form-group">
+                          <label>YouTube URL {isPublished && '(変更不可)'}</label>
+                          <input
+                            type="text"
+                            value={editingVideo.videoUrl}
+                            onChange={(e) => setEditingVideo({ ...editingVideo, videoUrl: e.target.value })}
+                            className="form-input"
+                            disabled={isPublished}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>作品リンク (ポートフォリオ等) {isPublished && '(変更不可)'}</label>
+                          <input
+                            type="text"
+                            value={editingVideo.link}
+                            onChange={(e) => setEditingVideo({ ...editingVideo, link: e.target.value })}
+                            className="form-input"
+                            placeholder="https://..."
+                            disabled={isPublished}
+                          />
+                        </div>
+                        {/* Icon History */}
+                        <div className="form-group">
+                          <label>アイコンURL {isPublished && '(変更不可)'}</label>
+                          <div className="icon-input-group">
+                            <input
+                              type="text"
+                              value={editingVideo.authorIconUrl}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, authorIconUrl: e.target.value })}
+                              className="form-input"
+                              disabled={isPublished}
+                            />
+                            {!isPublished && (
+                              <button
+                                type="button"
+                                onClick={fetchIconHistory}
+                                className="btn btn-outline btn-sm"
+                                title="履歴から選択"
+                              >
+                                <FontAwesomeIcon icon={faClock} /> 履歴
+                              </button>
+                            )}
+                          </div>
+                          {showIconHistory && (
+                            <div className="icon-history-panel card-nested fade-in">
+                              <div className="icon-grid">
+                                {historyIcons.map((url, idx) => (
+                                  <div key={idx} className="icon-grid-item" onClick={() => selectHistoryIcon(url)}>
+                                    <Image src={url} alt="icon" width={40} height={40} className="icon-thumb" unoptimized />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Role Checkboxes */}
-                      <div className="role-section">
-                        <div className="role-checkboxes">
-                          {ROLE_OPTIONS.map((role) => {
-                            const isChecked = parseRoles(member.role).includes(role);
-                            return (
-                              <label key={role} className={`role-checkbox ${isChecked ? 'checked' : ''}`}>
+                      {/* Basic Info (Locked if Published) */}
+                      <details className="form-section-details" open={!isPublished}>
+                        <summary>基本情報 {isPublished && '(編集不可)'}</summary>
+                        <div className="details-content">
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>タイトル</label>
+                              <input
+                                type="text"
+                                value={editingVideo.title}
+                                onChange={(e) => setEditingVideo({ ...editingVideo, title: e.target.value })}
+                                className="form-input"
+                                disabled={isPublished}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>投稿者名</label>
+                              <input
+                                type="text"
+                                value={editingVideo.authorName}
+                                onChange={(e) => setEditingVideo({ ...editingVideo, authorName: e.target.value })}
+                                className="form-input"
+                                disabled={isPublished}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>XID</label>
+                              <input
+                                type="text"
+                                value={editingVideo.authorXid}
+                                onChange={(e) => setEditingVideo({ ...editingVideo, authorXid: e.target.value })}
+                                className="form-input"
+                                disabled={isPublished}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>YouTubeチャンネル</label>
+                              <input
+                                type="text"
+                                value={editingVideo.authorChannelUrl}
+                                onChange={(e) => setEditingVideo({ ...editingVideo, authorChannelUrl: e.target.value })}
+                                className="form-input"
+                                disabled={isPublished}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-group">
+                            <label>楽曲</label>
+                            <input
+                              type="text"
+                              value={editingVideo.music}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, music: e.target.value })}
+                              className="form-input"
+                              disabled={isPublished}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>クレジット</label>
+                            <textarea
+                              value={editingVideo.credit}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, credit: e.target.value })}
+                              rows={2}
+                              className="form-input"
+                              disabled={isPublished}
+                            />
+                          </div>
+                        </div>
+                      </details>
+
+                      {/* Detailed Info (Always Editable) */}
+                      <details className="form-section-details" open>
+                        <summary>詳細情報・コメント (常時編集可能)</summary>
+                        <div className="details-content">
+                          <div className="form-group">
+                            <label>説明文</label>
+                            <textarea
+                              value={editingVideo.description}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, description: e.target.value })}
+                              rows={3}
+                              className="form-input"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>使用ソフト</label>
+                            <input
+                              type="text"
+                              value={editingVideo.software}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, software: e.target.value })}
+                              className="form-input"
+                            />
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>上映前コメント</label>
+                              <textarea
+                                value={editingVideo.beforeComment}
+                                onChange={(e) => setEditingVideo({ ...editingVideo, beforeComment: e.target.value })}
+                                rows={2}
+                                className="form-input"
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>上映後コメント</label>
+                              <textarea
+                                value={editingVideo.afterComment}
+                                onChange={(e) => setEditingVideo({ ...editingVideo, afterComment: e.target.value })}
+                                rows={2}
+                                className="form-input"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-group">
+                            <label>聞いてほしいこと・エピソード</label>
+                            <textarea
+                              value={editingVideo.listen}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, listen: e.target.value })}
+                              rows={2}
+                              className="form-input"
+                              placeholder="聞いてほしいポイント"
+                            />
+                            <textarea
+                              value={editingVideo.episode}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, episode: e.target.value })}
+                              rows={2}
+                              className="form-input"
+                              style={{ marginTop: '0.5rem' }}
+                              placeholder="制作エピソード"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>最後に一言</label>
+                            <textarea
+                              value={editingVideo.endMessage}
+                              onChange={(e) => setEditingVideo({ ...editingVideo, endMessage: e.target.value })}
+                              rows={2}
+                              className="form-input"
+                            />
+                          </div>
+                        </div>
+                      </details>
+
+                      {/* Members Section */}
+                      <div className="form-section">
+                        <label className="section-label"><FontAwesomeIcon icon={faUsers} /> メンバー ({editingVideo.members.length}人)</label>
+
+                        <div className="bulk-input-section">
+                          <textarea
+                            value={bulkMemberInput}
+                            onChange={(e) => setBulkMemberInput(e.target.value)}
+                            placeholder="スプレッドシートからコピーして一括追加&#10;形式: 名前[Tab]XID または 名前,XID"
+                            rows={3}
+                            className="form-input bulk-textarea"
+                          />
+                          <button
+                            type="button"
+                            onClick={parseBulkMembers}
+                            disabled={!bulkMemberInput.trim()}
+                            className="bulk-add-btn"
+                          >
+                            <FontAwesomeIcon icon={faPlus} /> 一括追加
+                          </button>
+                        </div>
+
+                        {editingVideo.members.length > 0 && (
+                          <div className="bulk-role-section">
+                            <div className="bulk-role-label">役職一括設定:</div>
+                            <div className="bulk-role-buttons">
+                              {ROLE_OPTIONS.map((role) => {
+                                const allHave = allMembersHaveRole(role);
+                                return (
+                                  <button
+                                    key={role}
+                                    type="button"
+                                    onClick={() => allHave ? removeRoleFromAllMembers(role) : addRoleToAllMembers(role)}
+                                    className={`bulk-role-btn ${allHave ? 'active' : ''}`}
+                                  >
+                                    <span className="bulk-role-checkbox">
+                                      {allHave ? <FontAwesomeIcon icon={faCheck} /> : null}
+                                    </span>
+                                    {role}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="members-edit-list">
+                          {editingVideo.members.map((member, index) => (
+                            <div key={index} className="member-edit-item">
+                              <div className="member-edit-header">
                                 <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => toggleMemberRole(index, role)}
+                                  type="text"
+                                  value={member.name}
+                                  onChange={(e) => {
+                                    const newMembers = [...editingVideo.members];
+                                    newMembers[index] = { ...member, name: e.target.value };
+                                    setEditingVideo({ ...editingVideo, members: newMembers });
+                                  }}
+                                  placeholder="名前"
+                                  className="form-input member-input"
                                 />
-                                <span>{role}</span>
-                              </label>
-                            );
-                          })}
+                                <input
+                                  type="text"
+                                  value={member.xid}
+                                  onChange={(e) => {
+                                    const newMembers = [...editingVideo.members];
+                                    newMembers[index] = { ...member, xid: e.target.value };
+                                    setEditingVideo({ ...editingVideo, members: newMembers });
+                                  }}
+                                  placeholder="@XID"
+                                  className="form-input member-input"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const message = isPublished
+                                      ? `公開済み動画のメンバー「${member.name || '名前未設定'}」を削除しますか？\n\n※この操作はソフトデリートされ、管理者が復元できます。`
+                                      : `メンバー「${member.name || '名前未設定'}」を削除しますか？`;
+                                    if (confirm(message)) {
+                                      const newMembers = editingVideo.members.filter((_, i) => i !== index);
+                                      setEditingVideo({ ...editingVideo, members: newMembers });
+                                    }
+                                  }}
+                                  className="member-remove-btn"
+                                  title={isPublished ? '削除（ソフトデリート）' : '削除'}
+                                >
+                                  <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                              </div>
+                              <div className="role-section">
+                                <div className="role-checkboxes">
+                                  {ROLE_OPTIONS.map((role) => {
+                                    const isChecked = parseRoles(member.role).includes(role);
+                                    return (
+                                      <label key={role} className={`role-checkbox ${isChecked ? 'checked' : ''}`}>
+                                        <input
+                                          type="checkbox"
+                                          checked={isChecked}
+                                          onChange={() => toggleMemberRole(index, role)}
+                                        />
+                                        <span>{role}</span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newMembers = [...editingVideo.members, { name: '', xid: '', role: '', editApproved: false }];
+                              setEditingVideo({ ...editingVideo, members: newMembers });
+                            }}
+                            className="member-add-btn"
+                          >
+                            <FontAwesomeIcon icon={faPlus} /> メンバーを追加
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ))}
 
-                  {/* Add Single Member */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newMembers = [...editingVideo.members, { name: '', xid: '', role: '', editApproved: false }];
-                      setEditingVideo({ ...editingVideo, members: newMembers });
-                    }}
-                    className="member-add-btn"
-                  >
-                    <FontAwesomeIcon icon={faPlus} /> メンバーを追加
-                  </button>
-                </div>
-              </div>
-
-              <div className="modal-actions">
-                <button onClick={() => setEditingVideo(null)} className="btn-cancel">
-                  キャンセル
-                </button>
-                <button onClick={saveEdit} disabled={isEditing} className="btn-save">
-                  {isEditing ? (
-                    <><FontAwesomeIcon icon={faSpinner} spin /> 保存中...</>
-                  ) : (
-                    <><FontAwesomeIcon icon={faCheck} /> 保存</>
-                  )}
-                </button>
-              </div>
+                    <div className="modal-actions">
+                      <button onClick={() => setEditingVideo(null)} className="btn-cancel">キャンセル</button>
+                      <button onClick={saveEdit} disabled={isEditing} className="btn-save">
+                        {isEditing ? (
+                          <><FontAwesomeIcon icon={faSpinner} spin /> 保存中...</>
+                        ) : (
+                          <><FontAwesomeIcon icon={faCheck} /> 保存</>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -1550,16 +1713,18 @@ export default function ProfilePage() {
         }
 
         .my-video-card {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-surface-2);
+          border: 1px solid var(--border-main);
           border-radius: 12px;
           overflow: hidden;
           transition: all 0.2s ease;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
         .my-video-card:hover {
-          border-color: rgba(255, 255, 255, 0.12);
+          border-color: var(--c-primary);
           transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .my-video-card.pending-approval {
@@ -1572,8 +1737,8 @@ export default function ProfilePage() {
         }
 
         .my-video-thumbnail img {
-          width: 100%;
-          height: 100%;
+          width: 100% !important;
+          height: 100% !important;
           object-fit: cover;
         }
 
@@ -1618,7 +1783,7 @@ export default function ProfilePage() {
           font-size: 0.9rem;
           font-weight: 600;
           margin: 0 0 0.5rem;
-          color: #fff;
+          color: var(--c-text);
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -1646,8 +1811,8 @@ export default function ProfilePage() {
         }
 
         .role-badge.author {
-          background: rgba(100, 255, 218, 0.15);
-          color: var(--accent-primary);
+          background: var(--bg-surface-1);
+          color: var(--c-primary);
         }
 
         .role-badge.member.approved {
@@ -1662,10 +1827,18 @@ export default function ProfilePage() {
 
         .my-video-author {
           display: flex;
-          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
           font-size: 0.8rem;
-          color: #ccd6f6;
+          color: var(--c-muted);
           margin-bottom: 0.5rem;
+        }
+
+        .my-video-author .author-icon {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          object-fit: cover;
         }
 
         .video-author-xid {
@@ -1678,7 +1851,7 @@ export default function ProfilePage() {
           align-items: center;
           gap: 0.75rem;
           font-size: 0.75rem;
-          color: #8892b0;
+          color: var(--c-muted);
           margin-bottom: 0.5rem;
         }
 
@@ -1700,7 +1873,7 @@ export default function ProfilePage() {
           display: flex;
           gap: 1rem;
           font-size: 0.75rem;
-          color: #8892b0;
+          color: var(--c-muted);
           margin-bottom: 0.75rem;
         }
 
@@ -2268,6 +2441,88 @@ export default function ProfilePage() {
         .shortcut-item span {
           color: #8892b0;
           font-size: 0.9rem;
+        }
+
+        /* Edit Modal New Styles */
+        .modal-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 1.5rem;
+        }
+        
+        .status-badge.published {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .modal-body-scroll {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .form-section-details {
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .form-section-details summary {
+            padding: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #ccd6f6;
+            outline: none;
+        }
+        
+        .form-section-details summary:hover {
+             background: rgba(255,255,255,0.04);
+        }
+        
+        .details-content {
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .icon-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .icon-thumb {
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .icon-history-panel {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .icon-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .icon-grid-item {
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .icon-grid-item:hover {
+            border-color: var(--accent-primary);
         }
       `}</style>
     </>

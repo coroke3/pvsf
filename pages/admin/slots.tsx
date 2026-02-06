@@ -180,6 +180,59 @@ export default function AdminSlotsPage() {
         setGuiSlotTimes(newTimes);
     };
 
+    // Bulk patterns state (multiple patterns)
+    interface BulkPattern {
+        startTime: string;
+        endTime: string;
+        interval: number;
+    }
+    const [bulkPatterns, setBulkPatterns] = useState<BulkPattern[]>([
+        { startTime: '21:00', endTime: '23:00', interval: 15 }
+    ]);
+
+    const addBulkPattern = () => {
+        setBulkPatterns([...bulkPatterns, { startTime: '21:00', endTime: '23:00', interval: 15 }]);
+    };
+
+    const removeBulkPattern = (index: number) => {
+        if (bulkPatterns.length > 1) {
+            setBulkPatterns(bulkPatterns.filter((_, i) => i !== index));
+        }
+    };
+
+    const updateBulkPattern = (index: number, field: keyof BulkPattern, value: string | number) => {
+        const newPatterns = [...bulkPatterns];
+        newPatterns[index] = { ...newPatterns[index], [field]: value };
+        setBulkPatterns(newPatterns);
+    };
+
+    const generateBulkSlots = () => {
+        const allSlots: string[] = [];
+
+        for (const pattern of bulkPatterns) {
+            if (!pattern.startTime || !pattern.endTime || !pattern.interval) continue;
+
+            const start = new Date(`2000-01-01T${pattern.startTime}`);
+            const end = new Date(`2000-01-01T${pattern.endTime}`);
+
+            let current = start;
+            while (current < end) {
+                const timeStr = current.toTimeString().slice(0, 5);
+                if (!allSlots.includes(timeStr)) {
+                    allSlots.push(timeStr);
+                }
+                current = new Date(current.getTime() + pattern.interval * 60000);
+            }
+        }
+
+        // Sort slots by time
+        allSlots.sort();
+
+        if (allSlots.length > 0) {
+            setGuiSlotTimes(allSlots);
+        }
+    };
+
     const startEditEvent = (event: EventSlots) => {
         setEditingEvent(event);
         setEditEventName(event.eventName);
@@ -434,6 +487,83 @@ export default function AdminSlotsPage() {
                                             min={new Date().toISOString().split('T')[0]}
                                         />
                                     </div>
+
+                                    {/* Bulk Generator UI - Multiple Patterns */}
+                                    <div className="bulk-generator card-nested">
+                                        <h4><FontAwesomeIcon icon={faClock} /> 一括生成ツール（複数パターン対応）</h4>
+                                        <p style={{ fontSize: '0.85rem', color: 'var(--fg-muted)', marginBottom: '1rem' }}>
+                                            複数の時間帯パターンを設定し、一括で枠を生成できます
+                                        </p>
+
+                                        {bulkPatterns.map((pattern, index) => (
+                                            <div key={index} className="bulk-pattern-row" style={{
+                                                display: 'flex',
+                                                gap: '0.5rem',
+                                                alignItems: 'flex-end',
+                                                marginBottom: '0.75rem',
+                                                padding: '0.75rem',
+                                                background: 'var(--bg-secondary)',
+                                                borderRadius: '0.5rem'
+                                            }}>
+                                                <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                                                    <label style={{ fontSize: '0.75rem' }}>開始</label>
+                                                    <input
+                                                        type="time"
+                                                        value={pattern.startTime}
+                                                        onChange={(e) => updateBulkPattern(index, 'startTime', e.target.value)}
+                                                        className="form-input"
+                                                    />
+                                                </div>
+                                                <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                                                    <label style={{ fontSize: '0.75rem' }}>終了</label>
+                                                    <input
+                                                        type="time"
+                                                        value={pattern.endTime}
+                                                        onChange={(e) => updateBulkPattern(index, 'endTime', e.target.value)}
+                                                        className="form-input"
+                                                    />
+                                                </div>
+                                                <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                                                    <label style={{ fontSize: '0.75rem' }}>間隔(分)</label>
+                                                    <input
+                                                        type="number"
+                                                        value={pattern.interval}
+                                                        onChange={(e) => updateBulkPattern(index, 'interval', Number(e.target.value))}
+                                                        className="form-input"
+                                                        min="1"
+                                                    />
+                                                </div>
+                                                {bulkPatterns.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeBulkPattern(index)}
+                                                        className="btn btn-icon btn-danger"
+                                                        title="パターン削除"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTimes} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+
+                                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                            <button
+                                                type="button"
+                                                onClick={addBulkPattern}
+                                                className="btn btn-outline btn-sm"
+                                            >
+                                                <FontAwesomeIcon icon={faPlus} /> パターン追加
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={generateBulkSlots}
+                                                className="btn btn-secondary btn-sm"
+                                            >
+                                                <FontAwesomeIcon icon={faClock} /> 枠を一括生成
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     <div className="form-group">
                                         <label>時間 *（複数追加可能）</label>
                                         <div className="time-inputs">
@@ -678,8 +808,8 @@ export default function AdminSlotsPage() {
                 }
 
                 .event-card {
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-radius: 12px;
                     overflow: hidden;
                     backdrop-filter: blur(10px);
@@ -690,7 +820,7 @@ export default function AdminSlotsPage() {
                 .event-card:hover {
                     transform: translateY(-1px);
                     border-color: rgba(255, 255, 255, 0.14);
-                    background: rgba(255, 255, 255, 0.03);
+                    background: var(--bg-surface-1);
                 }
 
                 .event-card.expanded {
@@ -707,14 +837,14 @@ export default function AdminSlotsPage() {
                 }
 
                 .event-header:hover {
-                    background: rgba(255, 255, 255, 0.03);
+                    background: var(--bg-surface-1);
                 }
 
                 .event-header.expanded {
                     background: linear-gradient(
                         90deg,
                         rgba(100, 255, 218, 0.06) 0%,
-                        rgba(255, 255, 255, 0.02) 55%,
+                        var(--bg-surface-2) 55%,
                         rgba(255, 255, 255, 0.01) 100%
                     );
                 }
@@ -727,7 +857,7 @@ export default function AdminSlotsPage() {
                 .event-info h3 {
                     margin: 0;
                     font-size: 1.1rem;
-                    color: #fff;
+                    color: var(--c-text);
                 }
 
                 .event-sub {
@@ -745,7 +875,7 @@ export default function AdminSlotsPage() {
 
                 .event-updated {
                     font-size: 0.75rem;
-                    color: rgba(255, 255, 255, 0.45);
+                    color: var(--c-muted);
                 }
 
                 .event-stats {
@@ -758,7 +888,7 @@ export default function AdminSlotsPage() {
                     font-size: 0.8rem;
                     padding: 0.25rem 0.6rem;
                     border-radius: 9999px;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border: 1px solid var(--border-main);
                     white-space: nowrap;
                 }
 
@@ -775,8 +905,8 @@ export default function AdminSlotsPage() {
                 }
 
                 .stat.total {
-                    background: rgba(255, 255, 255, 0.1);
-                    color: #fff;
+                    background: var(--bg-surface-1);
+                    color: var(--c-text);
                     border-color: rgba(255, 255, 255, 0.12);
                 }
 
@@ -787,7 +917,7 @@ export default function AdminSlotsPage() {
                 }
 
                 .expand-icon {
-                    color: #8892b0;
+                    color: var(--c-muted);
                     margin-left: 0.5rem;
                     transition: transform 0.2s ease;
                 }
@@ -804,7 +934,7 @@ export default function AdminSlotsPage() {
                 .date-group h4 {
                     margin: 0 0 0.5rem;
                     font-size: 0.85rem;
-                    color: #8892b0;
+                    color: var(--c-muted);
                 }
 
                 .slots-grid {
@@ -841,20 +971,20 @@ export default function AdminSlotsPage() {
                     display: flex;
                     align-items: center;
                     gap: 0.375rem;
-                    color: #fff;
+                    color: var(--c-text);
                 }
 
                 .slot-video {
                     display: flex;
                     align-items: center;
                     gap: 0.375rem;
-                    color: #8892b0;
+                    color: var(--c-muted);
                     font-size: 0.75rem;
                 }
 
                 .current-slots-info {
                     padding: 0.75rem;
-                    background: rgba(255, 255, 255, 0.03);
+                    background: var(--bg-surface-1);
                     border-radius: 6px;
                     margin-bottom: 1rem;
                 }
@@ -862,7 +992,7 @@ export default function AdminSlotsPage() {
                 .current-slots-info p {
                     margin: 0;
                     font-size: 0.85rem;
-                    color: #8892b0;
+                    color: var(--c-muted);
                 }
 
                 .delete-warning {
@@ -888,7 +1018,7 @@ export default function AdminSlotsPage() {
                 .delete-progress span {
                     padding: 0.5rem 1rem;
                     border-radius: 4px;
-                    background: rgba(255, 255, 255, 0.05);
+                    background: var(--bg-surface-1);
                     color: #6b7280;
                 }
 
@@ -926,9 +1056,9 @@ export default function AdminSlotsPage() {
                 .input-mode-toggle .mode-btn {
                     flex: 1;
                     padding: 0.75rem 1rem;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    background: rgba(255, 255, 255, 0.02);
-                    color: #8892b0;
+                    border: 1px solid var(--border-main);
+                    background: var(--bg-surface-2);
+                    color: var(--c-muted);
                     border-radius: 8px;
                     cursor: pointer;
                     transition: all 0.2s ease;
@@ -940,7 +1070,7 @@ export default function AdminSlotsPage() {
                 }
 
                 .input-mode-toggle .mode-btn:hover {
-                    background: rgba(255, 255, 255, 0.05);
+                    background: var(--bg-surface-1);
                     border-color: rgba(255, 255, 255, 0.2);
                 }
 
@@ -952,7 +1082,7 @@ export default function AdminSlotsPage() {
 
                 .gui-slot-input {
                     padding: 1rem;
-                    background: rgba(255, 255, 255, 0.02);
+                    background: var(--bg-surface-2);
                     border: 1px solid rgba(255, 255, 255, 0.06);
                     border-radius: 8px;
                     margin-bottom: 1rem;

@@ -158,29 +158,24 @@
 }
 
 .r31 img {
-  width: 0px;
-  height: 0px;
+  width: 50px;
+  height: 50px;
   position: relative;
-  top: 25px;
-  left: 25px;
-  border-radius: 30px;
+  border-radius: 50%;
   transition: 0.5s;
   z-index: 99;
-  opacity: 0;
-  transition: 0.5s;
+  opacity: 1;
+  /* Make visible by default */
   box-sizing: border-box;
+  object-fit: cover;
 }
 
 .releases2:hover .r31 img {
-  opacity: 0.8;
-  background-color: #09b1ff38;
-  top: 0px;
-  left: 0px;
+  opacity: 1;
 }
 
 .r3:hover .r31 img {
-  opacity: 1;
-  background-color: #09b1ff33;
+  transform: scale(1.1);
 }
 
 .r4 {

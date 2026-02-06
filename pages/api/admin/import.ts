@@ -48,30 +48,85 @@ export default async function handler(
         };
 
         // Use batch write for efficiency
-        const batch = adminDb.batch();
+        let batch = adminDb.batch();
         const batchSize = 500; // Firestore limit
         let currentBatch = 0;
 
         for (let i = 0; i < videos.length; i++) {
             try {
-                const oldVideo = videos[i] as OldVideoJson;
+                const input = videos[i] as any;
+                let newVideo: any;
+                let docId: string;
 
-                if (!oldVideo.ylink) {
-                    results.errors.push(`Item ${i}: Missing ylink`);
+                if (input.ylink) {
+                    // Legacy Format
+                    docId = generateVideoDocId(input.ylink);
+                    newVideo = convertOldToNew(input as OldVideoJson);
+                } else if (input.id || input.videoUrl) {
+                    // New Format (Internal Schema)
+                    if (input.id) {
+                        docId = input.id;
+                    } else {
+                        docId = generateVideoDocId(input.videoUrl);
+                    }
+
+                    // Prepare object
+                    newVideo = { ...input };
+
+                    // Cleanup / Type correction
+                    delete newVideo.id; // stored in docId
+
+                    // Arrays handling (csv/tsv import might give strings)
+                    if (typeof newVideo.eventIds === 'string') {
+                        newVideo.eventIds = newVideo.eventIds.split(/[,、]/).map((s: string) => s.trim()).filter(Boolean);
+                    } else if (!Array.isArray(newVideo.eventIds)) {
+                        newVideo.eventIds = [];
+                    }
+
+                    // Members handling (if string)
+                    if (typeof newVideo.members === 'string') {
+                        // Attempt to parse if looks like JSON
+                        if (newVideo.members.trim().startsWith('[')) {
+                            try {
+                                newVideo.members = JSON.parse(newVideo.members);
+                            } catch {
+                                newVideo.members = [];
+                            }
+                        } else {
+                            newVideo.members = [];
+                        }
+                    }
+
+                    // timestamps
+                    if (newVideo.startTime && typeof newVideo.startTime === 'string') {
+                        newVideo.startTime = new Date(newVideo.startTime);
+                    }
+
+                    // Ensure defaults
+                    if (!newVideo.viewCount) newVideo.viewCount = 0;
+                    if (!newVideo.likeCount) newVideo.likeCount = 0;
+                    if (!newVideo.privacyStatus) newVideo.privacyStatus = 'public';
+
+                } else {
+                    results.errors.push(`Item ${i}: Missing ID or URL`);
                     results.failed++;
                     continue;
                 }
 
-                const docId = generateVideoDocId(oldVideo.ylink);
-                const newVideo = convertOldToNew(oldVideo);
+                // Remove undefined/null
+                Object.keys(newVideo).forEach(key => {
+                    if (newVideo[key] === undefined) delete newVideo[key];
+                });
 
                 const docRef = adminDb.collection('videos').doc(docId);
                 batch.set(docRef, {
                     ...newVideo,
                     id: docId,
-                    createdAt: new Date(),
                     updatedAt: new Date(),
+
                 }, { merge: true });
+
+
 
                 results.success++;
                 currentBatch++;
@@ -79,6 +134,7 @@ export default async function handler(
                 // Commit batch if limit reached
                 if (currentBatch >= batchSize) {
                     await batch.commit();
+                    batch = adminDb.batch();
                     currentBatch = 0;
                 }
 

@@ -429,24 +429,26 @@ export default function AdminDeletedPage() {
                     align-items: center;
                     gap: 0.5rem;
                     padding: 0.5rem 1rem;
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-radius: 8px;
-                    color: #8892b0;
+                    color: var(--c-muted);
                     font-size: 0.875rem;
                     cursor: pointer;
                     transition: all 0.2s;
                 }
 
                 .filter-btn:hover {
-                    background: rgba(255, 255, 255, 0.08);
-                    color: #fff;
+                    background: var(--c-surface);
+                    color: var(--c-text);
+                    border-color: var(--c-primary);
                 }
 
                 .filter-btn.active {
-                    background: rgba(100, 255, 218, 0.1);
-                    border-color: rgba(100, 255, 218, 0.3);
-                    color: var(--accent-primary);
+                    background: var(--bg-surface-1);
+                    border-color: var(--c-primary);
+                    color: var(--c-primary);
+                    font-weight: 600;
                 }
 
                 .deleted-list {
@@ -461,17 +463,18 @@ export default function AdminDeletedPage() {
                     align-items: center;
                     gap: 1rem;
                     padding: 1rem;
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    background: var(--bg-surface-2);
+                    border: 1px solid var(--border-main);
                     border-radius: 8px;
                     backdrop-filter: blur(10px);
                     transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
                 }
 
                 .deleted-item:hover {
-                    background: rgba(255, 255, 255, 0.04);
-                    border-color: rgba(255, 255, 255, 0.12);
+                    background: var(--c-surface);
+                    border-color: var(--c-primary);
                     transform: translateY(-1px);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
                 }
 
                 .item-icon {
@@ -480,9 +483,9 @@ export default function AdminDeletedPage() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: rgba(255, 255, 255, 0.05);
+                    background: var(--bg-surface-1);
                     border-radius: 8px;
-                    color: #8892b0;
+                    color: var(--c-muted);
                 }
 
                 .item-info {
@@ -491,8 +494,8 @@ export default function AdminDeletedPage() {
                 }
 
                 .item-title {
-                    font-weight: 500;
-                    color: #fff;
+                    font-weight: 600;
+                    color: var(--c-text);
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -504,17 +507,18 @@ export default function AdminDeletedPage() {
                     gap: 0.75rem;
                     margin-top: 0.25rem;
                     font-size: 0.8rem;
-                    color: #6b7280;
+                    color: var(--c-muted);
                     flex-wrap: wrap;
                 }
 
                 .collection-badge {
                     padding: 0.125rem 0.5rem;
-                    background: rgba(100, 255, 218, 0.1);
-                    color: var(--accent-primary);
+                    background: var(--bg-surface-1);
+                    color: var(--c-primary);
                     border-radius: 4px;
                     font-size: 0.7rem;
-                    border: 1px solid rgba(100, 255, 218, 0.18);
+                    border: 1px solid var(--border-main);
+                    font-weight: 600;
                 }
 
                 .item-date {
@@ -529,8 +533,8 @@ export default function AdminDeletedPage() {
                     width: 72px;
                     height: 72px;
                     border-radius: 16px;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    background: var(--bg-surface-1);
+                    border: 1px solid var(--border-main);
                     text-align: center;
                     position: relative;
                 }
@@ -566,12 +570,12 @@ export default function AdminDeletedPage() {
                 }
 
                 .delete-warning.severe {
-                    background: rgba(239, 68, 68, 0.2);
-                    border-color: rgba(239, 68, 68, 0.4);
+                    background: rgba(239, 68, 68, 0.1);
+                    border-color: rgba(239, 68, 68, 0.3);
                 }
 
                 .delete-warning.severe p {
-                    color: #fca5a5;
+                    color: #ef4444;
                 }
 
                 .delete-progress {
@@ -584,13 +588,14 @@ export default function AdminDeletedPage() {
                 .delete-progress span {
                     padding: 0.5rem 1rem;
                     border-radius: 4px;
-                    background: rgba(255, 255, 255, 0.05);
-                    color: #6b7280;
+                    background: var(--bg-surface-1);
+                    color: var(--c-muted);
                 }
 
                 .delete-progress span.active {
-                    background: rgba(239, 68, 68, 0.2);
-                    color: #f87171;
+                    background: rgba(239, 68, 68, 0.1);
+                    color: #ef4444;
+                    font-weight: 600;
                 }
 
                 @media screen and (max-width: 768px) {

@@ -3,59 +3,71 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Unbounded:wght@200..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap");
 
 :root {
-  /* == Core Colors (Spring Theme) == */
-  /* Main Background (Pale Pink) */
-  --c-bg: #FFF5F7;
-  /* Surface/Card (White) */
-  --c-surface: #FFFFFF;
-  /* Main Text (Dark Navy) */
-  --c-text: #2D3748;
-  /* Muted/Border (Grey) */
-  --c-muted: #A0AEC0;
-  /* Primary Accent (Pink) */
-  --c-primary: #FF6B95;
-  /* Secondary Accent (Blue) */
-  --c-secondary: #4B9EFF;
+  /* == Core Colors (Dark Theme) == */
+  /* Main Background (Dark Navy/Black) */
+  --c-bg: #0a0f1a;
+  /* Surface/Card (Slightly lighter dark) */
+  --c-surface: #111827;
+  /* Main Text (Light/White) */
+  --c-text: #e2e8f0;
+  /* Light Text (Slightly dimmer) */
+  --c-text-light: #cbd5e1;
+  /* Muted/Border (Dark Grey) */
+  --c-muted: #64748b;
+  /* Primary Accent (Cyan/Teal) */
+  --c-primary: #22d3ee;
+  /* Secondary Accent (Purple) */
+  --c-secondary: #a78bfa;
 
   /* == Semantic Mappings (Aliases) == */
   --bg-main: var(--c-bg);
   --bg-sub: var(--c-surface);
   --bg-sidebar: var(--c-surface);
-  --bg-card: rgba(255, 255, 255, 0.7);
-  --bg-input: rgba(255, 255, 255, 0.9);
+  --bg-card: rgba(17, 24, 39, 0.8);
+  --bg-input: rgba(30, 41, 59, 0.9);
+  --bg-secondary: #1e293b;
+  --bg-hover: #334155;
 
   --text-main: var(--c-text);
-  --text-dim: var(--c-text);
-  /* Unified for simplicity */
+  --text-dim: var(--c-text-light);
   --text-sub: var(--c-muted);
   --text-muted: var(--c-muted);
 
+  --fg-main: var(--c-text);
+  --fg-muted: var(--c-muted);
+
   --accent-primary: var(--c-primary);
   --accent-secondary: var(--c-secondary);
-  --accent-highlight: #F6E05E;
-  /* Kept specific yellow for highlights if needed, or map to secondary? Keeping as extra for now */
-  --accent-error: #e53e3e;
+  --accent-highlight: #fbbf24;
+  --accent-error: #ef4444;
+  --accent-success: #10b981;
+  --accent: var(--c-primary);
+  --accent-soft: rgba(34, 211, 238, 0.1);
 
-  --border-main: rgba(0, 0, 0, 0.1);
+  --border-main: rgba(255, 255, 255, 0.1);
   --border-active: var(--c-primary);
 
-  /* Spring Compatibility Keys */
-  --color-spring-pink: var(--c-primary);
-  --color-spring-blue: var(--c-secondary);
+  /* Legacy Compatibility Keys */
+  --color-spring-pink: #f472b6;
+  --color-spring-blue: var(--c-primary);
   --color-spring-yellow: var(--accent-highlight);
-  --color-spring-navy: var(--c-text);
+  --color-spring-navy: var(--c-bg);
 
-  /* Tailwinds Compat */
+  /* Tailwind Compat */
   --background: var(--c-bg);
   --foreground: var(--c-text);
   --color-bg-hero: var(--c-bg);
   --color-bg-hero2: var(--c-surface);
 
+  /* Fonts */
+  --font-en: "Plus Jakarta Sans", sans-serif;
+  --font-jp: "Zen Kaku Gothic New", sans-serif;
+  --font-title: "Unbounded", "Zen Kaku Gothic New", sans-serif;
+
   /* Layout specific */
-  --bg-surface-1: rgba(255, 235, 240, 0.5);
-  --bg-surface-2: rgba(255, 255, 255, 0.82);
-  --bg-surface-3: #F7FAFC;
-  /* Slightly different white/grey */
+  --bg-surface-1: rgba(17, 24, 39, 0.7);
+  --bg-surface-2: rgba(30, 41, 59, 0.82);
+  --bg-surface-3: #1e293b;
 }
 
 body {
@@ -292,8 +304,8 @@ table th {
   left: 0;
   top: 0;
   width: 380px;
-  background-color: rgba(255, 255, 255, 0.9);
-  /* Translucent white sidebar */
+  background-color: rgba(17, 24, 39, 0.95);
+  /* Dark sidebar */
   backdrop-filter: blur(10px);
   padding: 2rem;
   box-sizing: border-box;
@@ -303,8 +315,8 @@ table th {
   transition: all 0.6s ease-out, opacity 0.6s ease-out;
   display: flex;
   overflow: hidden;
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 5px 0 30px rgba(0, 0, 0, 0.03);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .site-header.Hide {
@@ -376,11 +388,13 @@ table th {
   flex-direction: column;
   gap: 0.25rem;
   transition: opacity 0.3s ease;
-  color: var(--foreground);
+  color: #e2e8f0;
+  /* explicitly set light color */
 }
 
 .menu a:hover {
   opacity: 1;
+  color: #ffffff;
 }
 
 .menu-title {
@@ -388,7 +402,8 @@ table th {
   font-size: 1.92rem;
   font-weight: 400;
   letter-spacing: 0.1em;
-  color: var(--foreground);
+  color: #f8fafc;
+  /* explicitly set light color */
 
 
 }
@@ -398,6 +413,8 @@ table th {
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   font-weight: 400;
+  color: #94a3b8;
+  /* slightly muted */
 }
 
 .logo svg {
@@ -406,12 +423,12 @@ table th {
   aspect-ratio: 40/95;
   height: auto;
   /* アスペクト比を維持 */
-  fill: currentColor;
+  fill: #f8fafc;
 }
 
 .logo .cls-1 {
   fill: none;
-  stroke: currentColor;
+  stroke: #f8fafc;
   stroke-miterlimit: 10;
   stroke-width: 166px;
 }
@@ -1354,13 +1371,15 @@ a {
   bottom: 100%;
   left: 0;
   width: 200px;
-  background: #1a1a1a;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-main);
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   padding: 0.5rem 0;
   margin-bottom: 0.5rem;
   animation: dropdownOpen 0.2s ease;
   z-index: 1000;
+  backdrop-filter: blur(10px);
 }
 
 @keyframes dropdownOpen {
@@ -1385,6 +1404,7 @@ a {
 .user-name {
   font-weight: 600;
   font-size: 0.875rem;
+  color: var(--c-text);
 }
 
 .admin-badge {
@@ -1399,7 +1419,7 @@ a {
 
 .dropdown-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-main);
   margin: 0.25rem 0;
 }
 
@@ -1408,7 +1428,7 @@ a {
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 1rem;
-  color: var(--foreground);
+  color: var(--c-text);
   font-size: 0.875rem;
   text-decoration: none;
   transition: background 0.2s ease;
@@ -1420,7 +1440,7 @@ a {
 }
 
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface-1);
 }
 
 .dropdown-item svg {
@@ -1493,7 +1513,7 @@ a {
 }
 
 .admin-page .admin-header p {
-  color: #8892b0;
+  color: var(--c-muted);
   margin: 0;
 }
 
@@ -1510,7 +1530,7 @@ a {
 
 .admin-page .form-section label {
   display: block;
-  color: #fff;
+  color: var(--c-text);
   margin-bottom: 0.5rem;
   font-weight: 500;
   font-size: 0.875rem;
@@ -1520,10 +1540,10 @@ a {
 .admin-page .form-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg-input);
+  border: 1px solid var(--border-main);
   border-radius: 8px;
-  color: #fff;
+  color: var(--c-text);
   font-size: 1rem;
   font-family: inherit;
   transition: border-color 0.2s ease, background 0.2s ease;
@@ -1532,28 +1552,29 @@ a {
 .admin-page .form-input:focus,
 .admin-page .form-textarea:focus {
   outline: none;
-  border-color: #64ffda;
-  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--c-primary);
+  background: var(--bg-surface-1);
 }
 
 .admin-page .form-input::placeholder,
 .admin-page .form-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--c-muted);
 }
 
 /* Card component */
 .admin-page .card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-main);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .admin-page .card h2 {
   font-size: 1.25rem;
-  color: #fff;
+  color: var(--c-text);
   margin: 0 0 1rem 0;
   padding: 0;
   border: none;
@@ -1578,8 +1599,9 @@ a {
 }
 
 /* Help text */
+/* Help text */
 .admin-page .help-text {
-  color: #8892b0;
+  color: var(--c-muted);
   font-size: 0.875rem;
   margin-bottom: 1rem;
   line-height: 1.5;
@@ -1627,13 +1649,13 @@ a {
 }
 
 .admin-page .btn-secondary {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg-surface-1);
+  color: var(--c-text);
+  border: 1px solid var(--border-main);
 }
 
 .admin-page .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-surface-3);
 }
 
 .admin-page .btn-sm {
@@ -1660,12 +1682,12 @@ a {
   padding: 0.5rem;
   min-width: 36px;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--bg-surface-1);
+  color: var(--c-text);
 }
 
 .admin-page .btn-icon:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-surface-2);
 }
 
 /* Alerts */
@@ -1695,7 +1717,7 @@ a {
 .admin-page .loading {
   text-align: center;
   padding: 3rem;
-  color: #8892b0;
+  color: var(--c-muted);
 }
 
 .admin-page .loading-container {
@@ -1703,13 +1725,13 @@ a {
   justify-content: center;
   align-items: center;
   min-height: 60vh;
-  color: #64ffda;
+  color: var(--c-primary);
 }
 
 .admin-page .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #8892b0;
+  color: var(--c-muted);
 }
 
 /* Tables */
@@ -1728,22 +1750,22 @@ a {
 .admin-page table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-main);
 }
 
 .admin-page table th {
-  color: #8892b0;
+  color: var(--c-muted);
   font-weight: 500;
   font-size: 0.875rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-surface-1);
 }
 
 .admin-page table td {
-  color: #fff;
+  color: var(--c-text);
 }
 
 .admin-page table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-surface-1);
 }
 
 .admin-page table tbody tr.selected {
@@ -1786,7 +1808,7 @@ a {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;

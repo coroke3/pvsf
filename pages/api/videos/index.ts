@@ -128,13 +128,12 @@ export default async function handler(
 
     try {
         // クエリパラメータを取得
-        const { eventid, limit: limitParam, all, startAfter: startAfterParam } = req.query;
+        const { eventid, limit: limitParam, all, startAfter: startAfterParam, includeDeleted } = req.query;
 
         // 最適化: サーバーサイドでフィルタリング（クライアントサイドフィルタリングを削減）
         let videosQuery: FirebaseFirestore.Query = adminDb.collection('videos');
 
-        // 削除されていない動画のみ取得
-        videosQuery = videosQuery.where('isDeleted', '==', false);
+        // isDeleted field might be missing in legacy data, so we cannot use .where('isDeleted', '==', false)
 
         // eventidでフィルタリング（サーバーサイド）
         if (eventid && typeof eventid === 'string') {
@@ -180,13 +179,19 @@ export default async function handler(
                     break;
                 }
 
-                const batchVideos = batchSnapshot.docs.map(doc => {
-                    const data = doc.data() as VideoDocument;
-                    return convertToLegacyFormat({
+                const batchVideos = batchSnapshot.docs
+                    .map(doc => {
+                        const data = doc.data() as VideoDocument;
+                        return { data, id: doc.id };
+                    })
+                    .filter(({ data }) => {
+                        if (includeDeleted === 'true') return true;
+                        return data.isDeleted !== true; // Include false or undefined
+                    })
+                    .map(({ data, id }) => convertToLegacyFormat({
                         ...data,
-                        id: doc.id,
-                    });
-                });
+                        id,
+                    }));
 
                 allVideos.push(...batchVideos);
 
@@ -235,13 +240,53 @@ export default async function handler(
 
         const videosSnapshot = await videosQuery.get();
 
+        // メモリ内フィルタリング (isDeletedフィールド欠損対応のため)
+        let docs = videosSnapshot.docs;
+        if (includeDeleted !== 'true') {
+            docs = docs.filter(doc => (doc.data() as VideoDocument).isDeleted !== true);
+        }
+
         if (videosSnapshot.empty) {
             // If no data in Firestore, fallback to legacy API
             // This ensures compatibility during migration
             try {
                 const legacyRes = await fetch('https://pvsf-cash.vercel.app/api/videos');
                 if (legacyRes.ok) {
-                    const legacyData = await legacyRes.json();
+                    let legacyData = await legacyRes.json();
+
+                    // Filter legacy data manually
+                    if (Array.isArray(legacyData)) {
+                        // Filter by eventid
+                        if (eventid && typeof eventid === 'string') {
+                            legacyData = legacyData.filter((v: any) =>
+                                v.eventid && v.eventid.split(',').map((e: string) => e.trim()).includes(eventid)
+                            );
+                        }
+
+                        // Filter by authorXid (tlink)
+                        const { authorXid } = req.query;
+                        if (authorXid && typeof authorXid === 'string') {
+                            if (authorXid.includes(',')) {
+                                const xids = authorXid.split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
+                                legacyData = legacyData.filter((v: any) =>
+                                    v.tlink && xids.includes(v.tlink.toLowerCase())
+                                );
+                            } else {
+                                const targetXid = authorXid.toLowerCase();
+                                legacyData = legacyData.filter((v: any) =>
+                                    v.tlink && v.tlink.toLowerCase() === targetXid
+                                );
+                            }
+                        }
+
+                        // Sort by date (descending) - assuming 'time' field exists
+                        legacyData.sort((a: any, b: any) => {
+                            const dateA = new Date(a.time).getTime();
+                            const dateB = new Date(b.time).getTime();
+                            return dateB - dateA;
+                        });
+                    }
+
                     return res.status(200).json(legacyData);
                 }
             } catch (legacyError) {
