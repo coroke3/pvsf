@@ -696,11 +696,12 @@ export default function AdminSlotsPage() {
                                                     slots={event.slots.map(s => ({
                                                         dateTime: s.dateTime,
                                                         videoId: s.videoId,
-                                                        videoTitle: s.videoTitle,  // Show who took the slot
+                                                        videoTitle: s.videoTitle,
                                                         isAvailable: s.isAvailable,
                                                     }))}
                                                     mode="admin"
                                                     showLegend={true}
+                                                    layout="times-as-rows"
                                                 />
                                             </div>
                                         )}

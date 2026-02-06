@@ -485,6 +485,7 @@ export default function VideoRegisterPage() {
                     setIsSubmitting(false);
                     return;
                 }
+                payload.mode = 'slot';
                 payload.slotEventId = selectedSlots[0].eventId;
                 // Send all selected slot times
                 payload.slotDateTimes = selectedSlots.map(s => s.dateTime);
@@ -496,6 +497,7 @@ export default function VideoRegisterPage() {
                     setIsSubmitting(false);
                     return;
                 }
+                payload.mode = 'noSlot';
                 payload.startTime = startTime;
             }
 
@@ -590,109 +592,169 @@ export default function VideoRegisterPage() {
                     </h1>
 
                     {/* Registration Type Selector */}
-                    <div className="type-selector">
-                        <button
-                            type="button"
-                            className={`type-btn ${registrationType === 'slot' ? 'active' : ''}`}
-                            onClick={() => setRegistrationType('slot')}
-                        >
-                            <FontAwesomeIcon icon={faCalendarAlt} />
-                            登録枠を使用（今後の上映会）
-                        </button>
-                        <button
-                            type="button"
-                            className={`type-btn ${registrationType === 'noSlot' ? 'active' : ''}`}
-                            onClick={() => setRegistrationType('noSlot')}
-                        >
-                            <FontAwesomeIcon icon={faVideo} />
-                            枠なし登録（過去の動画）
-                        </button>
-                    </div>
-
-                    {/* Messages */}
-                    {error && (
-                        <div className="alert alert-error">
-                            <FontAwesomeIcon icon={faTimes} /> {error}
-                        </div>
-                    )}
-                    {success && (
-                        <div className="alert alert-success">
-                            <FontAwesomeIcon icon={faCheck} /> {success}
+                    {!success && (
+                        <div className="type-selector">
+                            <button
+                                type="button"
+                                className={`type-btn ${registrationType === 'slot' ? 'active' : ''}`}
+                                onClick={() => setRegistrationType('slot')}
+                            >
+                                <FontAwesomeIcon icon={faCalendarAlt} />
+                                登録枠を使用（今後の上映会）
+                            </button>
+                            <button
+                                type="button"
+                                className={`type-btn ${registrationType === 'noSlot' ? 'active' : ''}`}
+                                onClick={() => setRegistrationType('noSlot')}
+                            >
+                                <FontAwesomeIcon icon={faVideo} />
+                                枠なし登録（過去の動画）
+                            </button>
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit}>
-                        {/* Slot Selection */}
-                        {registrationType === 'slot' && (
-                            <div className="form-section">
-                                <h2>登録枠を選択</h2>
-                                <div className="form-group">
-                                    <label>イベント</label>
-                                    {availableEvents.length > 0 ? (
-                                        <select
-                                            value={eventIdFilter}
-                                            onChange={(e) => {
-                                                setEventIdFilter(e.target.value);
-                                                setSelectedSlot(null);
-                                            }}
-                                            className="form-input"
-                                        >
-                                            {availableEvents.map(event => (
-                                                <option key={event} value={event}>{event}</option>
-                                            ))}
-                                        </select>
-                                    ) : (
-                                        <div className="empty-state small">
-                                            利用可能なイベントがありません
-                                        </div>
-                                    )}
+                    {/* Completion Screen */}
+                    {success ? (
+                        <div className="completion-screen">
+                            <div className="completion-content">
+                                <div className="completion-icon">
+                                    <FontAwesomeIcon icon={faCheck} />
                                 </div>
-                                {eventIdFilter && (
-                                    <div className="slots-table-area">
-                                        {isLoadingSlots ? (
-                                            <div className="loading">
-                                                <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
-                                            </div>
-                                        ) : (
-                                            <SlotAvailabilityTable
-                                                slots={availableSlots}
-                                                mode="user"
-                                                selectedSlots={selectedSlots}
-                                                onMultiSlotSelect={(slots: SlotData[]) => setSelectedSlots(slots as Slot[])}
-                                                maxSlots={3}
-                                            />
-                                        )}
-                                        {selectedSlots.length > 0 && (
-                                            <div className="selected-slot-info">
-                                                <FontAwesomeIcon icon={faCheck} />
-                                                選択中: {selectedSlots.length}枠
-                                                <span className="slot-times">
-                                                    （{selectedSlots.map(s => formatSlotDateTime(s.dateTime)).join(' → ')}）
-                                                </span>
+                                <h2>送信完了！</h2>
+                                <p>{success}</p>
+                                <p className="completion-note">
+                                    登録内容はプロフィールページからいつでも確認・編集できます。
+                                </p>
+                                <div className="completion-actions">
+                                    <button onClick={() => router.push('/profile')} className="btn btn-primary">
+                                        プロフィールへ
+                                    </button>
+                                    <button onClick={() => setSuccess('')} className="btn btn-secondary">
+                                        続けて登録する
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Messages */}
+                            {error && (
+                                <div className="alert alert-error">
+                                    <FontAwesomeIcon icon={faTimes} /> {error}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleSubmit}>
+                                {/* Slot Selection */}
+                                {registrationType === 'slot' && (
+                                    <div className="form-section">
+                                        <h2>登録枠を選択</h2>
+                                        <div className="form-group">
+                                            <label>イベント</label>
+                                            {availableEvents.length > 0 ? (
+                                                <select
+                                                    value={eventIdFilter}
+                                                    onChange={(e) => {
+                                                        setEventIdFilter(e.target.value);
+                                                        setSelectedSlot(null);
+                                                    }}
+                                                    className="form-input"
+                                                >
+                                                    {availableEvents.map(event => (
+                                                        <option key={event} value={event}>{event}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <div className="empty-state small">
+                                                    利用可能なイベントがありません
+                                                </div>
+                                            )}
+                                        </div>
+                                        {eventIdFilter && (
+                                            <div className="slots-table-area">
+                                                {isLoadingSlots ? (
+                                                    <div className="loading">
+                                                        <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
+                                                    </div>
+                                                ) : (
+                                                    <SlotAvailabilityTable
+                                                        slots={availableSlots}
+                                                        mode="user"
+                                                        selectedSlots={selectedSlots}
+                                                        onMultiSlotSelect={(slots: SlotData[]) => setSelectedSlots(slots as Slot[])}
+                                                        maxSlots={3}
+                                                    />
+                                                )}
+                                                {selectedSlots.length > 0 && (
+                                                    <div className="selected-slot-info">
+                                                        <FontAwesomeIcon icon={faCheck} />
+                                                        選択中: {selectedSlots.length}枠
+                                                        <span className="slot-times">
+                                                            （{selectedSlots.map(s => formatSlotDateTime(s.dateTime)).join(' → ')}）
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 )}
-                            </div>
-                        )}
 
-                        {/* Non-slot: Date Selection */}
-                        {registrationType === 'noSlot' && (
-                            <div className="form-section">
-                                <h2>公開日時</h2>
-                                <p className="help-text">過去の日時を指定してください</p>
-                                <div className="form-group">
-                                    <input
-                                        type="datetime-local"
-                                        value={startTime}
-                                        onChange={(e) => setStartTime(e.target.value)}
-                                        max={new Date().toISOString().slice(0, 16)}
-                                        className="form-input"
-                                        required
-                                    />
+                                {/* Non-slot: Date Selection */}
+                                {registrationType === 'noSlot' && (
+                                    <div className="form-section">
+                                        <h2>公開日時</h2>
+                                        <p className="help-text">過去の日時を指定してください</p>
+                                        <div className="form-group">
+                                            <input
+                                                type="datetime-local"
+                                                value={startTime}
+                                                onChange={(e) => setStartTime(e.target.value)}
+                                                max={new Date().toISOString().slice(0, 16)}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Video Info (Optional for Slot) */}
+                                <div className="form-section">
+                                    <h2>動画情報</h2>
+                                    <div className="form-group">
+                                        <label>動画URL {registrationType === 'noSlot' && '*'}</label>
+                                        <input
+                                            type="url"
+                                            value={videoUrl}
+                                            onChange={(e) => setVideoUrl(e.target.value)}
+                                            placeholder="https://www.youtube.com/watch?v=..."
+                                            className="form-input"
+                                            required={registrationType === 'noSlot'}
+                                        />
+                                        <p className="help-text">
+                                            {registrationType === 'slot' ? '後からでも入力可能です' : '必須項目です'}
+                                        </p>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>タイトル *</label>
+                                        <input
+                                            type="text"
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                            placeholder="作品タイトル（仮でも可）"
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>説明文</label>
+                                        <textarea
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            className="form-input"
+                                            rows={3}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
 
                         {/* Category Info */}
                         <div className="form-section">
@@ -1185,6 +1247,8 @@ export default function VideoRegisterPage() {
                             <p className="submit-hint">Ctrl + Enter でも送信できます</p>
                         </div>
                     </form>
+                    </>
+                    )}
                 </div>
             </div>
 

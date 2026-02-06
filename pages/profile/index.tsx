@@ -137,6 +137,14 @@ export default function ProfilePage() {
     return match ? match[1] : null;
   }
 
+  const normalizeYouTubeUrl = (url: string) => {
+    const id = extractYouTubeId(url);
+    if (id) {
+        return `https://youtu.be/${id}`;
+    }
+    return url;
+  };
+
 
 
   // Use infinite scroll for Authored Videos
@@ -241,6 +249,9 @@ export default function ProfilePage() {
 
 
 
+  // Edit Completion State
+  const [showEditCompletion, setShowEditCompletion] = useState(false);
+
   const saveEdit = useCallback(async () => {
     if (!editingVideo) return;
 
@@ -253,7 +264,7 @@ export default function ProfilePage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // Pass all fields - backend filters based on publication status
+          // Pass all fields
           title: editingVideo.title,
           videoUrl: editingVideo.videoUrl,
           authorName: editingVideo.authorName,
@@ -283,8 +294,9 @@ export default function ProfilePage() {
       });
 
       if (res.ok) {
-        setEditSuccess('動画を更新しました');
+        // Close edit modal and show completion modal
         setEditingVideo(null);
+        setShowEditCompletion(true);
         fetchParticipatedVideos();
       } else {
         const data = await res.json();
@@ -815,11 +827,101 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* My Videos Section - Authored */}
+          {/* New Section: Upcoming / Reserved Slots */}
+          {(authoredVideos.some(v => new Date(v.startTime) > new Date()) || participatedVideos.some(v => new Date(v.startTime) > new Date())) && (
+             <div className="profile-section">
+                <h3><FontAwesomeIcon icon={faClock} /> 今後の上映予定 / 登録済み枠</h3>
+                <p className="section-description">
+                  これから上映される作品や、確保済みの枠です。
+                </p>
+                <div className="my-videos-grid">
+                    {/* Upcoming Authored */}
+                    {authoredVideos.filter(v => new Date(v.startTime) > new Date()).map((video) => (
+                      <div key={video.id} className="my-video-card">
+                         <div className="my-video-thumbnail">
+                            {/* Logic to show placeholder if no thumbnail (e.g. draft) */}
+                            {video.id.startsWith('draft_') || !video.id ? (
+                                <div style={{ width: '100%', height: '100%', background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8892b0' }}>
+                                    <span>No Thumbnail</span>
+                                </div>
+                            ) : (
+                                <Image
+                                    src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
+                                    alt={video.title || '動画サムネイル'}
+                                    width={320}
+                                    height={180}
+                                    unoptimized
+                                />
+                            )}
+                            <span className="video-status-badge" style={{ background: '#5865F2' }}>
+                                {new Date(video.startTime).toLocaleDateString()} 上映予定
+                            </span>
+                         </div>
+                         <div className="my-video-content">
+                            <h4 className="my-video-title">{video.title || '(無題)'}</h4>
+                            <div className="my-video-role">
+                                <span className="role-badge author">投稿者</span>
+                            </div>
+                            <div className="my-video-meta">
+                                <span>{formatDate(video.startTime)}</span>
+                            </div>
+                            <div className="video-actions">
+                                <button onClick={() => startEdit(video)} className="action-btn edit">
+                                  <FontAwesomeIcon icon={faEdit} /> 詳細・編集
+                                </button>
+                                {video.members.length > 0 && (
+                                  <button onClick={() => setManagingVideo(video)} className="action-btn manage">
+                                    <FontAwesomeIcon icon={faUsers} /> メンバー管理
+                                  </button>
+                                )}
+                            </div>
+                         </div>
+                      </div>
+                    ))}
+
+                    {/* Upcoming Participated */}
+                    {participatedVideos.filter(v => new Date(v.startTime) > new Date()).map((video) => (
+                      <div key={video.id} className={`my-video-card ${!video.editApproved ? 'pending-approval' : ''}`}>
+                         {/* Similar card structure but for participated */}
+                         <div className="my-video-thumbnail">
+                            <Image
+                                src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
+                                alt={video.title}
+                                width={320}
+                                height={180}
+                                unoptimized
+                            />
+                            <span className="video-status-badge" style={{ background: '#5865F2' }}>これから公開</span>
+                         </div>
+                         <div className="my-video-content">
+                           <h4 className="my-video-title">{video.title}</h4>
+                           <div className="my-video-role">
+                                <span className="role-badge member">参加作品</span>
+                           </div>
+                           <div className="my-video-meta">
+                                <span>{formatDate(video.startTime)}</span>
+                           </div>
+                           {video.editApproved ? (
+                                <button onClick={() => startEdit(video)} className="action-btn edit">
+                                  <FontAwesomeIcon icon={faEdit} /> 編集
+                                </button>
+                           ) : (
+                                <button disabled className="action-btn disabled">
+                                  <FontAwesomeIcon icon={faLock} /> 承認待ち
+                                </button>
+                           )}
+                         </div>
+                      </div>
+                    ))}
+                </div>
+             </div>
+          )}
+
+          {/* Published Authored Videos */}
           <div className="profile-section">
             <h3><FontAwesomeIcon icon={faVideo} /> 投稿した作品</h3>
             <p className="section-description">
-              あなたが投稿した作品です。編集およびメンバーの編集権限管理が可能です。
+              あなたが投稿した公開済みの作品です。
             </p>
 
             {approvedXids.length === 0 ? (
@@ -830,13 +932,13 @@ export default function ProfilePage() {
               <div className="loading-state">
                 <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
               </div>
-            ) : authoredVideos.length === 0 ? (
+            ) : authoredVideos.filter(v => new Date(v.startTime) <= new Date()).length === 0 ? (
               <div className="empty-state">
-                あなたが投稿した作品はありません。
+                公開済みの作品はありません。
               </div>
             ) : (
               <div className="my-videos-grid">
-                {authoredVideos.map((video) => (
+                {authoredVideos.filter(v => new Date(v.startTime) <= new Date()).map((video) => (
                   <div key={video.id} className="my-video-card">
                     <div className="my-video-thumbnail">
                       <Image
@@ -892,13 +994,19 @@ export default function ProfilePage() {
                 ))}
               </div>
             )}
+            {/* Show load more button if needed, but handled by infinite scroll usually at bottom? */
+             /* The strict filtering might hide "Load More" trigger if it was simply at the bottom of the list.
+                But usually with useInfiniteVideos, we have a trigger element.
+                I need to check how infinite scroll acts.
+             */
+            }
           </div>
 
 
           <div className="profile-section">
             <h3><FontAwesomeIcon icon={faUsers} /> 参加した作品</h3>
             <p className="section-description">
-              あなたがメンバーとして参加した作品です。投稿者の承認後に編集が可能になります。
+              あなたがメンバーとして参加した公開済みの作品です。
             </p>
 
             {approvedXids.length === 0 ? (
@@ -909,13 +1017,13 @@ export default function ProfilePage() {
               <div className="loading-state">
                 <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
               </div>
-            ) : participatedVideos.length === 0 ? (
+            ) : participatedVideos.filter(v => new Date(v.startTime) <= new Date()).length === 0 ? (
               <div className="empty-state">
-                あなたが参加した作品はありません。
+                参加した公開済みの作品はありません。
               </div>
             ) : (
               <div className="my-videos-grid">
-                {participatedVideos.map((video) => (
+                {participatedVideos.filter(v => new Date(v.startTime) <= new Date()).map((video) => (
                   <div key={video.id} className={`my-video-card ${!video.editApproved ? 'pending-approval' : ''}`}>
                     <div className="my-video-thumbnail">
                       <Image
@@ -992,13 +1100,33 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+
         </div>
 
         {/* Edit Modal */}
         {editingVideo && (
           <div className="modal-overlay" onClick={() => setEditingVideo(null)}>
             <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
-              {(() => {
+              {editSuccess ? (
+                <div className="completion-screen">
+                  <div className="completion-content">
+                    <div className="completion-icon">
+                      <FontAwesomeIcon icon={faCheck} />
+                    </div>
+                    <h2>更新完了！</h2>
+                    <p>{editSuccess}</p>
+                    <div className="completion-actions">
+                      <button 
+                        onClick={() => { setEditingVideo(null); setEditSuccess(''); }} 
+                        className="btn-save"
+                        style={{ width: 'auto', padding: '0.75rem 2rem' }}
+                      >
+                        閉じる
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (() => {
                 const isPublished = new Date(editingVideo.startTime) <= new Date();
                 return (
                   <>
@@ -1016,6 +1144,7 @@ export default function ProfilePage() {
                             type="text"
                             value={editingVideo.videoUrl}
                             onChange={(e) => setEditingVideo({ ...editingVideo, videoUrl: e.target.value })}
+                            onBlur={(e) => setEditingVideo({ ...editingVideo, videoUrl: normalizeYouTubeUrl(e.target.value) })}
                             className="form-input"
                             disabled={isPublished}
                           />
@@ -1351,6 +1480,26 @@ export default function ProfilePage() {
               })()}
             </div>
           </div>
+        )}
+
+        {/* Edit Completion Modal */}
+        {showEditCompletion && (
+             <div className="modal-overlay" onClick={() => setShowEditCompletion(false)}>
+                <div className="modal completion-modal" onClick={(e) => e.stopPropagation()}>
+                    <div className="completion-content">
+                        <div className="completion-icon">
+                            <FontAwesomeIcon icon={faCheck} />
+                        </div>
+                        <h2>更新完了！</h2>
+                        <p>動画情報の更新が完了しました。</p>
+                        <div className="completion-actions">
+                            <button onClick={() => setShowEditCompletion(false)} className="btn btn-primary">
+                                閉じる
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         )}
 
         {/* Member Management Modal */}
@@ -2523,6 +2672,52 @@ export default function ProfilePage() {
         
         .icon-grid-item:hover {
             border-color: var(--accent-primary);
+        }
+
+        /* Completion Screen */
+        .completion-screen {
+            padding: 3rem 1rem;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .completion-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid var(--accent-primary);
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.1);
+        }
+        .completion-icon {
+            font-size: 3rem;
+            color: var(--accent-primary);
+            margin-bottom: 1.5rem;
+        }
+        .completion-screen h2 {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+            border: none;
+            justify-content: center;
+        }
+        .completion-screen p {
+            color: #ccd6f6;
+            margin-bottom: 2rem;
+        }
+        .completion-actions {
+            display: flex;
+            justify-content: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>

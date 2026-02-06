@@ -63,6 +63,21 @@ export default function VideoForm({ initialData, onSubmit, isEdit = false }: Vid
         return match ? match[1] : null;
     };
 
+    const normalizeYouTubeUrl = (url: string) => {
+        const id = extractYouTubeId(url);
+        if (id) {
+            return `https://youtu.be/${id}`;
+        }
+        return url;
+    };
+
+    const handleUrlBlur = () => {
+        setFormData(prev => ({
+            ...prev,
+            videoUrl: normalizeYouTubeUrl(prev.videoUrl)
+        }));
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
 
@@ -102,15 +117,15 @@ export default function VideoForm({ initialData, onSubmit, isEdit = false }: Vid
 
                 <div className="form-grid">
                     <div className="form-group full-width">
-                        <label htmlFor="videoUrl">動画URL *</label>
+                        <label htmlFor="videoUrl">動画URL</label>
                         <input
                             type="url"
                             id="videoUrl"
                             name="videoUrl"
                             value={formData.videoUrl}
                             onChange={handleChange}
-                            placeholder="https://www.youtube.com/watch?v=..."
-                            required
+                            onBlur={handleUrlBlur}
+                            placeholder="https://www.youtube.com/watch?v=...（後から入力可能）"
                         />
                     </div>
 
@@ -119,8 +134,9 @@ export default function VideoForm({ initialData, onSubmit, isEdit = false }: Vid
                             <Image 
                                 src={thumbnailPreview} 
                                 alt="サムネイルプレビュー"
-                                width={640}
-                                height={360}
+                                width={1280}
+                                height={720}
+                                style={{ width: '100%', height: 'auto' }}
                                 unoptimized
                             />
                         </div>

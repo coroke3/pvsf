@@ -3,21 +3,21 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Unbounded:wght@200..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap");
 
 :root {
-  /* == Core Colors (Dark Theme) == */
-  /* Main Background (Dark Navy/Black) */
-  --c-bg: #0a0f1a;
-  /* Surface/Card (Slightly lighter dark) */
-  --c-surface: #111827;
+  /* == Core Colors (Spring Theme 2026) == */
+  /* Main Background (Dark Navy - PVSF Brand) */
+  --c-bg: #1A2B4C;
+  /* Surface/Card (Slightly lighter dark navy) */
+  --c-surface: #243456;
   /* Main Text (Light/White) */
-  --c-text: #e2e8f0;
+  --c-text: #F8FAFC;
   /* Light Text (Slightly dimmer) */
-  --c-text-light: #cbd5e1;
+  --c-text-light: #CBD5E1;
   /* Muted/Border (Dark Grey) */
-  --c-muted: #64748b;
-  /* Primary Accent (Cyan/Teal) */
-  --c-primary: #22d3ee;
-  /* Secondary Accent (Purple) */
-  --c-secondary: #a78bfa;
+  --c-muted: #64748B;
+  /* Primary Accent (Spring Pink - Vibrant) */
+  --c-primary: #FF80AB;
+  /* Secondary Accent (Spring Blue - Fresh) */
+  --c-secondary: #64B5F6;
 
   /* == Semantic Mappings (Aliases) == */
   --bg-main: var(--c-bg);
@@ -38,18 +38,20 @@
 
   --accent-primary: var(--c-primary);
   --accent-secondary: var(--c-secondary);
-  --accent-highlight: #fbbf24;
+  --accent-highlight: #FDE047;
+  /* Yellow from camera icon */
   --accent-error: #ef4444;
   --accent-success: #10b981;
   --accent: var(--c-primary);
-  --accent-soft: rgba(34, 211, 238, 0.1);
+  --accent-soft: rgba(255, 128, 171, 0.15);
+  /* Pink tint */
 
   --border-main: rgba(255, 255, 255, 0.1);
   --border-active: var(--c-primary);
 
   /* Legacy Compatibility Keys */
-  --color-spring-pink: #f472b6;
-  --color-spring-blue: var(--c-primary);
+  --color-spring-pink: var(--c-primary);
+  --color-spring-blue: var(--c-secondary);
   --color-spring-yellow: var(--accent-highlight);
   --color-spring-navy: var(--c-bg);
 

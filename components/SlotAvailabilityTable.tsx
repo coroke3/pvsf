@@ -23,6 +23,7 @@ interface SlotAvailabilityTableProps {
     onMultiSlotSelect?: (slots: SlotData[]) => void;  // For multi-slot selection
     maxSlots?: number;  // Maximum consecutive slots (default: 1)
     showLegend?: boolean;
+    layout?: 'dates-as-rows' | 'times-as-rows';
 }
 
 /**
@@ -35,6 +36,17 @@ function formatDateRow(date: Date): string {
     const d = String(date.getDate()).padStart(2, '0');
     const w = weekdays[date.getDay()];
     return `${y}/${m}/${d} (${w})`;
+}
+
+/**
+ * Formats date for column header (shorter)
+ */
+function formatDateColumn(date: Date): string {
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const w = weekdays[date.getDay()];
+    return `${m}/${d}(${w})`;
 }
 
 /**
@@ -74,6 +86,7 @@ export default function SlotAvailabilityTable({
     onMultiSlotSelect,
     maxSlots = 1,
     showLegend = true,
+    layout = 'dates-as-rows'
 }: SlotAvailabilityTableProps) {
     // Process slots: filter future only, group by date and time
     const { dates, times, slotMap, sortedSlots } = useMemo(() => {
@@ -199,79 +212,155 @@ export default function SlotAvailabilityTable({
 
             <div className="slot-table-wrapper">
                 <table className="slot-availability-table">
-                    <thead>
-                        <tr>
-                            <th className="date-header">日付</th>
-                            {times.map(time => (
-                                <th key={time} className="time-header">{time}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {dates.map(dateKey => {
-                            const date = new Date(dateKey + 'T00:00:00');
-                            return (
-                                <tr key={dateKey}>
-                                    <td className="date-cell">{formatDateRow(date)}</td>
-                                    {times.map(timeKey => {
-                                        const slot = slotMap.get(`${dateKey}|${timeKey}`);
+                    {layout === 'dates-as-rows' ? (
+                        <>
+                            <thead>
+                                <tr>
+                                    <th className="date-header">日付</th>
+                                    {times.map(time => (
+                                        <th key={time} className="time-header">{time}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {dates.map(dateKey => {
+                                    const date = new Date(dateKey + 'T00:00:00');
+                                    return (
+                                        <tr key={dateKey}>
+                                            <td className="date-cell">{formatDateRow(date)}</td>
+                                            {times.map(timeKey => {
+                                                const slot = slotMap.get(`${dateKey}|${timeKey}`);
+                                                // Existing render logic inline or we extract it?
+                                                // Since I cannot call a function inside map easily if I don't define it.
+                                                // I will duplicate logic for now or define a helper inside component if needed?
+                                                // Better: define logic. But I can't put a function here easily inside JSX.
+                                                // I will inline the logic for both branches but simplified.
+                                                // Wait, I should make `renderSlotCell` function inside component above return.
+                                                // But I can't add it in this Replace block easily (it's in the middle).
+                                                // I will stick to inline logic for now but clean it up.
+                                                
+                                                if (!slot) return <td key={timeKey} className="slot-cell empty">-</td>;
+                                                const isAvailable = slot.isAvailable;
+                                                const selected = isSelected(slot);
+                                                const clickable = mode === 'user' && isAvailable;
+                                                const order = getSelectionOrder(slot);
+                                                const orderSymbols = ['', '①', '②', '③'];
+                                                let displayContent = isAvailable ? '〇' : '×';
+                                                let titleText = isAvailable ? 'クリックして選択' : '予約済み';
+                                                if (selected && order > 0) {
+                                                    displayContent = orderSymbols[order] || `${order}`;
+                                                    titleText = 'クリックで選択解除';
+                                                } else if (isAvailable) {
+                                                    titleText = maxSlots > 1 ? `クリックで選択（${selectedSlots.length}/${maxSlots}枠選択中）` : 'クリックして選択';
+                                                } else {
+                                                    titleText = mode === 'admin' && slot.videoTitle ? `予約: ${slot.videoTitle}` : '予約済み';
+                                                }
 
-                                        if (!slot) {
-                                            // No slot at this date/time
-                                            return (
-                                                <td key={timeKey} className="slot-cell empty">
-                                                    -
-                                                </td>
-                                            );
-                                        }
-
-                                        const isAvailable = slot.isAvailable;
-                                        const selected = isSelected(slot);
-                                        const clickable = mode === 'user' && isAvailable;
-                                        const order = getSelectionOrder(slot);
-                                        const orderSymbols = ['', '①', '②', '③'];
-
-                                        // Determine display content
-                                        let displayContent: string;
-                                        let titleText: string;
-
-                                        if (selected && order > 0) {
-                                            displayContent = orderSymbols[order] || `${order}`;
-                                            titleText = 'クリックで選択解除';
-                                        } else if (isAvailable) {
-                                            displayContent = '〇';
-                                            titleText = maxSlots > 1
-                                                ? `クリックで選択（${selectedSlots.length}/${maxSlots}枠選択中）`
-                                                : 'クリックして選択';
-                                        } else {
-                                            displayContent = '×';
-                                            // In admin mode, show videoTitle as tooltip
-                                            titleText = mode === 'admin' && slot.videoTitle
-                                                ? `予約: ${slot.videoTitle}`
-                                                : '予約済み';
-                                        }
-
+                                                return (
+                                                    <td
+                                                        key={timeKey}
+                                                        className={`slot-cell ${isAvailable ? 'available' : 'occupied'} ${selected ? 'selected' : ''} ${clickable ? 'clickable' : ''}`}
+                                                        onClick={() => clickable && handleSlotClick(slot)}
+                                                        title={titleText}
+                                                    >
+                                                        {displayContent}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </>
+                    ) : (
+                        <>
+                            <thead>
+                                <tr>
+                                    <th className="time-header-fixed">時間</th>
+                                    {dates.map(dateKey => {
+                                        const date = new Date(dateKey + 'T00:00:00');
                                         return (
-                                            <td
-                                                key={timeKey}
-                                                className={`slot-cell ${isAvailable ? 'available' : 'occupied'} ${selected ? 'selected' : ''} ${clickable ? 'clickable' : ''}`}
-                                                onClick={() => clickable && handleSlotClick(slot)}
-                                                title={titleText}
-                                            >
-                                                {displayContent}
-                                            </td>
+                                            <th key={dateKey} className="date-header-col">{formatDateColumn(date)}</th>
                                         );
                                     })}
                                 </tr>
-                            );
-                        })}
-                    </tbody>
+                            </thead>
+                            <tbody>
+                                {times.map(timeKey => (
+                                    <tr key={timeKey}>
+                                        <td className="time-cell">{timeKey}</td>
+                                        {dates.map(dateKey => {
+                                            const slot = slotMap.get(`${dateKey}|${timeKey}`);
+                                            if (!slot) return <td key={dateKey} className="slot-cell empty">-</td>;
+                                            const isAvailable = slot.isAvailable;
+                                            const selected = isSelected(slot);
+                                            const clickable = mode === 'user' && isAvailable;
+                                            const order = getSelectionOrder(slot);
+                                            const orderSymbols = ['', '①', '②', '③'];
+                                            let displayContent = isAvailable ? '〇' : '×';
+                                            let titleText = isAvailable ? 'クリックして選択' : '予約済み';
+                                            if (selected && order > 0) {
+                                                displayContent = orderSymbols[order] || `${order}`;
+                                                titleText = 'クリックで選択解除';
+                                            } else if (isAvailable) {
+                                                titleText = maxSlots > 1 ? `クリックで選択（${selectedSlots.length}/${maxSlots}枠選択中）` : 'クリックして選択';
+                                            } else {
+                                                titleText = mode === 'admin' && slot.videoTitle ? `予約: ${slot.videoTitle}` : '予約済み';
+                                            }
+                                            return (
+                                                <td
+                                                    key={dateKey}
+                                                    className={`slot-cell ${isAvailable ? 'available' : 'occupied'} ${selected ? 'selected' : ''} ${clickable ? 'clickable' : ''}`}
+                                                    onClick={() => clickable && handleSlotClick(slot)}
+                                                    title={titleText}
+                                                >
+                                                    {displayContent}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </>
+                    )}
                 </table>
             </div>
 
             <style jsx>{`
                 .slot-availability-table-container {
                     width: 100%;
+                }
+
+                .time-header-fixed {
+                    position: sticky;
+                    left: 0;
+                    background: rgba(10, 25, 47, 0.95);
+                    z-index: 2;
+                    min-width: 60px;
+                    text-align: center;
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    color: #ccd6f6;
+                    padding: 0.5rem 0.75rem;
+                }
+
+                .date-header-col {
+                    min-width: 100px;
+                    font-size: 0.8rem;
+                }
+
+                .time-cell {
+                    position: sticky;
+                    left: 0;
+                    background: rgba(10, 25, 47, 0.95);
+                    z-index: 1;
+                    font-weight: 600;
+                    color: #ccd6f6;
+                    border-right: 1px solid rgba(255, 255, 255, 0.1);
+                    text-align: center;
+                    padding: 0.5rem 0.75rem;
+                    border: 1px solid rgba(255, 255, 255, 0.06);
                 }
 
                 .slot-table-legend {
