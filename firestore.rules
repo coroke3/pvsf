@@ -1,0 +1,144 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // Helper Functions
+    // ============================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      // Check custom claim first, fallback to user document
+      return isAuthenticated() &&
+        (request.auth.token.role == 'admin' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    function isVideoOwner(videoData) {
+      // Check if user is creator or in ownerIds array
+      return isAuthenticated() && (
+        videoData.createdBy == request.auth.uid ||
+        (videoData.ownerIds != null && request.auth.uid in videoData.ownerIds)
+      );
+    }
+
+    // ============================================
+    // Rules: Users Collection
+    // ============================================
+
+    match /users/{userId} {
+      // Anyone authenticated can read profiles
+      allow read: if isAuthenticated();
+      
+      // Only owner or admin can write
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
+    // Rules: Events Collection
+    // ============================================
+
+    match /events/{eventId} {
+      // Public can read events
+      allow read: if true;
+      
+      // Only admins can modify events
+      allow write: if isAdmin();
+
+      // ----------------------------------------
+      // Sub-collection: Slots
+      // ----------------------------------------
+      match /slots/{slotId} {
+        // Public can view available slots
+        allow read: if true;
+
+        // Create: Admin only
+        allow create: if isAdmin();
+
+        // Update: Slot reservation logic
+        allow update: if isAuthenticated() && (
+          // Admin override
+          isAdmin() ||
+          (
+            // Slot must not be locked
+            !resource.data.isLocked &&
+            (
+              // Case 1: Reserve empty slot (reservedBy is null -> user sets their ID)
+              (
+                resource.data.reservedBy == null && 
+                request.resource.data.reservedBy != null &&
+                request.resource.data.reservedBy.userId == request.auth.uid
+              ) ||
+              // Case 2: Cancel own reservation (reservedBy.userId == user -> set to null)
+              (
+                resource.data.reservedBy != null &&
+                resource.data.reservedBy.userId == request.auth.uid && 
+                request.resource.data.reservedBy == null
+              )
+            )
+          )
+        );
+
+        // Delete: Admin only
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ============================================
+    // Rules: Videos Collection
+    // ============================================
+
+    match /videos/{videoId} {
+      // Public can read published videos
+      // Private/draft videos only visible to owner/admin
+      allow read: if resource.data.status == 'published' || 
+                    isVideoOwner(resource.data) || 
+                    isAdmin();
+
+      // Create: Authenticated user must set themselves as creator
+      allow create: if isAuthenticated() &&
+                      request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Owner (creator or in ownerIds) or admin
+      allow update: if isVideoOwner(resource.data) || isAdmin();
+
+      // Delete: Owner or admin
+      allow delete: if isVideoOwner(resource.data) || isAdmin();
+    }
+
+    // ============================================
+    // Rules: Legacy Users (for migration)
+    // ============================================
+
+    match /legacy_users/{xid} {
+      // Only readable by authenticated users (for migration check)
+      allow read: if isAuthenticated();
+      
+      // Only writable by admin
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // Rules: Audit Logs
+    // ============================================
+
+    match /audit_logs/{logId} {
+      // Only admin can read logs
+      allow read: if isAdmin();
+      
+      // No client writes - use Cloud Functions only
+      allow write: if false;
+    }
+
+  }
+}

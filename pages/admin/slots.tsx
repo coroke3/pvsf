@@ -49,6 +49,7 @@ export default function AdminSlotsPage() {
     // GUI slot creation
     const [inputMode, setInputMode] = useState<'csv' | 'gui'>('gui');
     const [guiSlotDate, setGuiSlotDate] = useState('');
+    const [guiSlotEndDate, setGuiSlotEndDate] = useState(''); // New: End Date for range
     const [guiSlotTimes, setGuiSlotTimes] = useState<string[]>(['']);
 
     // Table view mode
@@ -117,6 +118,8 @@ export default function AdminSlotsPage() {
                 return;
             }
             // Generate CSV format from GUI inputs
+            // Note: If generated via bulk tool range, inputMode might be CSV?
+            // If strictly GUI mode with single date:
             finalSlotsInput = validTimes.map(time => `${guiSlotDate},${time}`).join('\n');
         } else {
             if (!newSlotsInput.trim()) {
@@ -148,6 +151,7 @@ export default function AdminSlotsPage() {
                 setNewEventName('');
                 setNewSlotsInput('');
                 setGuiSlotDate('');
+                setGuiSlotEndDate('');
                 setGuiSlotTimes(['']);
                 setShowCreateForm(false);
                 fetchEvents();
@@ -208,28 +212,63 @@ export default function AdminSlotsPage() {
 
     const generateBulkSlots = () => {
         const allSlots: string[] = [];
+        
+        // Date range logic
+        const startDateStr = guiSlotDate;
+        // Default to start date if end date is empty
+        const endDateStr = guiSlotEndDate || guiSlotDate;
 
-        for (const pattern of bulkPatterns) {
-            if (!pattern.startTime || !pattern.endTime || !pattern.interval) continue;
-
-            const start = new Date(`2000-01-01T${pattern.startTime}`);
-            const end = new Date(`2000-01-01T${pattern.endTime}`);
-
-            let current = start;
-            while (current < end) {
-                const timeStr = current.toTimeString().slice(0, 5);
-                if (!allSlots.includes(timeStr)) {
-                    allSlots.push(timeStr);
-                }
-                current = new Date(current.getTime() + pattern.interval * 60000);
-            }
+        if (!startDateStr) {
+            setError('開始日を選択してください');
+            return;
         }
 
-        // Sort slots by time
-        allSlots.sort();
+        const startDt = new Date(startDateStr);
+        const endDt = new Date(endDateStr);
 
+        // Iterate through dates
+        for (let dt = new Date(startDt); dt <= endDt; dt.setDate(dt.getDate() + 1)) {
+            const dateStr = dt.toISOString().split('T')[0];
+
+            for (const pattern of bulkPatterns) {
+                if (!pattern.startTime || !pattern.endTime || !pattern.interval) continue;
+
+                // Create base date for time calculations (using dummy date 2000-01-01 is risky if spanning days, but pattern is intra-day)
+                // Actually, we just want time strings.
+                
+                const pStart = new Date(`2000-01-01T${pattern.startTime}`);
+                const pEnd = new Date(`2000-01-01T${pattern.endTime}`);
+                
+                if (pEnd < pStart) {
+                     // Handle overnight pattern if needed? For now assume patterns are within day.
+                     // usage: 22:00 -> 02:00 could be valid?
+                     // If pEnd < pStart, maybe add 1 day to pEnd?
+                     // But here we are generating strings "YYYY-MM-DD,HH:mm"?
+                     // Wait, guiSlotTimes is string[] of "HH:mm" OR "YYYY-MM-DD,HH:mm"?
+                     // Current implementation: `guiSlotTimes` seems to only hold "HH:mm" in single day mode?
+                     // Let's check `handleCreateEvent`. 
+                     // `finalSlotsInput = validTimes.map(time => \`\${guiSlotDate},\${time}\`).join('\\n');`
+                     // So `guiSlotTimes` holds generic times.
+                     // But if we support Multi-Day, we need `finalSlotsInput` to contain FULL DateTime strings.
+                     // So we should change `guiSlotTimes` to allow full strings OR change logic.
+                }
+                
+                let current = pStart;
+                while (current < pEnd) {
+                    const timeStr = current.toTimeString().slice(0, 5);
+                    allSlots.push(`${dateStr},${timeStr}`);
+                    current = new Date(current.getTime() + pattern.interval * 60000);
+                }
+            }
+        }
+        
+        // Sort
+        allSlots.sort();
+        
         if (allSlots.length > 0) {
-            setGuiSlotTimes(allSlots);
+            setNewSlotsInput(allSlots.join('\n'));
+            setInputMode('csv'); // Switch to CSV mode to show result
+            setSuccess(`CSVモードで${allSlots.length}枠を生成しました`);
         }
     };
 
@@ -477,15 +516,28 @@ export default function AdminSlotsPage() {
                             {/* GUI Mode */}
                             {inputMode === 'gui' && (
                                 <div className="gui-slot-input">
-                                    <div className="form-group">
-                                        <label>日付 *</label>
-                                        <input
-                                            type="date"
-                                            value={guiSlotDate}
-                                            onChange={(e) => setGuiSlotDate(e.target.value)}
-                                            className="form-input"
-                                            min={new Date().toISOString().split('T')[0]}
-                                        />
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>開始日 *</label>
+                                            <input
+                                                type="date"
+                                                value={guiSlotDate}
+                                                onChange={(e) => setGuiSlotDate(e.target.value)}
+                                                className="form-input"
+                                                min={new Date().toISOString().split('T')[0]}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>終了日（複数日生成する場合のみ）</label>
+                                            <input
+                                                type="date"
+                                                value={guiSlotEndDate}
+                                                onChange={(e) => setGuiSlotEndDate(e.target.value)}
+                                                className="form-input"
+                                                min={guiSlotDate || new Date().toISOString().split('T')[0]}
+                                                placeholder="同日"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Bulk Generator UI - Multiple Patterns */}

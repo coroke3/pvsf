@@ -104,6 +104,7 @@ function convertToLegacyFormat(doc: VideoDocument): VideoApiResponse {
         listen: doc.listen || '',
         episode: doc.episode || '',
         end: doc.endMessage || '',
+        createdBy: doc.createdBy || '',
     };
 
     // Add optional fields only if they have values (matching legacy behavior)
@@ -152,6 +153,12 @@ export default async function handler(
             } else {
                 videosQuery = videosQuery.where('authorXid', '==', authorXid);
             }
+        }
+
+        // createdByでフィルタリング (Discord ID)
+        const { createdBy } = req.query;
+        if (createdBy && typeof createdBy === 'string') {
+            videosQuery = videosQuery.where('createdBy', '==', createdBy);
         }
 
         // デフォルトで作成日時でソート（最新順）

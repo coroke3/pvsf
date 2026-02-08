@@ -54,6 +54,8 @@ interface EditingVideo {
   credit: string;
   musicUrl: string;
   movieYear: string;
+  smallThumbnail?: string;
+  thumbnail?: string;
 
   // Editable always
   description: string;
@@ -147,32 +149,78 @@ export default function ProfilePage() {
 
 
 
-  // Use infinite scroll for Authored Videos
+  // 1. Fetch videos where user is the Author (XID match)
   const {
     videos: remoteAuthoredVideos,
     isLoading: isLoadingAuthored,
-    loadMore,
-    hasMore
+    loadMore: loadMoreAuthored,
+    hasMore: hasMoreAuthored
   } = useInfiniteVideos({
     authorXid: approvedXids.join(','),
     enabled: !!(isAuthenticated && approvedXids.length > 0),
-    limit: 15
+    limit: 50 // Fetch more to facilitate client-side merging/sorting
   });
 
-  // Derived state for display - merging with detailed info if needed
-  // Note: useInfiniteVideos returns basic info. Edit/Member management needs details.
-  // We might fetch details on demand (when clicking edit) or fetch explicitly here.
-  // For the list view, the basic info is usually enough, EXCEPT editApproved status for members.
-  // But for Authored videos, user IS the author, so editApproved is always true.
+  // 2. Fetch videos where user is the Submitter (Discord ID match)
+  const {
+    videos: remoteCreatedVideos,
+    isLoading: isLoadingCreated,
+    loadMore: loadMoreCreated,
+    hasMore: hasMoreCreated
+  } = useInfiniteVideos({
+    createdBy: user?.id,
+    enabled: !!(isAuthenticated && user?.id),
+    limit: 50,
+    includeDeleted: true // Allow seeing own deleted/draft videos? Maybe not deleted but private.
+  });
 
-  const authoredVideos = useMemo(() => {
-    return remoteAuthoredVideos.map(v => ({
-      ...v,
-      isAuthor: true,
-      editApproved: true,
-      members: [], // Will be loaded on edit
-    }));
-  }, [remoteAuthoredVideos]);
+  // Merge and Split
+  const { upcomingVideos, postedVideos } = useMemo(() => {
+    // Merge into a map by ID to deduplicate
+    const videoMap = new Map();
+
+    const processVideo = (v: any) => {
+        // Ensure consistent ID-based deduplication
+        if (!videoMap.has(v.id)) {
+            videoMap.set(v.id, {
+                ...v,
+                isAuthor: true, // Treated as "My Video"
+                editApproved: true,
+                members: [],
+            });
+        }
+    };
+
+    remoteAuthoredVideos.forEach(processVideo);
+    remoteCreatedVideos.forEach(processVideo);
+
+    const allMyVideos: any[] = Array.from(videoMap.values());
+    const now = new Date();
+
+    const upcoming: any[] = [];
+    const posted: any[] = [];
+
+    allMyVideos.forEach(v => {
+        // Parse startTime safely
+        const start = new Date(v.startTime);
+        // If invalid date, assume posted? or filter out?
+        if (isNaN(start.getTime())) {
+            posted.push(v);
+        } else if (start > now) {
+            upcoming.push(v);
+        } else {
+            posted.push(v);
+        }
+    });
+
+    // Sort upcoming: Ascending (Nearest first)
+    upcoming.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
+    // Sort posted: Descending (Newest first)
+    posted.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+
+    return { upcomingVideos: upcoming, postedVideos: posted };
+  }, [remoteAuthoredVideos, remoteCreatedVideos]);
 
 
 
@@ -195,8 +243,10 @@ export default function ProfilePage() {
             const memberIds = v.memberid?.split(', ').map((m: string) => m.toLowerCase().trim()).filter(Boolean) || [];
             const authorXidLower = v.tlink?.toLowerCase() || '';
 
-            // Exclude authored (handled by hook)
-            if (approvedXids.includes(authorXidLower)) return null;
+            const vId = extractYouTubeId(v.ylink) || v.ylink;
+            // If user is author, return null to exclude from "Participated"
+            const isAuthored = upcomingVideos.some((av: any) => av.id === vId) || postedVideos.some((av: any) => av.id === vId);
+            if (isAuthored) return null;
 
             const memberIndex = memberIds.findIndex((mid: string) => approvedXids.includes(mid));
             if (memberIndex !== -1) {
@@ -234,7 +284,7 @@ export default function ProfilePage() {
         setMyVideos(filtered);
       }
     } catch (e) { console.error(e); }
-  }, [approvedXids]);
+  }, [approvedXids, upcomingVideos, postedVideos]);
 
 
   useEffect(() => {
@@ -244,7 +294,7 @@ export default function ProfilePage() {
   }, [isAuthenticated, approvedXids.length, fetchParticipatedVideos]);
 
   // COMBINE for the UI? 
-  // The UI expects `authoredVideos` and `participatedVideos` derived from `myVideos`.
+  // The UI expects `upcomingVideos` and `postedVideos` derived from `myVideos`.
   // I will change the UI code to use `remoteAuthoredVideos` for the first section.
 
 
@@ -828,7 +878,8 @@ export default function ProfilePage() {
           )}
 
           {/* New Section: Upcoming / Reserved Slots */}
-          {(authoredVideos.some(v => new Date(v.startTime) > new Date()) || participatedVideos.some(v => new Date(v.startTime) > new Date())) && (
+          {/* New Section: Upcoming / Reserved Slots */}
+          {(upcomingVideos.length > 0 || participatedVideos.some(v => new Date(v.startTime) > new Date())) && (
              <div className="profile-section">
                 <h3><FontAwesomeIcon icon={faClock} /> 今後の上映予定 / 登録済み枠</h3>
                 <p className="section-description">
@@ -836,7 +887,7 @@ export default function ProfilePage() {
                 </p>
                 <div className="my-videos-grid">
                     {/* Upcoming Authored */}
-                    {authoredVideos.filter(v => new Date(v.startTime) > new Date()).map((video) => (
+                    {upcomingVideos.map((video) => (
                       <div key={video.id} className="my-video-card">
                          <div className="my-video-thumbnail">
                             {/* Logic to show placeholder if no thumbnail (e.g. draft) */}
@@ -932,13 +983,13 @@ export default function ProfilePage() {
               <div className="loading-state">
                 <FontAwesomeIcon icon={faSpinner} spin /> 読み込み中...
               </div>
-            ) : authoredVideos.filter(v => new Date(v.startTime) <= new Date()).length === 0 ? (
+            ) : postedVideos.length === 0 ? (
               <div className="empty-state">
                 公開済みの作品はありません。
               </div>
             ) : (
               <div className="my-videos-grid">
-                {authoredVideos.filter(v => new Date(v.startTime) <= new Date()).map((video) => (
+                {postedVideos.map((video) => (
                   <div key={video.id} className="my-video-card">
                     <div className="my-video-thumbnail">
                       <Image
@@ -968,7 +1019,7 @@ export default function ProfilePage() {
                       <div className="my-video-meta">
                         {video.eventIds.length > 0 && (
                           <div className="video-events">
-                            {video.eventIds.map((eventId, i) => (
+                            {video.eventIds.map((eventId: string, i: number) => (
                               <span key={i} className="video-event">{eventId}</span>
                             ))}
                           </div>
@@ -1060,10 +1111,13 @@ export default function ProfilePage() {
                       </div>
                       <div className="my-video-author">
                         {video.authorIconUrl ? (
-                          <img
+                          <Image
                             src={video.authorIconUrl}
                             alt={video.authorName}
+                            width={24}
+                            height={24}
                             className="author-icon"
+                            unoptimized
                           />
                         ) : (
                           <FontAwesomeIcon icon={faUser} />
@@ -1388,7 +1442,15 @@ export default function ProfilePage() {
                             </div>
                           </div>
                         )}
-
+                        <Image
+                            src={editingVideo.smallThumbnail || '/images/no-image.png'}
+                            alt={editingVideo.title}
+                            width={160}
+                            height={90}
+                            className="video-item-thumbnail"
+                            style={{ objectFit: 'cover' }}
+                            unoptimized
+                        />
                         <div className="members-edit-list">
                           {editingVideo.members.map((member, index) => (
                             <div key={index} className="member-edit-item">

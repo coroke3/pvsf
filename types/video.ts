@@ -143,6 +143,7 @@ export interface VideoDocument extends SoftDeleteFields {
   slotId: string | null; // Assigned registration slot ID
 
   // System
+  createdBy?: string; // Discord User ID of the submitter
   createdAt: Date;
   updatedAt: Date;
 
@@ -225,6 +226,7 @@ export interface VideoApiResponse {
   listen: string;
   episode: string;
   end: string;
+  createdBy?: string;
 }
 
 /**

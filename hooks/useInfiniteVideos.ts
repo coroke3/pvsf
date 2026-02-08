@@ -14,6 +14,7 @@ interface Video {
     slotId: string | null;
     privacyStatus: string;
     isDeleted?: boolean;
+    createdBy?: string;
 }
 
 interface PaginationInfo {
@@ -28,6 +29,7 @@ interface UseInfiniteVideosOptions {
     limit?: number;
     enabled?: boolean;
     includeDeleted?: boolean;
+    createdBy?: string;
 }
 
 interface UseInfiniteVideosReturn {
@@ -43,7 +45,7 @@ interface UseInfiniteVideosReturn {
 export function useInfiniteVideos(
     options: UseInfiniteVideosOptions = {}
 ): UseInfiniteVideosReturn {
-    const { eventId, authorXid, limit = 15, enabled = true, includeDeleted = false } = options;
+    const { eventId, authorXid, limit = 15, enabled = true, includeDeleted = false, createdBy } = options;
 
     const [videos, setVideos] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -80,6 +82,7 @@ export function useInfiniteVideos(
             likeCount: parseInt(v.likeCount) || 0,
             slotId: null,
             privacyStatus: v.status || 'public',
+            createdBy: v.createdBy || undefined,
         };
     };
 
@@ -108,6 +111,9 @@ export function useInfiniteVideos(
             }
             if (authorXid) {
                 params.append('authorXid', authorXid);
+            }
+            if (createdBy) {
+                params.append('createdBy', createdBy);
             }
             if (limit) params.append('limit', limit.toString());
             if (includeDeleted) params.append('includeDeleted', 'true');

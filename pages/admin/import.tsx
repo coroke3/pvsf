@@ -71,7 +71,7 @@ export default function AdminImport() {
         <div className="import-container">
           <h1>Legacy Data Import</h1>
           <p className="help-text">
-            Legacy "CSV" files are actually JSON arrays. Paste the content of the files below.
+            Legacy &quot;CSV&quot; files are actually JSON arrays. Paste the content of the files below.
           </p>
           
           {/* Video Import Section */}
@@ -82,11 +82,17 @@ export default function AdminImport() {
             <p>Paste content from <code>videos_data.csv</code> or similar.</p>
             
             <textarea
-              className="json-input"
+              className="form-input"
               value={videoJson}
               onChange={(e) => setVideoJson(e.target.value)}
-              placeholder='[ { "title": "...", "ylink": "..." }, ... ]'
+              placeholder={`[
+  {
+    "title": "Example Video",
+    "ylink": "https://youtu.be/..."
+  }
+]`}
               rows={10}
+              style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
             />
             
             <div className="action-row">

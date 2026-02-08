@@ -1353,14 +1353,19 @@ export default function AdminVideosPage() {
                                                 <div className="video-card-author">
                                                     {video.authorIconUrl ? (
                                                         <>
-                                                            <img
+                                                            <Image
                                                                 src={video.authorIconUrl}
                                                                 alt={video.authorName}
+                                                                width={24}
+                                                                height={24}
                                                                 className="author-icon"
                                                                 onError={(e) => {
-                                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    target.style.display = 'none';
+                                                                    const fallback = target.nextElementSibling;
+                                                                    if (fallback) fallback.classList.remove('hidden');
                                                                 }}
+                                                                unoptimized // Use unoptimized for external user avatars if domain not configured
                                                             />
                                                             <span className="fallback-icon hidden"><FontAwesomeIcon icon={faUser} /></span>
                                                         </>

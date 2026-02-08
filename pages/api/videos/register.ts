@@ -269,6 +269,7 @@ export default async function handler(
                 : null,
             slotCount: targetSlotDateTimes.length || 1,
             
+            createdBy: user.discordId || '',
             createdAt: now,
             updatedAt: now,
         };
