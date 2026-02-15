@@ -71,6 +71,9 @@ export const entryFormSchema = z.object({
   // 14. SNS plans (checkboxes)
   snsPlans: z.array(snsLinkSchema).optional().default([]),
 
+  // 14b. SNS links (platform-specific URLs, editable post-submission)
+  snsLinks: z.array(snsLinkSchema).optional().default([]),
+
   // 15. Live stage
   wantsLive: z.boolean().default(false),
 
@@ -82,6 +85,24 @@ export const entryFormSchema = z.object({
 
   // 18. Video URL (may be added later from profile)
   videoUrl: z.string().optional().default(''),
+
+  // Legacy-compatible detail fields
+  software: z.string().optional().default(''),
+  beforeComment: z.string().optional().default(''),
+  afterComment: z.string().optional().default(''),
+  listen: z.string().optional().default(''),
+  episode: z.string().optional().default(''),
+  endMessage: z.string().optional().default(''),
+  homepageComment: z.string().optional().default(''),
+  link: z.string().optional().default(''),
+
+  // Live/Screening fields (post-submission editable)
+  wantsStage: z.boolean().optional().default(false),
+  preScreeningComment: z.string().optional().default(''),
+  postScreeningComment: z.string().optional().default(''),
+  usedSoftware: z.string().optional().default(''),
+  stageQuestions: z.string().optional().default(''),
+  finalNote: z.string().optional().default(''),
 
   // Event IDs
   eventIds: z.array(z.string()).optional().default([]),

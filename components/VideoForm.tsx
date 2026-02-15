@@ -36,9 +36,16 @@ const defaultFormData: VideoFormData = {
     endMessage: '',
     members: [],
     snsPlans: [],
+    snsLinks: [],
     homepageComment: '',
     link: '',
     agreedToTerms: false,
+    wantsStage: false,
+    preScreeningComment: '',
+    postScreeningComment: '',
+    usedSoftware: '',
+    stageQuestions: '',
+    finalNote: '',
 };
 
 export default function VideoForm({ initialData, onSubmit, isEdit = false }: VideoFormProps) {

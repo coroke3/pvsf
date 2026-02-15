@@ -39,10 +39,11 @@ export default async function handler(
 
     // Admin check
     const session = await getServerSession(req, res, authOptions);
-    if (!session?.user) {
+    const user = session?.user as any;
+    if (!user) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
-    const userDoc = await adminDb.collection('users').where('discordId', '==', session.user.id).limit(1).get();
+    const userDoc = await adminDb.collection('users').where('discordId', '==', user.id).limit(1).get();
     if (userDoc.empty || !(userDoc.docs[0].data().role === 'admin' || userDoc.docs[0].data().isAdmin)) {
         return res.status(403).json({ error: 'Admin access required' });
     }

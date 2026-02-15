@@ -175,7 +175,7 @@ export default async function handler(
                 memberNames,
                 memberIds,
                 memberNamesRaw,
-                isDeleted: data.isDeleted === true,
+                isDeleted: !!data.isDeleted,
             });
 
             // Collect stats for score calculation
@@ -188,11 +188,11 @@ export default async function handler(
         });
 
         // Step 1: Collect unique tlinks (3+ chars)
-        const tlinkList = [...new Set(
+        const tlinkList = Array.from(new Set(
             allVideos
                 .map(v => v.tlink)
                 .filter(t => t.length > 3)
-        )].sort();
+        )).sort();
 
         // Step 2: Collect memberids that appear 2+ times (3+ chars)
         const memberidCounts: Record<string, number> = {};
@@ -208,7 +208,7 @@ export default async function handler(
             .sort();
 
         // Step 3: Merge all usernames
-        const allUsernames = [...new Set([...tlinkList, ...activeMemberidList])].sort();
+        const allUsernames = Array.from(new Set([...tlinkList, ...activeMemberidList])).sort();
 
         // Step 4: Build user data for each username
         const users: UserApiResponseLegacy[] = allUsernames.map(username => {
@@ -323,9 +323,9 @@ export default async function handler(
             });
 
             // Deduplicate
-            const uniqueIylink = [...new Set(iylink)];
-            const uniqueCylink = [...new Set(cylink)];
-            const uniqueMylink = [...new Set(mylink)];
+            const uniqueIylink = Array.from(new Set(iylink));
+            const uniqueCylink = Array.from(new Set(cylink));
+            const uniqueMylink = Array.from(new Set(mylink));
 
             // Calculate score
             const creatorScore = calculateCreatorScore(

@@ -37,7 +37,7 @@ export const EntryForm = () => {
     const [availableSlots, setAvailableSlots] = useState<any[]>([]);
     const [slotEvents, setSlotEvents] = useState<any[]>([]);
 
-    const methods = useForm<EntryFormValues>({
+    const methods = useForm({
         resolver: zodResolver(entryFormSchema),
         defaultValues: {
             type2: '個人',
@@ -139,7 +139,7 @@ export const EntryForm = () => {
     };
 
     // Submit
-    const onSubmit = async (data: EntryFormValues) => {
+    const onSubmit = async (data: any) => {
         if (!isAuthenticated) {
             setSubmitError('ログインが必要です');
             return;
@@ -343,7 +343,7 @@ export const EntryForm = () => {
                                     {(iconPreview || watch('authorIconUrl')) && (
                                         <div className="w-[100px] h-[100px] relative rounded-lg overflow-hidden border">
                                             <Image
-                                                src={iconPreview || watch('authorIconUrl')}
+                                                src={iconPreview || watch('authorIconUrl') || ''}
                                                 alt="アイコンプレビュー"
                                                 fill
                                                 className="object-cover"

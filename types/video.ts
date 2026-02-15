@@ -169,6 +169,11 @@ export interface VideoDocument extends SoftDeleteFields {
   createdAt: Date;
   updatedAt: Date;
 
+  // Soft Delete
+  isDeleted?: boolean;
+  deletedAt?: Date | null;
+  deletedBy?: string | null;
+
   [key: string]: unknown;
 }
 
