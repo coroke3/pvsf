@@ -130,15 +130,19 @@ export default async function handler(
             videosQuery = videosQuery.where('eventIds', 'array-contains', eventid);
         }
 
-        // Filter by authorXid
+        // Filter by authorXid (case-insensitive via authorXidLower field)
+        const authorXidLowerValues: string[] = [];
         if (authorXid && typeof authorXid === 'string') {
             if (authorXid.includes(',')) {
-                const xids = authorXid.split(',').map(x => x.trim()).filter(Boolean).slice(0, 10);
+                const xids = authorXid.split(',').map(x => x.trim().toLowerCase()).filter(Boolean).slice(0, 10);
                 if (xids.length > 0) {
-                    videosQuery = videosQuery.where('authorXid', 'in', xids);
+                    videosQuery = videosQuery.where('authorXidLower', 'in', xids);
+                    authorXidLowerValues.push(...xids);
                 }
             } else {
-                videosQuery = videosQuery.where('authorXid', '==', authorXid);
+                const xidLower = authorXid.trim().toLowerCase();
+                videosQuery = videosQuery.where('authorXidLower', '==', xidLower);
+                authorXidLowerValues.push(xidLower);
             }
         }
 
@@ -274,11 +278,16 @@ export default async function handler(
                                 v.eventid && v.eventid.split(',').map((e: string) => e.trim()).includes(eventid)
                             );
                         }
-                        if (authorXid && typeof authorXid === 'string') {
-                            const targetXid = authorXid.toLowerCase();
+                        if (authorXidLowerValues.length > 0) {
                             legacyData = legacyData.filter((v: any) =>
-                                v.tlink && v.tlink.toLowerCase() === targetXid
+                                v.tlink && authorXidLowerValues.includes(v.tlink.toLowerCase())
                             );
+                        }
+                        if (memberXids.length > 0) {
+                            legacyData = legacyData.filter((v: any) => {
+                                const mids = (v.memberid || '').split(',').map((m: string) => m.trim().toLowerCase()).filter(Boolean);
+                                return mids.some((mid: string) => memberXids.includes(mid));
+                            });
                         }
                         legacyData.sort((a: any, b: any) =>
                             new Date(b.time).getTime() - new Date(a.time).getTime()
@@ -324,10 +333,48 @@ export default async function handler(
     } catch (error) {
         console.error('Videos API error:', error);
 
+        // Error fallback: try legacy API but still apply filters
         try {
             const legacyRes = await fetch('https://pvsf-cash.vercel.app/api/videos');
             if (legacyRes.ok) {
-                const legacyData = await legacyRes.json();
+                let legacyData = await legacyRes.json();
+
+                if (Array.isArray(legacyData)) {
+                    // Apply same filters as normal path
+                    const {
+                        eventid: fallbackEventId,
+                        authorXid: fallbackAuthorXid,
+                        memberXid: fallbackMemberXid,
+                    } = req.query;
+
+                    if (fallbackEventId && typeof fallbackEventId === 'string') {
+                        legacyData = legacyData.filter((v: any) =>
+                            v.eventid && v.eventid.split(',').map((e: string) => e.trim()).includes(fallbackEventId)
+                        );
+                    }
+                    if (fallbackAuthorXid && typeof fallbackAuthorXid === 'string') {
+                        const targetXids = fallbackAuthorXid.split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
+                        if (targetXids.length > 0) {
+                            legacyData = legacyData.filter((v: any) =>
+                                v.tlink && targetXids.includes(v.tlink.toLowerCase())
+                            );
+                        }
+                    }
+                    if (fallbackMemberXid && typeof fallbackMemberXid === 'string') {
+                        const targetMemberXids = fallbackMemberXid.split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
+                        if (targetMemberXids.length > 0) {
+                            legacyData = legacyData.filter((v: any) => {
+                                const mids = (v.memberid || '').split(',').map((m: string) => m.trim().toLowerCase()).filter(Boolean);
+                                return mids.some((mid: string) => targetMemberXids.includes(mid));
+                            });
+                        }
+                    }
+
+                    legacyData.sort((a: any, b: any) =>
+                        new Date(b.time).getTime() - new Date(a.time).getTime()
+                    );
+                }
+
                 return res.status(200).json(legacyData);
             }
         } catch (legacyError) {
