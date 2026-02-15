@@ -1300,9 +1300,9 @@ export default function AdminVideosPage() {
                                     </button>
                                 </div>
                                 <div className="action-buttons" style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <Link href="/admin/import" className="btn btn-secondary btn-sm" title="データインポート">
+                                    <Link href="/admin/backup" className="btn btn-secondary btn-sm" title="データ管理">
                                         <FontAwesomeIcon icon={faUpload} />
-                                        <span className="hide-mobile">インポート</span>
+                                        <span className="hide-mobile">データ管理</span>
                                     </Link>
                                     <div className="export-menu-container">
                                         <button

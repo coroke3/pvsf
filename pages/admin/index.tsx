@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faUpload, faUsers, faVideo, faCalendarAlt, faSpinner, faCog,
+  faUsers, faVideo, faCalendarAlt, faSpinner, faCog,
   faChartLine, faArrowRight, faTrash, faDatabase
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '@/components/Footer';
@@ -108,16 +108,8 @@ export default function AdminDashboard() {
       stat: null
     },
     {
-      title: 'データインポート',
-      description: 'CSV/JSONから動画データを一括登録',
-      icon: faUpload,
-      href: '/admin/import',
-      color: '#10b981',
-      stat: null
-    },
-    {
-      title: 'バックアップ / 復元',
-      description: 'データの完全エクスポート・インポート',
+      title: 'データ管理',
+      description: 'エクスポート・インポート・バックアップ復元',
       icon: faDatabase,
       href: '/admin/backup',
       color: '#06b6d4',
