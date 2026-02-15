@@ -85,8 +85,14 @@ export default function VideoRegisterPage() {
     const [beforeComment, setBeforeComment] = useState('');
     const [afterComment, setAfterComment] = useState('');
 
+    // Live stage fields
+    const [wantsLiveStage, setWantsLiveStage] = useState(false);
+    const [livePreference, setLivePreference] = useState<'する' | 'しない'>('しない');
+    const [liveQuestions, setLiveQuestions] = useState('');
+
     // Bulk member input
     const [bulkMemberInput, setBulkMemberInput] = useState('');
+    const [isConvertingIds, setIsConvertingIds] = useState(false);
 
     // Icon upload
     const [iconPreview, setIconPreview] = useState('');
@@ -401,6 +407,48 @@ export default function VideoRegisterPage() {
         }
     };
 
+    // ID⇔Name一括変換（id-name.html相当機能）
+    const convertMemberIds = async () => {
+        if (members.length === 0) return;
+        
+        setIsConvertingIds(true);
+        try {
+            const updatedMembers = [...members];
+            
+            for (let i = 0; i < updatedMembers.length; i++) {
+                const member = updatedMembers[i];
+                
+                // 名前があってXIDがない場合、名前からXIDを検索
+                if (member.name && !member.xid) {
+                    const res = await fetch(`/api/members/suggestions?q=${encodeURIComponent(member.name)}&mode=fuzzy`);
+                    if (res.ok) {
+                        const suggestions = await res.json();
+                        if (suggestions.length > 0 && suggestions[0].similarity > 70) {
+                            updatedMembers[i] = { ...member, xid: suggestions[0].xid };
+                        }
+                    }
+                }
+                // XIDがあって名前がない場合、XIDから名前を検索
+                else if (member.xid && !member.name) {
+                    const res = await fetch(`/api/members/suggestions?q=${encodeURIComponent(member.xid)}&mode=fuzzy`);
+                    if (res.ok) {
+                        const suggestions = await res.json();
+                        if (suggestions.length > 0 && suggestions[0].similarity > 70) {
+                            updatedMembers[i] = { ...member, name: suggestions[0].name };
+                        }
+                    }
+                }
+            }
+            
+            setMembers(updatedMembers);
+        } catch (err) {
+            console.error('ID変換エラー:', err);
+            setError('ID変換中にエラーが発生しました');
+        } finally {
+            setIsConvertingIds(false);
+        }
+    };
+
     // Add SNS plan
     const addSnsPlan = () => {
         setSnsPlans([...snsPlans, { platform: '', url: '' }]);
@@ -477,6 +525,10 @@ export default function VideoRegisterPage() {
                 link,
                 agreedToTerms,
                 eventIds: eventIdFilter ? [eventIdFilter] : [],
+                // Live stage fields
+                wantsLiveStage,
+                livePreference: wantsLiveStage ? livePreference : null,
+                liveQuestions: wantsLiveStage && livePreference === 'する' ? liveQuestions : null,
             };
 
             if (registrationType === 'slot') {
@@ -1061,13 +1113,30 @@ export default function VideoRegisterPage() {
                                         </div>
                                     ))}
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={addMember}
-                                    className="btn btn-secondary"
-                                >
-                                    <FontAwesomeIcon icon={faPlus} /> メンバーを追加
-                                </button>
+                                <div className="member-actions">
+                                    <button
+                                        type="button"
+                                        onClick={addMember}
+                                        className="btn btn-secondary"
+                                    >
+                                        <FontAwesomeIcon icon={faPlus} /> メンバーを追加
+                                    </button>
+                                    {members.length > 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={convertMemberIds}
+                                            className="btn btn-secondary"
+                                            disabled={isConvertingIds}
+                                            title="名前からXID、またはXIDから名前を自動補完します"
+                                        >
+                                            {isConvertingIds ? (
+                                                <><FontAwesomeIcon icon={faSpinner} spin /> 変換中...</>
+                                            ) : (
+                                                <>ID⇔Name 変換</>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         )}
 
@@ -1152,6 +1221,131 @@ export default function VideoRegisterPage() {
                                     className="form-input"
                                 />
                             </div>
+                        </div>
+
+                        {/* Live Stage Section */}
+                        <div className="form-section">
+                            <h2>公式ライブ登壇</h2>
+                            <div className="form-group">
+                                <label>公式ライブにて登壇しますか？</label>
+                                <div className="radio-group">
+                                    <label className="radio-label">
+                                        <input
+                                            type="radio"
+                                            name="wantsLiveStage"
+                                            checked={!wantsLiveStage}
+                                            onChange={() => setWantsLiveStage(false)}
+                                        />
+                                        しない
+                                    </label>
+                                    <label className="radio-label">
+                                        <input
+                                            type="radio"
+                                            name="wantsLiveStage"
+                                            checked={wantsLiveStage}
+                                            onChange={() => setWantsLiveStage(true)}
+                                        />
+                                        する
+                                    </label>
+                                </div>
+                            </div>
+
+                            {wantsLiveStage && (
+                                <>
+                                    <div className="live-flow-info">
+                                        <h4>登壇の流れ</h4>
+                                        <ol>
+                                            <li>上映前コメント読み上げ</li>
+                                            <li>作品上映</li>
+                                            <li>上映中/上映後コメント読み上げ</li>
+                                            <li>登壇者様を交えて質問等（30秒〜3分）</li>
+                                            <li>終了</li>
+                                        </ol>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>登壇を希望されますか？</label>
+                                        <div className="radio-group">
+                                            <label className="radio-label">
+                                                <input
+                                                    type="radio"
+                                                    name="livePreference"
+                                                    checked={livePreference === 'しない'}
+                                                    onChange={() => setLivePreference('しない')}
+                                                />
+                                                しない（コメント読み上げのみ）
+                                            </label>
+                                            <label className="radio-label">
+                                                <input
+                                                    type="radio"
+                                                    name="livePreference"
+                                                    checked={livePreference === 'する'}
+                                                    onChange={() => setLivePreference('する')}
+                                                />
+                                                する（生登壇）
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>上映前コメント（任意）</label>
+                                        <p className="help-text">未記入の場合はホームページ記載内容を読み上げます</p>
+                                        <textarea
+                                            value={beforeComment}
+                                            onChange={(e) => setBeforeComment(e.target.value)}
+                                            rows={3}
+                                            className="form-textarea"
+                                            placeholder="作品を見る前に一言言っておきたいことがありましたらご記入ください"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>上映中/上映後コメント</label>
+                                        <p className="help-text">特にこだわった箇所、小話、tips、作品を通して伝えたかったこと等</p>
+                                        <textarea
+                                            value={afterComment}
+                                            onChange={(e) => setAfterComment(e.target.value)}
+                                            rows={3}
+                                            className="form-textarea"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>使用ソフト/特筆すべきプラグイン・機能等</label>
+                                        <textarea
+                                            value={software}
+                                            onChange={(e) => setSoftware(e.target.value)}
+                                            rows={2}
+                                            className="form-textarea"
+                                            placeholder="使用したソフトウェア、プラグイン、機能等を教えてください"
+                                        />
+                                    </div>
+
+                                    {livePreference === 'する' && (
+                                        <div className="form-group">
+                                            <label>【登壇者のみ】質問してほしいこと</label>
+                                            <p className="help-text">司会がやりやすくなりますのでぜひご記入ください</p>
+                                            <textarea
+                                                value={liveQuestions}
+                                                onChange={(e) => setLiveQuestions(e.target.value)}
+                                                rows={3}
+                                                className="form-textarea"
+                                                placeholder="例: 「〇〇の演出についてどのような意図があるのですか」「映像を始めたきっかけ」"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="form-group">
+                                        <label>最後に何かあれば</label>
+                                        <textarea
+                                            value={endMessage}
+                                            onChange={(e) => setEndMessage(e.target.value)}
+                                            rows={2}
+                                            className="form-textarea"
+                                        />
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Retrospective Fields - Show for future dates or always editable */}
@@ -1761,6 +1955,54 @@ export default function VideoRegisterPage() {
 
                 .sns-row {
                     grid-template-columns: 140px 1fr auto;
+                }
+
+                .radio-group {
+                    display: flex;
+                    gap: 1.5rem;
+                }
+
+                .radio-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    cursor: pointer;
+                    color: #d1d5db;
+                }
+
+                .radio-label input[type="radio"] {
+                    width: 18px;
+                    height: 18px;
+                    accent-color: #64ffda;
+                    cursor: pointer;
+                }
+
+                .member-actions {
+                    display: flex;
+                    gap: 0.75rem;
+                    flex-wrap: wrap;
+                }
+
+                .live-flow-info {
+                    background: rgba(100, 255, 218, 0.05);
+                    border: 1px solid rgba(100, 255, 218, 0.15);
+                    border-radius: 12px;
+                    padding: 1.25rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .live-flow-info h4 {
+                    color: #64ffda;
+                    margin-bottom: 0.75rem;
+                    font-size: 0.95rem;
+                }
+
+                .live-flow-info ol {
+                    margin: 0;
+                    padding-left: 1.25rem;
+                    color: #d1d5db;
+                    font-size: 0.9rem;
+                    line-height: 1.8;
                 }
 
                 .terms-section {

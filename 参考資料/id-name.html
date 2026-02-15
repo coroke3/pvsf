@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Member ID List</title>
+    <style>
+      /* 基本的なスタイル */
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+      }
+
+      /* 左側のエリア（検索結果） */
+      #searchArea {
+        width: calc(100% - 320px);
+        padding: 10px;
+        border-right: 1px solid #ccc;
+      }
+
+      /* 右側のエリア（既存データ） */
+      #dataArea {
+        width: 300px;
+        padding: 10px;
+      }
+
+      /* 各エリア内のタイトル */
+      h3 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+      }
+
+      /* 入力フィールド */
+      input {
+        width: auto;
+        padding: 5px;
+        margin-bottom: 10px;
+      }
+      #conversionInput,
+      #searchInput {
+        width: 400px;
+      }
+      button {
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      /* 結果のリスト */
+      #result div {
+        margin-bottom: 5px;
+      }
+
+      /* データリスト */
+      #output div {
+        margin-bottom: 5px;
+      }
+      #verticalDataArea {
+        margin-bottom: 20px;
+      }
+
+      #verticalDataArea textarea {
+        resize: vertical;
+        font-family: monospace;
+      }
+
+      #verticalResult {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+      }
+
+      .conversion-container {
+        margin: 20px 0;
+      }
+
+      .current-selections {
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        word-break: break-all;
+      }
+
+      .result-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      .result-table th,
+      .result-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+
+      .result-table th {
+        background-color: #f5f5f5;
+      }
+
+      .auto-selected {
+        background-color: #e8f5e9;
+      }
+
+      .manual-selected {
+        background-color: #fff3cd;
+      }
+
+      .unselected {
+        background-color: #f8f9fa;
+      }
+
+      .edit-options {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      .options-list {
+        margin: 10px 0;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .option-item {
+        padding: 5px;
+        margin: 3px 0;
+      }
+
+      .option-item:hover {
+        background-color: #e9ecef;
+      }
+
+      .edit-controls {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #dee2e6;
+      }
+
+      .input-display {
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #e3f2fd;
+        border-radius: 4px;
+      }
+
+      .conversion-layout {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .edit-options-container {
+        min-width: 300px;
+        max-width: 400px;
+        margin-right: 20px;
+        overflow-y: auto;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .edit-panel {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+
+      .edit-panel:last-child {
+        margin-bottom: 0;
+      }
+
+      .result-table {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="verticalDataArea">
+      <h3>縦データをカンマ区切りに変換</h3>
+      <p>スプレッドシートからコピーしてご利用ください</p>
+      <textarea
+        id="verticalInput"
+        rows="5"
+        placeholder="各行に1つのデータを入力"
+        style="width: 400px; margin-bottom: 10px"
+      ></textarea>
+      <br />
+      <button onclick="convertVerticalData()">変換</button>
+      <div id="verticalResult" style="margin-top: 10px"></div>
+    </div>
+
+    <hr style="margin: 20px 0" />
+    <div id="searchArea">
+      <!-- モード選択エリアを追加 -->
+      <div id="modeSelection">
+        <h3>変換モード選択</h3>
+        <button onclick="setMode('idToName')">IDから名前を作成</button>
+        <button onclick="setMode('nameToId')">名前からIDを作成</button>
+      </div>
+
+      <!-- 既存の検索エリア -->
+      <div id="normalSearch">
+        <h3>通常検索</h3>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="名前またはIDをカンマ区切りで入力"
+        />
+        <button onclick="searchData()">検索</button>
+        <div id="result"></div>
+      </div>
+
+      <!-- 新しい変換エリア -->
+      <div id="conversionArea" style="display: none">
+        <h3 id="conversionTitle">変換</h3>
+        <input
+          type="text"
+          id="conversionInput"
+          placeholder="カンマ区切りで入力"
+        />
+        <button onclick="startConversion()">変換開始</button>
+        <div id="conversionResult"></div>
+        <div id="manualInputArea" style="display: none">
+          <input type="text" id="manualInput" placeholder="手動入力" />
+          <button onclick="addManualInput()">追加</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dataArea">
+      <h3>既存データ</h3>
+      <div id="output"></div>
+    </div>
+
+    <script>
+      const jsonUrl =
+        "https://script.google.com/macros/s/AKfycbyEph6zXb1IWFRLpTRLNLtxU4Kj7oe10bt2ifiyK09a6nM13PASsaBYFe9YpDj9OEkKTw/exec";
+
+      let allData = [];
+
+      // JSONデータを取得
+      fetch(jsonUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          allData = cleanData(data); // データのクリーンアップ
+          displayData(allData); // 初期表示
+        })
+        .catch((error) => {
+          console.error("データの取得に失敗しました:", error);
+        });
+
+      // cleanData関数を修正
+      function cleanData(data) {
+        return data.filter((item) => {
+          // creator と tlink は必ず存在する場合にのみデータを保持
+          if (item.creator && item.tlink) {
+            item.creator = item.creator.trim();
+            item.tlink = item.tlink.trim().replace(/^@/, "");
+            return true; // 有効なデータを返す
+          }
+          return false; // creator または tlink がない場合は無視
+        });
+      }
+
+      // データをHTMLに表示
+      function displayData(data) {
+        let output = "";
+
+        // 配列形式でデータを処理
+        for (let i = 0; i < data.length; i++) {
+          // creator と tlink の表示（存在する場合のみ）
+          if (data[i].creator && data[i].tlink) {
+            output += `${data[i].creator} (@${data[i].tlink})<br>`;
+          }
+
+          // member と memberid があれば、それも表示
+          if (data[i].member && data[i].memberid) {
+            const members = data[i].member.split(",");
+            const memberIds = data[i].memberid.split(",");
+            for (let j = 0; j < members.length; j++) {
+              output += `${members[j]} (@${memberIds[j]})<br>`;
+            }
+          }
+
+          // エントリー間の区切り
+          output += "<hr>";
+        }
+
+        // 出力をHTMLに表示
+        document.getElementById("output").innerHTML = output;
+      }
+
+      // 名前またはIDで検索
+      function searchData() {
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.trim() // 入力全体の前後のスペースを削除
+          .replace(/\s+/g, " ") // 連続する空白を1つに置換
+          .toLowerCase();
+
+        if (!searchTerm) {
+          displayData(allData); // 検索入力がない場合、全データを表示
+          return;
+        }
+
+        // 入力された検索キーワードをカンマで分割し、個々のキーワードを小文字に変換してクリーニング
+        const searchTerms = searchTerm
+          .split(",")
+          .map((term) =>
+            term
+              .trim() // 各キーワードの前後のスペースを削除
+              .replace(/\s+/g, "") // キーワード内の空白をすべて削除
+              .toLowerCase()
+          )
+          .filter((term) => term); // 空の検索キーワードを除外
+
+        // 検索結果を保存する配列
+        let result = [];
+
+        searchTerms.forEach((search) => {
+          const searchResults = findMatches(search);
+          result = result.concat(searchResults);
+        });
+
+        // 重複を除去（同じ名前とIDの組み合わせを1つにまとめる）
+        result = Array.from(new Set(result.map(JSON.stringify))).map(
+          JSON.parse
+        );
+
+        // 結果をHTMLに表示
+        displaySearchResults(result);
+      }
+
+      function findMatches(search) {
+        const matches = [];
+        allData.forEach((item) => {
+          // creator と tlink の検索
+          if (item.creator && item.tlink) {
+            const creator = item.creator.trim();
+            const tlink = item.tlink.trim().replace(/^@/, "");
+
+            if (
+              creator.toLowerCase().includes(search) ||
+              tlink.toLowerCase().includes(search)
+            ) {
+              matches.push({
+                name: creator,
+                id: tlink,
+              });
+            }
+          }
+
+          // member と memberid の検索
+          if (item.member && item.memberid) {
+            const members = item.member.split(",");
+            const memberIds = item.memberid.split(",");
+
+            members.forEach((member, i) => {
+              if (member && member.toLowerCase().includes(search)) {
+                matches.push({
+                  name: member,
+                  id: memberIds[i]?.replace(/^@/, ""), // memberIds[i] が存在する場合のみ処理
+                });
+              }
+              if (memberIds[i] && memberIds[i].toLowerCase().includes(search)) {
+                matches.push({
+                  name: members[i],
+                  id: memberIds[i].replace(/^@/, ""),
+                });
+              }
+            });
+          }
+        });
+
+        return matches;
+      }
+
+      // 検索結果を表示する関数
+      function displaySearchResults(results) {
+        let resultHtml = "<h3>検索結果</h3>";
+
+        if (results.length === 0) {
+          resultHtml += "一致するデータはありませんでした。";
+        } else {
+          results.forEach((result) => {
+            resultHtml += `<div>名前: ${result.name} | ID: @${result.id}</div>`;
+          });
+        }
+
+        // 出力をHTMLに表示
+        document.getElementById("result").innerHTML = resultHtml;
+      }
+
+      // グローバル変数の追加
+      let selectedResults = new Map(); // 選択された結果を保持
+      let currentEditingId = null; // 現在編集中の項目のID
+
+      // 新しい変数の定義
+      let currentMode = "";
+      let currentInputs = [];
+      let selectedData = [];
+      let currentIndex = 0;
+
+      // モード選択関数
+      function setMode(mode) {
+        currentMode = mode;
+        document.getElementById("normalSearch").style.display = "none";
+        document.getElementById("conversionArea").style.display = "block";
+        document.getElementById("conversionTitle").textContent =
+          mode === "idToName" ? "IDから名前を作成" : "名前からIDを作成";
+        document.getElementById("conversionInput").placeholder =
+          mode === "idToName"
+            ? "IDをカンマ区切りで入力"
+            : "名前をカンマ区切りで入力";
+
+        // 状態をリセット
+        currentInputs = [];
+        selectedData = [];
+        currentIndex = 0;
+        document.getElementById("conversionResult").innerHTML = "";
+      }
+
+      // 変換開始関数を修正
+      function startConversion() {
+        const input = document.getElementById("conversionInput").value;
+        currentInputs = input
+          .split(",")
+          .map(item => item.trim())
+          .filter(item => item);
+        
+        selectedResults.clear();
+        processAutoSelection();
+        displayConversionTable();
+      }
+
+      // 自動選択処理
+      function processAutoSelection() {
+        currentInputs.forEach(input => {
+          const matches = getAllSimilarResults(input);
+          
+          // 完全一致（一致度100%）のものを探す
+          const perfectMatches = matches.filter(match => {
+            const searchValue = currentMode === "idToName" ? 
+              match.id.replace(/^@/, "") : 
+              match.name;
+            const inputValue = input.toLowerCase().replace(/^@/, "");
+            return match.similarity === 100 && searchValue.toLowerCase() === inputValue;
+          });
+
+          // ID一致かつ一致度80%以上のものを探す
+          const highMatches = matches.filter(match => {
+            const searchValue = currentMode === "idToName" ? 
+              match.id.replace(/^@/, "") : 
+              match.name;
+            const inputValue = input.toLowerCase().replace(/^@/, "");
+            return match.similarity >= 80 && searchValue.toLowerCase() === inputValue;
+          });
+
+          // 一致度50%以上のものを探す
+          const mediumMatches = matches.filter(match => match.similarity >= 50);
+
+          let confidence = 0;
+          let selected = null;
+
+          if (highMatches.length >= 2) {
+            // ID一致かつ一致度80%以上が2つ以上ある場合
+            selected = highMatches[0];
+            confidence = 90;
+          } else if (perfectMatches.length === 1) {
+            // 完全一致が1つある場合
+            selected = perfectMatches[0];
+            confidence = 50;
+          } else if (mediumMatches.length > 0) {
+            // 一致度50%以上のものがある場合
+            selected = mediumMatches[0];
+            confidence = Math.min(40, Math.round(selected.similarity / 2)); // 信頼度は一致度の半分（最大40%）
+          }
+
+          if (selected) {
+            selectedResults.set(input, {
+              output: currentMode === "idToName" ? selected.name : selected.id,
+              similarity: selected.similarity,
+              confidence: confidence,
+              autoSelected: true
+            });
+          }
+        });
+      }
+
+      // 変換テーブルの表示関数を修正
+      function displayConversionTable() {
+        let html = '<div class="conversion-container">';
+        
+        // 入力値の表示
+        html += `
+          <div class="input-display">
+            <strong>入力値:</strong> ${currentInputs.join(", ")}
+          </div>
+        `;
+        
+        // 現在の選択結果をカンマ区切りで表示
+        const currentSelections = currentInputs.map(input => {
+          const result = selectedResults.get(input);
+          return result ? result.output : '';
+        }).join(", ");
+        
+        html += `
+          <div class="current-selections">
+            <strong>現在の選択結果:</strong> ${currentSelections}
+          </div>
+        `;
+
+        // 編集インターフェースと表を横並びに配置
+        html += '<div class="conversion-layout">';
+
+        // 左側の編集オプションエリア
+        html += '<div class="edit-options-container">';
+        
+        // 未選択の項目をすべて表示
+        const unselectedInputs = currentInputs.filter(input => !selectedResults.has(input));
+        if (unselectedInputs.length > 0) {
+          unselectedInputs.forEach(input => {
+            html += generateEditingInterface(input);
+          });
+        }
+        html += '</div>';
+
+        // テーブルの作成
+        html += `
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>入力</th>
+                <th>${currentMode === "idToName" ? '名前' : 'ID'}</th>
+                <th>一致率</th>
+                <th>信頼度</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        // 選択済み項目を表示
+        currentInputs.forEach(input => {
+          const result = selectedResults.get(input);
+          const confidenceColor = result?.confidence <= 40 ? '#ffebee' : 'inherit';
+          html += `
+            <tr class="${result?.autoSelected ? 'auto-selected' : result ? 'manual-selected' : 'unselected'}"
+                style="background-color: ${confidenceColor}">
+              <td>${input}</td>
+              <td>${result ? result.output : '未選択'}</td>
+              <td>${result ? result.similarity + '%' : '-'}</td>
+              <td>${result ? result.confidence + '%' : '-'}</td>
+              <td>
+                <button onclick="editItem('${input.replace(/'/g, "\\'")}')">${result ? '編集' : '選択'}</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table></div></div>';
+        document.getElementById("conversionResult").innerHTML = html;
+      }
+
+      // 編集インターフェースの生成関数を修正
+      function generateEditingInterface(input) {
+        const matches = getAllSimilarResults(input);
+        const currentSelection = selectedResults.get(input);
+
+        return `
+          <div class="edit-panel" id="edit-panel-${input.replace(/[^a-zA-Z0-9]/g, '-')}">
+            <h4>「${input}」の選択肢：</h4>
+            <div class="options-list">
+              ${matches.map((match, index) => {
+                const value = currentMode === "idToName" ? match.name : match.id;
+                const isSelected = currentSelection?.output === value;
+                const optionId = `edit-${input.replace(/[^a-zA-Z0-9]/g, '-')}-${index}`;
+                return `
+                  <div class="option-item">
+                    <input type="radio" name="editOption-${input.replace(/[^a-zA-Z0-9]/g, '-')}" 
+                           id="${optionId}"
+                           value="${value}"
+                           ${isSelected ? 'checked' : ''} />
+                    <label for="${optionId}">
+                      ${match.name} (@${match.id}) - ${match.similarity}%
+                    </label>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <div class="edit-controls">
+              <input type="text" id="manualInput-${input.replace(/[^a-zA-Z0-9]/g, '-')}" 
+                     placeholder="手動入力" />
+              <button onclick="confirmEdit('${input.replace(/'/g, "\\'")}')">確定</button>
+              <button onclick="skipEdit('${input.replace(/'/g, "\\'")}')">スキップ</button>
+            </div>
+          </div>
+        `;
+      }
+
+      // 編集の確定関数を修正
+      function confirmEdit(input) {
+        const inputId = input.replace(/[^a-zA-Z0-9]/g, '-');
+        const selected = document.querySelector(`input[name="editOption-${inputId}"]:checked`);
+        const manualInput = document.getElementById(`manualInput-${inputId}`).value.trim();
+
+        if (selected || manualInput) {
+          let output, similarity, confidence;
+          
+          if (manualInput) {
+            output = manualInput;
+            similarity = 0;
+            confidence = 30; // 手動入力の場合は30%
+          } else {
+            const selectedMatch = getAllSimilarResults(input).find((match, index) => 
+              `edit-${inputId}-${index}` === selected.id
+            );
+            output = currentMode === "idToName" ? selectedMatch.name : selectedMatch.id;
+            similarity = selectedMatch.similarity;
+            confidence = similarity >= 80 ? 45 : Math.min(40, Math.round(similarity / 2));
+          }
+
+          selectedResults.set(input, {
+            output,
+            similarity,
+            confidence,
+            autoSelected: false
+          });
+        }
+
+        currentEditingId = null;
+        displayConversionTable();
+      }
+
+      // 項目の編集開始
+      function editItem(input) {
+        currentEditingId = input;
+        const editPanel = generateEditingInterface(input);
+        document.querySelector('.edit-options-container').innerHTML += editPanel;
+      }
+
+      // 編集のキャンセル
+      function cancelEdit() {
+        currentEditingId = null;
+        displayConversionTable();
+      }
+
+      // 類似度計算と結果のソート関数を追加
+      function getAllSimilarResults(searchTerm) {
+        const results = [];
+        const cleanSearchTerm = searchTerm.toLowerCase().replace(/^@/, ""); // @を除去
+
+        allData.forEach((item) => {
+          // creator と tlink の検索
+          if (item.creator && item.tlink) {
+            const searchValue = currentMode === "idToName" ? 
+              item.tlink.replace(/^@/, "") : // @を除去
+              item.creator;
+            const similarity = calculateSimilarity(searchValue.toLowerCase(), cleanSearchTerm);
+            if (similarity > 30) {
+              results.push({
+                name: item.creator,
+                id: item.tlink.replace(/^@/, ""),
+                similarity: Math.round(similarity),
+              });
+            }
+          }
+
+          // member と memberid の検索
+          if (item.member && item.memberid) {
+            const members = item.member.split(",");
+            const memberIds = item.memberid.split(",");
+            members.forEach((member, i) => {
+              if (memberIds[i]) {
+                const searchValue = currentMode === "idToName" ? 
+                  memberIds[i].replace(/^@/, "") : // @を除去
+                  member;
+                const similarity = calculateSimilarity(searchValue.toLowerCase(), cleanSearchTerm);
+                if (similarity > 30) {
+                  results.push({
+                    name: member,
+                    id: memberIds[i].replace(/^@/, ""),
+                    similarity: Math.round(similarity),
+                  });
+                }
+              }
+            });
+          }
+        });
+
+        return results
+          .sort((a, b) => b.similarity - a.similarity)
+          .filter((result, index, self) => 
+            index === self.findIndex(r => 
+              r.name === result.name && 
+              r.id === result.id
+            )
+          )
+          .slice(0, 10);
+      }
+
+      // レーベンシュタイン距離を使用した類似度計算
+      function calculateSimilarity(str1, str2) {
+        const longer = str1.toLowerCase();
+        const shorter = str2.toLowerCase();
+
+        const longerLength = longer.length;
+        if (longerLength === 0) return 0;
+
+        const levenshteinDistance = (str1, str2) => {
+          const matrix = [];
+          let i, j;
+
+          for (i = 0; i <= str2.length; i++) matrix[i] = [i];
+          for (j = 0; j <= str1.length; j++) matrix[0][j] = j;
+
+          for (i = 1; i <= str2.length; i++) {
+            for (j = 1; j <= str1.length; j++) {
+              matrix[i][j] =
+                str2.charAt(i - 1) === str1.charAt(j - 1)
+                  ? matrix[i - 1][j - 1]
+                  : Math.min(
+                      matrix[i - 1][j - 1] + 1,
+                      matrix[i][j - 1] + 1,
+                      matrix[i - 1][j] + 1
+                    );
+            }
+          }
+          return matrix[str2.length][str1.length];
+        };
+
+        return (1 - levenshteinDistance(longer, shorter) / longerLength) * 100;
+      }
+
+      // 縦データをカンマ区切りに変換する関数
+      function convertVerticalData() {
+        const verticalInput = document.getElementById("verticalInput").value;
+        // 空行を除去し、各行をトリムして配列に変換
+        const lines = verticalInput
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
+
+        // カンマ区切りの文字列に変換
+        const result = lines.join(",");
+
+        // 結果を表示
+        const resultHtml = `
+    <strong>変換結果：</strong><br>
+    <div style="margin-top: 5px; word-break: break-all;">${result}</div>
+    <button onclick="copyToClipboard('${result}')" style="margin-top: 10px;">コピー</button>
+  `;
+        document.getElementById("verticalResult").innerHTML = resultHtml;
+      }
+
+      // クリップボードにコピーする関数
+      function copyToClipboard(text) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            alert("クリップボードにコピーしました！");
+          })
+          .catch((err) => {
+            console.error("コピーに失敗しました:", err);
+            alert("コピーに失敗しました");
+          });
+      }
+
+      // スキップ機能を追加
+      function skipEdit(input) {
+        selectedResults.set(input, {
+          output: '',
+          similarity: 0,
+          autoSelected: false
+        });
+        displayConversionTable();
+      }
+    </script>
+  </body>
+</html>
