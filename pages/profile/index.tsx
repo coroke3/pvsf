@@ -226,76 +226,35 @@ export default function ProfilePage() {
 
 
 
-  // Fetch only PARTICIPATED videos (Legacy method)
-  const fetchParticipatedVideos = useCallback(async () => {
-    if (approvedXids.length === 0) return;
+    // 3. Fetch videos where user is a Member (XID in members array)
+    const {
+        videos: remoteParticipatedVideos,
+        isLoading: isLoadingParticipated,
+        loadMore: loadMoreParticipated,
+        hasMore: hasMoreParticipated
+    } = useInfiniteVideos({
+        memberXid: approvedXids.join(','),
+        enabled: !!(isAuthenticated && approvedXids.length > 0),
+        limit: 50
+    });
 
-    // Use a large limit for participated check, or accept we only find recent ones
-    try {
-      // We can't paginate participated easily yet. Fetching recent 100?
-      const res = await fetch('/api/videos?limit=100');
-      if (res.ok) {
-        const data = await res.json();
-        const videos = (data.videos || data) as any[]; // Handle new/old response format
-
-        const filtered = videos
-          .map((v: any) => {
-            const memberIds = v.memberid?.split(', ').map((m: string) => m.toLowerCase().trim()).filter(Boolean) || [];
-            const authorXidLower = v.tlink?.toLowerCase() || '';
-
-            const vId = extractYouTubeId(v.ylink) || v.ylink;
-            // If user is author, return null to exclude from "Participated"
-            const isAuthored = upcomingVideos.some((av: any) => av.id === vId) || postedVideos.some((av: any) => av.id === vId);
-            if (isAuthored) return null;
-
-            const memberIndex = memberIds.findIndex((mid: string) => approvedXids.includes(mid));
-            if (memberIndex !== -1) {
-              // is Member
-              const memberNames = v.member?.split(', ').map((m: string) => m.trim()).filter(Boolean) || [];
-              const members: VideoMember[] = memberIds.map((xid: string, idx: number) => ({
-                xid,
-                name: memberNames[idx] || xid,
-                role: '',
-                editApproved: false,
-              }));
-              // Parse eventid
-              const eventIds = v.eventid
-                ? v.eventid.split(',').map((e: string) => e.trim()).filter(Boolean)
-                : [];
-
-              return {
-                id: extractYouTubeId(v.ylink) || v.ylink,
-                title: v.title,
-                authorXid: v.tlink,
-                authorName: v.creator,
-                eventIds,
-                startTime: v.time,
-                viewCount: parseInt(v.viewCount) || 0,
-                likeCount: parseInt(v.likeCount) || 0,
-                privacyStatus: v.status,
+    // Filter participated videos to exclude ones already in authored/created
+    const participatedVideos = useMemo(() => {
+        const authoredIds = new Set([
+            ...upcomingVideos.map((v: any) => v.id),
+            ...postedVideos.map((v: any) => v.id),
+        ]);
+        return remoteParticipatedVideos
+            .filter(v => !authoredIds.has(v.id))
+            .map(v => ({
+                ...v,
                 isAuthor: false,
-                editApproved: false, // Default false, fetch detail if needed?
-                members,
-              };
-            }
-            return null;
-          }).filter(Boolean) as MyVideo[];
-
-        setMyVideos(filtered);
-      }
-    } catch (e) { console.error(e); }
-  }, [approvedXids, upcomingVideos, postedVideos]);
+                editApproved: false,
+                members: [],
+            }));
+    }, [remoteParticipatedVideos, upcomingVideos, postedVideos]);
 
 
-  useEffect(() => {
-    if (isAuthenticated && approvedXids.length > 0) {
-      fetchParticipatedVideos();
-    }
-  }, [isAuthenticated, approvedXids.length, fetchParticipatedVideos]);
-
-  // COMBINE for the UI? 
-  // The UI expects `upcomingVideos` and `postedVideos` derived from `myVideos`.
-  // I will change the UI code to use `remoteAuthoredVideos` for the first section.
 
 
 
@@ -347,7 +306,6 @@ export default function ProfilePage() {
         // Close edit modal and show completion modal
         setEditingVideo(null);
         setShowEditCompletion(true);
-        fetchParticipatedVideos();
       } else {
         const data = await res.json();
         setEditError(data.error || '更新に失敗しました');
@@ -358,7 +316,7 @@ export default function ProfilePage() {
       setIsEditing(false);
     }
 
-  }, [editingVideo, fetchParticipatedVideos]);
+  }, [editingVideo]);
 
   // Fetch icon history
   const fetchIconHistory = async () => {
@@ -742,10 +700,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Split videos into authored and participated
-  // Authored comes from useInfiniteVideos (remoteAuthoredVideos)
-  // Participated comes from fetchParticipatedVideos (myVideos state)
-  const participatedVideos = myVideos;
 
   if (isLoading) {
     return (

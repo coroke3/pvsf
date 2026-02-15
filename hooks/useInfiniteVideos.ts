@@ -7,6 +7,7 @@ interface Video {
     videoUrl: string;
     authorXid: string;
     authorName: string;
+    authorIconUrl?: string;
     eventIds: string[];
     startTime: string;
     viewCount: number;
@@ -26,6 +27,7 @@ interface PaginationInfo {
 interface UseInfiniteVideosOptions {
     eventId?: string;
     authorXid?: string;
+    memberXid?: string;
     limit?: number;
     enabled?: boolean;
     includeDeleted?: boolean;
@@ -45,7 +47,7 @@ interface UseInfiniteVideosReturn {
 export function useInfiniteVideos(
     options: UseInfiniteVideosOptions = {}
 ): UseInfiniteVideosReturn {
-    const { eventId, authorXid, limit = 15, enabled = true, includeDeleted = false, createdBy } = options;
+    const { eventId, authorXid, memberXid, limit = 15, enabled = true, includeDeleted = false, createdBy } = options;
 
     const [videos, setVideos] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +78,7 @@ export function useInfiniteVideos(
             videoUrl: v.ylink || '',
             authorXid: v.tlink || '',
             authorName: v.creator || '',
+            authorIconUrl: v.icon || undefined,
             eventIds,
             startTime: v.time || '',
             viewCount: parseInt(v.viewCount) || 0,
@@ -114,6 +117,9 @@ export function useInfiniteVideos(
             }
             if (createdBy) {
                 params.append('createdBy', createdBy);
+            }
+            if (memberXid) {
+                params.append('memberXid', memberXid);
             }
             if (limit) params.append('limit', limit.toString());
             if (includeDeleted) params.append('includeDeleted', 'true');
@@ -191,7 +197,7 @@ export function useInfiniteVideos(
             setIsLoading(false);
             setIsLoadingMore(false);
         }
-    }, [eventId, authorXid, limit, enabled, includeDeleted]);
+    }, [eventId, authorXid, memberXid, limit, enabled, includeDeleted, createdBy]);
 
     // 初回読み込み
     useEffect(() => {

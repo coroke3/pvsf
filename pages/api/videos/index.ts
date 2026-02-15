@@ -161,6 +161,13 @@ export default async function handler(
             videosQuery = videosQuery.where('createdBy', '==', createdBy);
         }
 
+        // memberXidでフィルタリング（メンバーとして参加している作品）
+        const { memberXid } = req.query;
+        const memberXids: string[] = [];
+        if (memberXid && typeof memberXid === 'string') {
+            memberXids.push(...memberXid.split(',').map(x => x.trim().toLowerCase()).filter(Boolean));
+        }
+
         // デフォルトで作成日時でソート（最新順）
         videosQuery = videosQuery.orderBy('createdAt', 'desc');
 
@@ -251,6 +258,15 @@ export default async function handler(
         let docs = videosSnapshot.docs;
         if (includeDeleted !== 'true') {
             docs = docs.filter(doc => (doc.data() as VideoDocument).isDeleted !== true);
+        }
+
+        // memberXidフィルタリング（Firestoreではネストされた配列内フィールドを直接検索できないため、メモリ内で実施）
+        if (memberXids.length > 0) {
+            docs = docs.filter(doc => {
+                const data = doc.data() as VideoDocument;
+                if (!data.members || !Array.isArray(data.members)) return false;
+                return data.members.some(m => memberXids.includes((m.xid || '').toLowerCase()));
+            });
         }
 
         if (videosSnapshot.empty) {

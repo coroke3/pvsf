@@ -84,17 +84,14 @@ export default function AdminVideosPage() {
     // 解決策: showDeleted だけ先に定義。handleRestore はフックの後で定義（refreshVideosを使うため）。
     // 今回のエラーは `includeDeleted: showDeleted` で showDeleted が未定義だったこと。
 
-    // 無限スクロール用のフック
+    // 全件取得用のフック（管理ページはフィルタ/ソートの正確性が重要なため全件取得）
     const {
         videos: infiniteVideos,
         isLoading: isLoadingVideos,
-        isLoadingMore,
-        hasMore,
         error: videosError,
-        loadMore,
         refresh: refreshVideos,
     } = useInfiniteVideos({
-        limit: 15,
+        limit: 0, // 全件取得
         enabled: isAdmin,
         includeDeleted: showDeleted,
     });
@@ -117,6 +114,23 @@ export default function AdminVideosPage() {
     const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
     const [showExportMenu, setShowExportMenu] = useState(false);
 
+    // クライアントサイド段階表示（スクロールで追加表示）
+    const DISPLAY_BATCH = 50;
+    const [displayCount, setDisplayCount] = useState(DISPLAY_BATCH);
+    const displayHasMore = displayCount < filteredVideos.length;
+    const displayedVideos = filteredVideos.slice(0, displayCount);
+
+    const loadMoreDisplay = useCallback(() => {
+        setDisplayCount(prev => Math.min(prev + DISPLAY_BATCH, filteredVideos.length));
+    }, [filteredVideos.length]);
+
+    // 無限スクロール用のセンチネル要素
+    const sentinelRef = useInfiniteScroll({
+        onLoadMore: loadMoreDisplay,
+        hasMore: displayHasMore,
+        isLoading: false,
+        threshold: 300,
+    });
 
 
     const handleRestore = async (video: Video) => {
@@ -192,14 +206,6 @@ export default function AdminVideosPage() {
 
     // Bulk member input
     const [bulkMemberInput, setBulkMemberInput] = useState('');
-
-    // 無限スクロール用のセンチネル要素
-    const sentinelRef = useInfiniteScroll({
-        onLoadMore: loadMore,
-        hasMore,
-        isLoading: isLoadingMore,
-        threshold: 300,
-    });
 
     useEffect(() => {
         if (!isLoading && (!isAuthenticated || !isAdmin)) {
@@ -315,6 +321,7 @@ export default function AdminVideosPage() {
         });
 
         setFilteredVideos(result);
+        setDisplayCount(DISPLAY_BATCH); // フィルタ/ソート変更時にリセット
     }, [videos, searchQuery, selectedEvents, sortField, sortOrder]);
 
     // Toggle event filter
@@ -1264,7 +1271,7 @@ export default function AdminVideosPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredVideos.map((video) => (
+                                        {displayedVideos.map((video) => (
                                             <tr key={video.id} className={video.isDeleted ? 'deleted-row' : ''} style={video.isDeleted ? { opacity: 0.6, background: 'rgba(255,0,0,0.05)' } : {}}>
                                                 <td className="col-thumb">
                                                     <div className="table-thumb">
@@ -1326,7 +1333,7 @@ export default function AdminVideosPage() {
                         ) : (
                             <>
                                 <div className="video-grid">
-                                    {filteredVideos.map((video) => (
+                                    {displayedVideos.map((video) => (
                                         <div key={video.id} className={`video-card ${video.isDeleted ? 'deleted' : ''}`} style={video.isDeleted ? { opacity: 0.7, border: '1px solid var(--c-danger)' } : {}}>
                                             <div className="video-card-thumbnail">
                                                 <Image
@@ -1407,19 +1414,17 @@ export default function AdminVideosPage() {
                                 </div>
 
                                 {/* 無限スクロール用のセンチネル要素 */}
-                                {hasMore && (
+                                {displayHasMore && (
                                     <div ref={sentinelRef} style={{ height: '1px', marginTop: '20px' }}>
-                                        {isLoadingMore && (
-                                            <div className="loading" style={{ padding: '20px', textAlign: 'center' }}>
-                                                <FontAwesomeIcon icon={faSpinner} spin /> さらに読み込み中...
-                                            </div>
-                                        )}
+                                        <div className="loading" style={{ padding: '20px', textAlign: 'center' }}>
+                                            <FontAwesomeIcon icon={faSpinner} spin /> さらに読み込み中...
+                                        </div>
                                     </div>
                                 )}
 
-                                {!hasMore && filteredVideos.length > 0 && (
+                                {!displayHasMore && filteredVideos.length > 0 && (
                                     <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                                        すべての動画を読み込みました
+                                        すべての動画を読み込みました（{filteredVideos.length}件）
                                     </div>
                                 )}
                             </>
