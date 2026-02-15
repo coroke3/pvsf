@@ -129,7 +129,7 @@ export default async function handler(
 
         // Extract YouTube IDs and filter by update interval
         const videoIdMap = new Map<string, string>(); // youtubeId -> firestoreDocId
-        const twoWeeksMs = 14 * 24 * 60 * 60 * 1000;
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
 
         for (const doc of videosSnapshot.docs) {
             const data = doc.data();
@@ -138,7 +138,7 @@ export default async function handler(
             if (youtubeId) {
                 // Check if update is needed
                 const lastFetch = data.lastStatsFetch ? (data.lastStatsFetch.toDate ? data.lastStatsFetch.toDate() : new Date(data.lastStatsFetch)) : null;
-                const shouldUpdate = !lastFetch || (Date.now() - lastFetch.getTime() > twoWeeksMs);
+                const shouldUpdate = !lastFetch || (Date.now() - lastFetch.getTime() > oneWeekMs);
 
                 if (shouldUpdate) {
                     videoIdMap.set(youtubeId, doc.id);

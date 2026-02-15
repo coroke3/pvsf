@@ -67,16 +67,19 @@ interface EditingVideo {
   endMessage: string;
 
   // New Fields
-  snsPlans: string[]; // Stores as JSON string or array? UI uses array of objects usually.
-  // Actually, register.tsx uses {platform, url}[], but here we might simplify or map.
-  // Let's use string[] for now if backend sends strings, or any[].
-  // Backend `snsPlans` is usually array of objects.
-  // Let's check register.tsx: `snsPlans: {platform, url}[]`.
-  // Backend `[id].ts` doesn't enforce type, just passes it.
-  // I will use `any[]` or defined type to be safe.
+  snsPlans: any[];
+  snsLinks: { platform: string; url: string }[];
   otherSns: string;
   homepageComment: string;
   link: string;
+
+  // Live/Screening (post-submission editable)
+  wantsStage: boolean;
+  preScreeningComment: string;
+  postScreeningComment: string;
+  usedSoftware: string;
+  stageQuestions: string;
+  finalNote: string;
 
   members: VideoMember[];
 
@@ -88,6 +91,14 @@ interface SnsPlan {
   platform: string;
   url?: string;
 }
+
+const SNS_LINK_PLATFORMS = ['x', 'tiktok', 'niconico', 'bilibili'] as const;
+const SNS_PLATFORM_LABELS: Record<string, string> = {
+  x: 'X (Twitter)',
+  tiktok: 'TikTok',
+  niconico: 'ニコニコ動画',
+  bilibili: 'bilibili動画',
+};
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -158,33 +169,18 @@ export default function ProfilePage() {
   } = useInfiniteVideos({
     authorXid: approvedXids.join(','),
     enabled: !!(isAuthenticated && approvedXids.length > 0),
-    limit: 50 // Fetch more to facilitate client-side merging/sorting
-  });
-
-  // 2. Fetch videos where user is the Submitter (Discord ID match)
-  const {
-    videos: remoteCreatedVideos,
-    isLoading: isLoadingCreated,
-    loadMore: loadMoreCreated,
-    hasMore: hasMoreCreated
-  } = useInfiniteVideos({
-    createdBy: user?.id,
-    enabled: !!(isAuthenticated && user?.id),
-    limit: 50,
-    includeDeleted: true // Allow seeing own deleted/draft videos? Maybe not deleted but private.
+    limit: 50
   });
 
   // Merge and Split
   const { upcomingVideos, postedVideos } = useMemo(() => {
-    // Merge into a map by ID to deduplicate
     const videoMap = new Map();
 
     const processVideo = (v: any) => {
-        // Ensure consistent ID-based deduplication
         if (!videoMap.has(v.id)) {
             videoMap.set(v.id, {
                 ...v,
-                isAuthor: true, // Treated as "My Video"
+                isAuthor: true,
                 editApproved: true,
                 members: [],
             });
@@ -192,7 +188,6 @@ export default function ProfilePage() {
     };
 
     remoteAuthoredVideos.forEach(processVideo);
-    remoteCreatedVideos.forEach(processVideo);
 
     const allMyVideos: any[] = Array.from(videoMap.values());
     const now = new Date();
@@ -201,9 +196,7 @@ export default function ProfilePage() {
     const posted: any[] = [];
 
     allMyVideos.forEach(v => {
-        // Parse startTime safely
         const start = new Date(v.startTime);
-        // If invalid date, assume posted? or filter out?
         if (isNaN(start.getTime())) {
             posted.push(v);
         } else if (start > now) {
@@ -220,7 +213,7 @@ export default function ProfilePage() {
     posted.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
 
     return { upcomingVideos: upcoming, postedVideos: posted };
-  }, [remoteAuthoredVideos, remoteCreatedVideos]);
+  }, [remoteAuthoredVideos]);
 
 
 
@@ -294,9 +287,18 @@ export default function ProfilePage() {
           endMessage: editingVideo.endMessage,
 
           snsPlans: editingVideo.snsPlans,
+          snsLinks: editingVideo.snsLinks,
           otherSns: editingVideo.otherSns,
           homepageComment: editingVideo.homepageComment,
           link: editingVideo.link,
+
+          // Live/Screening
+          wantsStage: editingVideo.wantsStage,
+          preScreeningComment: editingVideo.preScreeningComment,
+          postScreeningComment: editingVideo.postScreeningComment,
+          usedSoftware: editingVideo.usedSoftware,
+          stageQuestions: editingVideo.stageQuestions,
+          finalNote: editingVideo.finalNote,
 
           members: editingVideo.members,
         })
@@ -469,9 +471,18 @@ export default function ProfilePage() {
           endMessage: data.endMessage || '',
 
           snsPlans: data.snsPlans || [],
+          snsLinks: data.snsLinks || [],
           otherSns: data.otherSns || '',
           homepageComment: data.homepageComment || '',
           link: data.link || '',
+
+          // Live/Screening
+          wantsStage: data.wantsStage || false,
+          preScreeningComment: data.preScreeningComment || '',
+          postScreeningComment: data.postScreeningComment || '',
+          usedSoftware: data.usedSoftware || '',
+          stageQuestions: data.stageQuestions || '',
+          finalNote: data.finalNote || '',
 
           members: (data.members || []).map((m: VideoMember) => ({
             name: m.name || '',
@@ -1147,15 +1158,16 @@ export default function ProfilePage() {
                       {/* Priority Fields */}
                       <div className="form-section priority">
                         <div className="form-group">
-                          <label>YouTube URL {isPublished && '(変更不可)'}</label>
+                          <label>YouTube URL (常時編集可能)</label>
                           <input
                             type="text"
                             value={editingVideo.videoUrl}
                             onChange={(e) => setEditingVideo({ ...editingVideo, videoUrl: e.target.value })}
                             onBlur={(e) => setEditingVideo({ ...editingVideo, videoUrl: normalizeYouTubeUrl(e.target.value) })}
                             className="form-input"
-                            disabled={isPublished}
+                            placeholder="YouTubeのURLを入力（自動で https://youtu.be/[id] 形式に変換）"
                           />
+                          <small style={{ color: '#8892b0', fontSize: '0.8rem' }}>入力に関わらず https://youtu.be/[id] 形式に自動変換されます</small>
                         </div>
                         <div className="form-group">
                           <label>作品リンク (ポートフォリオ等) {isPublished && '(変更不可)'}</label>
@@ -1348,6 +1360,128 @@ export default function ProfilePage() {
                               className="form-input"
                             />
                           </div>
+                        </div>
+                      </details>
+
+                      {/* SNS Links Section */}
+                      <details className="form-section-details" open>
+                        <summary>SNSリンク (常時編集可能)</summary>
+                        <div className="details-content">
+                          <p style={{ fontSize: '0.85rem', color: '#8892b0', marginBottom: '1rem' }}>
+                            各SNSプラットフォームのURLを入力してください。
+                          </p>
+                          {SNS_LINK_PLATFORMS.map(platform => {
+                            const existing = editingVideo.snsLinks.find(l => l.platform === platform);
+                            return (
+                              <div key={platform} className="form-group">
+                                <label>{SNS_PLATFORM_LABELS[platform] || platform}</label>
+                                <input
+                                  type="text"
+                                  value={existing?.url || ''}
+                                  onChange={(e) => {
+                                    const newLinks = editingVideo.snsLinks.filter(l => l.platform !== platform);
+                                    if (e.target.value) {
+                                      newLinks.push({ platform, url: e.target.value });
+                                    }
+                                    setEditingVideo({ ...editingVideo, snsLinks: newLinks });
+                                  }}
+                                  className="form-input"
+                                  placeholder={`https://...`}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </details>
+
+                      {/* Live/Screening Section */}
+                      <details className="form-section-details" open>
+                        <summary>上映会・ライブ関連 (常時編集可能)</summary>
+                        <div className="details-content">
+                          <div className="form-group">
+                            <label>公式ライブにて登壇しますか？</label>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#ccd6f6' }}>
+                                <input
+                                  type="radio"
+                                  checked={editingVideo.wantsStage === true}
+                                  onChange={() => setEditingVideo({ ...editingVideo, wantsStage: true })}
+                                />
+                                する
+                              </label>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#ccd6f6' }}>
+                                <input
+                                  type="radio"
+                                  checked={editingVideo.wantsStage === false}
+                                  onChange={() => setEditingVideo({ ...editingVideo, wantsStage: false })}
+                                />
+                                しない
+                              </label>
+                            </div>
+                          </div>
+
+                          {editingVideo.wantsStage && (
+                            <>
+                              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem', color: '#8892b0' }}>
+                                <p style={{ margin: '0 0 0.5rem' }}>上映の流れ:</p>
+                                <p style={{ margin: 0 }}>上映前コメント読み上げ → 作品上映 → 上映中/上映後コメント読み上げ → 登壇者を交えてトーク(30秒〜3分) → 終了</p>
+                              </div>
+
+                              <div className="form-group">
+                                <label>上映前コメント（任意）</label>
+                                <textarea
+                                  value={editingVideo.preScreeningComment}
+                                  onChange={(e) => setEditingVideo({ ...editingVideo, preScreeningComment: e.target.value })}
+                                  rows={3}
+                                  className="form-input"
+                                  placeholder="作品を見る前に一言言っておきたいことがありましたらご記入ください。"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label>上映中/上映後コメント</label>
+                                <textarea
+                                  value={editingVideo.postScreeningComment}
+                                  onChange={(e) => setEditingVideo({ ...editingVideo, postScreeningComment: e.target.value })}
+                                  rows={3}
+                                  className="form-input"
+                                  placeholder="特にこだわった箇所、小話、tips、作品を通して伝えたかったこと等"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label>使用ソフト/プラグイン等</label>
+                                <textarea
+                                  value={editingVideo.usedSoftware}
+                                  onChange={(e) => setEditingVideo({ ...editingVideo, usedSoftware: e.target.value })}
+                                  rows={2}
+                                  className="form-input"
+                                  placeholder="使用したソフトウェア、プラグイン、機能等"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label>【登壇者のみ】質問してほしいこと等</label>
+                                <textarea
+                                  value={editingVideo.stageQuestions}
+                                  onChange={(e) => setEditingVideo({ ...editingVideo, stageQuestions: e.target.value })}
+                                  rows={3}
+                                  className="form-input"
+                                  placeholder='例: 「〇〇の演出についてどのような意図があるのですか」「映像を始めたきっかけ」'
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label>最後になにかあれば</label>
+                                <textarea
+                                  value={editingVideo.finalNote}
+                                  onChange={(e) => setEditingVideo({ ...editingVideo, finalNote: e.target.value })}
+                                  rows={2}
+                                  className="form-input"
+                                />
+                              </div>
+                            </>
+                          )}
                         </div>
                       </details>
 

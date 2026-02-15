@@ -6,7 +6,7 @@ import {
     setDoc, updateDoc, addDoc, serverTimestamp,
     orderBy, limit, Timestamp, startAfter
 } from 'firebase/firestore';
-import type { VideoDocument, VideoMember, SnsUploadPlan } from '@/types/video';
+import type { VideoDocument, VideoMember, SnsUploadPlan, SnsLink } from '@/types/video';
 import { extractYouTubeId, generateThumbnails } from '@/libs/videoConverter';
 
 // キャッシュ設定
@@ -86,6 +86,63 @@ export interface UpdateVideoData {
     episode?: string;
     endMessage?: string;
     members?: VideoMember[];
+    // New editable fields
+    snsLinks?: SnsLink[];
+    homepageComment?: string;
+    videoUrl?: string;
+    wantsStage?: boolean;
+    preScreeningComment?: string;
+    postScreeningComment?: string;
+    usedSoftware?: string;
+    stageQuestions?: string;
+    finalNote?: string;
+    movieYear?: string | number;
+}
+
+/**
+ * Fields that are editable AFTER the posting time has passed
+ * All other fields become read-only
+ */
+export const POST_TIME_EDITABLE_FIELDS: (keyof UpdateVideoData)[] = [
+    'description',         // コメント
+    'homepageComment',     // HPコメント
+    'snsLinks',            // SNSリンク
+    'wantsStage',          // 登壇希望 (はい/いいえ切替可)
+    'preScreeningComment', // 上映前コメント
+    'postScreeningComment',// 上映中/上映後コメント
+    'usedSoftware',        // 使用ソフト
+    'stageQuestions',      // 質問
+    'finalNote',           // 最後に
+];
+
+/**
+ * Check if a video's posting time has passed
+ */
+export function isPostTimePassed(video: VideoDocument): boolean {
+    if (!video.startTime) return false;
+    const startTime = video.startTime instanceof Date ? video.startTime : new Date(video.startTime);
+    return startTime.getTime() < Date.now();
+}
+
+/**
+ * Get list of editable fields for a user on a specific video
+ */
+export function getEditableFields(
+    video: VideoDocument,
+    isAdmin: boolean
+): (keyof UpdateVideoData)[] {
+    // Admin can always edit everything
+    if (isAdmin) {
+        return Object.keys({} as Required<UpdateVideoData>) as (keyof UpdateVideoData)[];
+    }
+
+    // Before posting time → all fields editable
+    if (!isPostTimePassed(video)) {
+        return Object.keys({} as Required<UpdateVideoData>) as (keyof UpdateVideoData)[];
+    }
+
+    // After posting time → only specific fields + member editApproved
+    return [...POST_TIME_EDITABLE_FIELDS, 'members'];
 }
 
 /**
@@ -372,14 +429,45 @@ export async function createVideo(
 }
 
 /**
- * Update a video
+ * Update a video with field-level access control
+ * If the video's posting time has passed, only specific fields are editable for non-admin users
  */
 export async function updateVideo(
     videoId: string,
-    data: UpdateVideoData
+    data: UpdateVideoData,
+    options?: { isAdmin?: boolean }
 ): Promise<void> {
     try {
         const docRef = doc(db, 'videos', videoId);
+
+        // If not admin, check time-based restrictions
+        let filteredData = { ...data };
+        if (!options?.isAdmin) {
+            const video = await getVideo(videoId);
+            if (video && isPostTimePassed(video)) {
+                const allowedFields = POST_TIME_EDITABLE_FIELDS;
+                const restricted: Record<string, any> = {};
+                for (const key of allowedFields) {
+                    if ((data as any)[key] !== undefined) {
+                        restricted[key] = (data as any)[key];
+                    }
+                }
+                // Members: only editApproved can be changed after posting time
+                if (data.members !== undefined && video.members) {
+                    restricted.members = video.members.map((existingMember, idx) => {
+                        const updatedMember = data.members?.[idx];
+                        if (updatedMember) {
+                            return {
+                                ...existingMember,
+                                editApproved: updatedMember.editApproved ?? existingMember.editApproved,
+                            };
+                        }
+                        return existingMember;
+                    });
+                }
+                filteredData = restricted as UpdateVideoData;
+            }
+        }
 
         // Build update data
         const updateData: Record<string, any> = {
@@ -387,31 +475,51 @@ export async function updateVideo(
         };
 
         // Copy all provided fields
-        if (data.title !== undefined) updateData.title = data.title;
-        if (data.description !== undefined) updateData.description = data.description;
-        if (data.music !== undefined) updateData.music = data.music;
-        if (data.credit !== undefined) updateData.credit = data.credit;
-        if (data.type !== undefined) updateData.type = data.type;
-        if (data.type2 !== undefined) updateData.type2 = data.type2;
-        if (data.authorXid !== undefined) {
-            updateData.authorXid = data.authorXid;
-            updateData.authorXidLower = data.authorXid.toLowerCase();
+        if (filteredData.title !== undefined) updateData.title = filteredData.title;
+        if (filteredData.description !== undefined) updateData.description = filteredData.description;
+        if (filteredData.music !== undefined) updateData.music = filteredData.music;
+        if (filteredData.credit !== undefined) updateData.credit = filteredData.credit;
+        if (filteredData.type !== undefined) updateData.type = filteredData.type;
+        if (filteredData.type2 !== undefined) updateData.type2 = filteredData.type2;
+        if (filteredData.authorXid !== undefined) {
+            updateData.authorXid = filteredData.authorXid;
+            updateData.authorXidLower = filteredData.authorXid.toLowerCase();
         }
-        if (data.authorName !== undefined) updateData.authorName = data.authorName;
-        if (data.authorIconUrl !== undefined) updateData.authorIconUrl = data.authorIconUrl;
-        if (data.authorChannelUrl !== undefined) updateData.authorChannelUrl = data.authorChannelUrl;
-        if (data.eventIds !== undefined) updateData.eventIds = data.eventIds;
-        if (data.startTime !== undefined) updateData.startTime = new Date(data.startTime);
-        if (data.musicUrl !== undefined) updateData.musicUrl = data.musicUrl;
-        if (data.otherSns !== undefined) updateData.otherSns = data.otherSns;
-        if (data.rightType !== undefined) updateData.rightType = data.rightType;
-        if (data.software !== undefined) updateData.software = data.software;
-        if (data.beforeComment !== undefined) updateData.beforeComment = data.beforeComment;
-        if (data.afterComment !== undefined) updateData.afterComment = data.afterComment;
-        if (data.listen !== undefined) updateData.listen = data.listen;
-        if (data.episode !== undefined) updateData.episode = data.episode;
-        if (data.endMessage !== undefined) updateData.endMessage = data.endMessage;
-        if (data.members !== undefined) updateData.members = data.members;
+        if (filteredData.authorName !== undefined) updateData.authorName = filteredData.authorName;
+        if (filteredData.authorIconUrl !== undefined) updateData.authorIconUrl = filteredData.authorIconUrl;
+        if (filteredData.authorChannelUrl !== undefined) updateData.authorChannelUrl = filteredData.authorChannelUrl;
+        if (filteredData.eventIds !== undefined) updateData.eventIds = filteredData.eventIds;
+        if (filteredData.startTime !== undefined) updateData.startTime = new Date(filteredData.startTime);
+        if (filteredData.musicUrl !== undefined) updateData.musicUrl = filteredData.musicUrl;
+        if (filteredData.otherSns !== undefined) updateData.otherSns = filteredData.otherSns;
+        if (filteredData.rightType !== undefined) updateData.rightType = filteredData.rightType;
+        if (filteredData.software !== undefined) updateData.software = filteredData.software;
+        if (filteredData.beforeComment !== undefined) updateData.beforeComment = filteredData.beforeComment;
+        if (filteredData.afterComment !== undefined) updateData.afterComment = filteredData.afterComment;
+        if (filteredData.listen !== undefined) updateData.listen = filteredData.listen;
+        if (filteredData.episode !== undefined) updateData.episode = filteredData.episode;
+        if (filteredData.endMessage !== undefined) updateData.endMessage = filteredData.endMessage;
+        if (filteredData.members !== undefined) updateData.members = filteredData.members;
+        // New fields
+        if (filteredData.snsLinks !== undefined) updateData.snsLinks = filteredData.snsLinks;
+        if (filteredData.homepageComment !== undefined) updateData.homepageComment = filteredData.homepageComment;
+        if (filteredData.videoUrl !== undefined) {
+            updateData.videoUrl = filteredData.videoUrl;
+            // Also update thumbnails if video URL changed
+            const ytId = extractYouTubeId(filteredData.videoUrl);
+            if (ytId) {
+                const thumbs = generateThumbnails(ytId);
+                updateData.largeThumbnail = thumbs.largeThumbnail;
+                updateData.smallThumbnail = thumbs.smallThumbnail;
+            }
+        }
+        if (filteredData.wantsStage !== undefined) updateData.wantsStage = filteredData.wantsStage;
+        if (filteredData.preScreeningComment !== undefined) updateData.preScreeningComment = filteredData.preScreeningComment;
+        if (filteredData.postScreeningComment !== undefined) updateData.postScreeningComment = filteredData.postScreeningComment;
+        if (filteredData.usedSoftware !== undefined) updateData.usedSoftware = filteredData.usedSoftware;
+        if (filteredData.stageQuestions !== undefined) updateData.stageQuestions = filteredData.stageQuestions;
+        if (filteredData.finalNote !== undefined) updateData.finalNote = filteredData.finalNote;
+        if (filteredData.movieYear !== undefined) updateData.movieYear = filteredData.movieYear;
 
         await updateDoc(docRef, updateData);
 

@@ -39,6 +39,7 @@ interface Video {
     slotId: string | null;
     privacyStatus: string;
     isDeleted?: boolean;
+    isApproved?: boolean;
 }
 
 interface EditingVideo {
@@ -149,6 +150,42 @@ export default function AdminVideosPage() {
             }
         } catch (err) {
             setError('復元に失敗しました');
+        }
+    };
+
+    const handleApprove = async (video: Video) => {
+        if (!confirm(`「${video.title}」を承認してAPIに公開しますか？`)) return;
+        try {
+            const res = await fetch(`/api/videos/${video.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ approve: true }),
+            });
+            if (res.ok) {
+                setSuccess('作品を承認しました');
+                refreshVideos();
+            } else {
+                setError('承認に失敗しました');
+            }
+        } catch (err) {
+            setError('承認に失敗しました');
+        }
+    };
+
+    const handleReject = async (video: Video) => {
+        if (!confirm(`「${video.title}」を却下しますか？`)) return;
+        try {
+            const res = await fetch(`/api/videos/${video.id}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                setSuccess('作品を却下しました');
+                refreshVideos();
+            } else {
+                setError('却下に失敗しました');
+            }
+        } catch (err) {
+            setError('却下に失敗しました');
         }
     };
 
@@ -708,6 +745,55 @@ export default function AdminVideosPage() {
                             </div>
                         </div>
                     )}
+
+                    {/* Pending Approval Section */}
+                    {(() => {
+                        const pendingVideos = videos.filter(v => v.isApproved === false && !v.isDeleted);
+                        if (pendingVideos.length === 0) return null;
+                        return (
+                            <div className="card" style={{ marginBottom: '1rem', borderColor: 'orange' }}>
+                                <div className="card-header">
+                                    <h2 style={{ color: 'orange' }}>
+                                        <FontAwesomeIcon icon={faCheck} /> 承認待ち ({pendingVideos.length}件)
+                                    </h2>
+                                </div>
+                                <div className="video-grid">
+                                    {pendingVideos.map(video => (
+                                        <div key={video.id} className="video-card" style={{ border: '2px solid orange' }}>
+                                            <div className="video-card-thumbnail">
+                                                <Image
+                                                    src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`}
+                                                    alt={video.title || '動画サムネイル'}
+                                                    width={320}
+                                                    height={180}
+                                                    unoptimized
+                                                />
+                                            </div>
+                                            <div className="video-card-content">
+                                                <h3 className="video-card-title">{video.title}</h3>
+                                                <div className="video-card-author">
+                                                    <FontAwesomeIcon icon={faUser} />
+                                                    <span>{video.authorName}</span>
+                                                    <span className="video-card-xid">@{video.authorXid}</span>
+                                                </div>
+                                                <div className="video-card-actions">
+                                                    <button onClick={() => handleApprove(video)} className="btn btn-sm" style={{ background: 'green', color: 'white', flex: 1 }}>
+                                                        <FontAwesomeIcon icon={faCheck} /> 承認
+                                                    </button>
+                                                    <button onClick={() => handleReject(video)} className="btn btn-sm btn-danger" style={{ flex: 1 }}>
+                                                        <FontAwesomeIcon icon={faTimes} /> 却下
+                                                    </button>
+                                                    <button onClick={() => startEdit(video)} className="btn btn-sm btn-secondary">
+                                                        <FontAwesomeIcon icon={faEdit} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* Results count */}
                     <div className="results-info">

@@ -270,3 +270,45 @@ export async function purgeExpiredLogs(): Promise<number> {
     await batch.commit();
     return expiredSnapshot.size;
 }
+
+/**
+ * Purge logs older than specified retention days
+ * @param retentionDays - 30, 90, or 180 days
+ * @returns Number of deleted logs
+ */
+export async function purgeLogsByRetention(retentionDays: 30 | 90 | 180): Promise<number> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - retentionDays);
+
+    let totalDeleted = 0;
+    const BATCH_SIZE = 450;
+
+    // Use pagination to handle large datasets
+    let hasMore = true;
+    while (hasMore) {
+        const snapshot = await adminDb
+            .collection(OPERATION_LOGS_COLLECTION)
+            .where('timestamp', '<', cutoff)
+            .limit(BATCH_SIZE)
+            .get();
+
+        if (snapshot.empty) {
+            hasMore = false;
+            break;
+        }
+
+        const batch = adminDb.batch();
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        totalDeleted += snapshot.size;
+
+        if (snapshot.size < BATCH_SIZE) {
+            hasMore = false;
+        }
+    }
+
+    return totalDeleted;
+}

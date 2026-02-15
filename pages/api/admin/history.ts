@@ -6,7 +6,8 @@ import {
     queryOperationLogs,
     getOperationLog,
     restoreFromLog,
-    purgeExpiredLogs
+    purgeExpiredLogs,
+    purgeLogsByRetention
 } from '@/libs/operationLog';
 import type { TargetCollection, OperationType } from '@/types/operationLog';
 
@@ -84,17 +85,28 @@ export default async function handler(
         }
 
         if (action === 'purge') {
+            const { retentionDays } = req.body;
+
             try {
-                const deletedCount = await purgeExpiredLogs();
+                let deletedCount: number;
+
+                if (retentionDays && [30, 90, 180].includes(retentionDays)) {
+                    // Purge by specific retention period
+                    deletedCount = await purgeLogsByRetention(retentionDays as 30 | 90 | 180);
+                } else {
+                    // Default: purge only truly expired logs
+                    deletedCount = await purgeExpiredLogs();
+                }
 
                 return res.status(200).json({
                     success: true,
-                    message: `Purged ${deletedCount} expired logs`,
+                    message: `Purged ${deletedCount} logs (${retentionDays ? retentionDays + '日以前' : '期限切れ'})`,
                     deletedCount,
+                    retentionDays: retentionDays || 'default',
                 });
             } catch (error) {
                 console.error('Error purging logs:', error);
-                return res.status(500).json({ error: 'Failed to purge expired logs' });
+                return res.status(500).json({ error: 'Failed to purge logs' });
             }
         }
 

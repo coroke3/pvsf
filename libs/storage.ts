@@ -5,7 +5,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 /**
  * Maximum icon size in pixels
  */
-const ICON_SIZE = 150;
+const ICON_SIZE = 100;
 
 /**
  * Maximum file size in bytes (1MB)

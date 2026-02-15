@@ -78,6 +78,14 @@ export interface SnsUploadPlan {
 }
 
 /**
+ * SNS link with platform and URL (structured)
+ */
+export interface SnsLink {
+  platform: string; // "X" | "tiktok" | "niconico" | "bilibili" etc.
+  url: string;      // Full URL to the post
+}
+
+/**
  * Firestore Video Document Schema
  */
 export interface VideoDocument extends SoftDeleteFields {
@@ -120,12 +128,26 @@ export interface VideoDocument extends SoftDeleteFields {
   
   // New Fields
   snsPlans: SnsUploadPlan[]; // Planned SNS uploads (platform and URL)
+  snsLinks: SnsLink[];       // SNS links with platform-specific URLs
   homepageComment: string;   // Homepage display comment
   link: string;              // Related link
   agreedToTerms: boolean;    // Whether user agreed to terms
 
   // Members (Structured)
   members: VideoMember[];
+
+  // Live/Screening Fields (上映会関連)
+  wantsStage: boolean;           // 登壇希望 (する/しない)
+  preScreeningComment: string;   // 上映前コメント
+  postScreeningComment: string;  // 上映中/上映後コメント
+  usedSoftware: string;          // 使用ソフト/プラグイン (詳細)
+  stageQuestions: string;        // 登壇者向け質問
+  finalNote: string;             // 最後になにかあれば
+
+  // Approval Status (for slot-linked works)
+  isApproved: boolean;           // 運営承認済みか
+  approvedAt: Date | null;
+  approvedBy: string | null;
 
   // YouTube Stats (Managed by Cron)
   viewCount: number;
@@ -177,9 +199,20 @@ export interface VideoFormData {
   endMessage: string;
   members: VideoMember[];
   snsPlans: SnsUploadPlan[];
+  snsLinks: SnsLink[];
   homepageComment: string;
   link: string;
   agreedToTerms: boolean;
+  // Live/Screening
+  wantsStage: boolean;
+  preScreeningComment: string;
+  postScreeningComment: string;
+  usedSoftware: string;
+  stageQuestions: string;
+  finalNote: string;
+  // Slot
+  slotEventId?: string;
+  slotDateTimes?: string[];
 }
 
 /**

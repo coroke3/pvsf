@@ -95,15 +95,38 @@ service cloud.firestore {
     }
 
     // ============================================
+    // Rules: Event Slots Collection (top-level)
+    // ============================================
+
+    match /eventSlots/{eventId} {
+      // Public can read event slots (for slot selection UI)
+      allow read: if true;
+
+      // Only admins can create/modify/delete event slots
+      allow create: if isAdmin();
+      allow update: if isAuthenticated(); // Auth users can reserve slots
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
     // Rules: Videos Collection
     // ============================================
 
     match /videos/{videoId} {
-      // Public can read published videos
-      // Private/draft videos only visible to owner/admin
-      allow read: if resource.data.status == 'published' || 
-                    isVideoOwner(resource.data) || 
-                    isAdmin();
+      // Public can read approved, non-deleted videos
+      // Unapproved videos only visible to owner/admin
+      allow read: if (
+        // Approved and not deleted → public
+        (resource.data.isApproved == true && resource.data.isDeleted != true) ||
+        // Legacy videos without isApproved field (treat as approved)
+        (!('isApproved' in resource.data) && resource.data.isDeleted != true) ||
+        // Published status fallback
+        resource.data.status == 'published' ||
+        // Owner can always see their own
+        isVideoOwner(resource.data) || 
+        // Admin can see everything
+        isAdmin()
+      );
 
       // Create: Authenticated user must set themselves as creator
       allow create: if isAuthenticated() &&
@@ -129,7 +152,19 @@ service cloud.firestore {
     }
 
     // ============================================
-    // Rules: Audit Logs
+    // Rules: Operation Logs (diff database)
+    // ============================================
+
+    match /operationLogs/{logId} {
+      // Only admin can read operation logs
+      allow read: if isAdmin();
+      
+      // No client-side writes - handled by Admin SDK on server
+      allow write: if false;
+    }
+
+    // ============================================
+    // Rules: Audit Logs (legacy)
     // ============================================
 
     match /audit_logs/{logId} {

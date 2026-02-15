@@ -12,10 +12,6 @@ function eventIdsToLegacyFormat(eventIds: string[] | undefined): string {
 }
 
 /**
- * Convert Firestore VideoDocument to legacy API format
- * Matches the format from https://pvsf-cash.vercel.app/api/videos
- */
-/**
  * Safely convert Firestore timestamp or date to Date object
  */
 function toSafeDate(value: any): Date {
@@ -23,39 +19,27 @@ function toSafeDate(value: any): Date {
     if (value instanceof Date) {
         return isNaN(value.getTime()) ? new Date() : value;
     }
-    // Firestore Timestamp has toDate() method
     if (typeof value.toDate === 'function') {
-        try {
-            return value.toDate();
-        } catch {
-            return new Date();
-        }
+        try { return value.toDate(); } catch { return new Date(); }
     }
-    // Handle Firestore Timestamp serialized format { _seconds, _nanoseconds }
     if (typeof value._seconds === 'number') {
         return new Date(value._seconds * 1000);
     }
-    // Handle { seconds, nanoseconds } format
     if (typeof value.seconds === 'number') {
         return new Date(value.seconds * 1000);
     }
-    // Try to parse as date string or number
     const parsed = new Date(value);
     return isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
 function convertToLegacyFormat(doc: VideoDocument): VideoApiResponse {
-    // Convert members array to comma-separated strings with proper spacing
     const memberNames = doc.members?.map(m => m.name).join(', ') || '';
     const memberIds = doc.members?.map(m => m.xid).join(', ') || '';
 
     const startTime = toSafeDate(doc.startTime);
     const timestamp = doc.timestamp ? toSafeDate(doc.timestamp) : null;
-
-    // Convert eventIds array to comma-separated string for legacy format
     const eventIdStr = eventIdsToLegacyFormat(doc.eventIds);
 
-    // Handle movieYear - can be number, string, or "伏せる"
     let movieyear: number;
     if (typeof doc.movieYear === 'number') {
         movieyear = doc.movieYear;
@@ -66,7 +50,6 @@ function convertToLegacyFormat(doc: VideoDocument): VideoApiResponse {
         movieyear = 0;
     }
 
-    // Build response object matching legacy format exactly
     const response: VideoApiResponse = {
         type1: doc.type || '',
         type2: doc.type2 || '',
@@ -107,7 +90,6 @@ function convertToLegacyFormat(doc: VideoDocument): VideoApiResponse {
         createdBy: doc.createdBy || '',
     };
 
-    // Add optional fields only if they have values (matching legacy behavior)
     if (timestamp) {
         response.timestamp = timestamp.toISOString();
     }
@@ -122,30 +104,35 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    // Only allow GET requests
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // クエリパラメータを取得
-        const { eventid, limit: limitParam, all, startAfter: startAfterParam, includeDeleted } = req.query;
+        const {
+            eventid,
+            limit: limitParam,
+            all,
+            startAfter: startAfterParam,
+            includeDeleted,
+            format,
+            authorXid,
+            createdBy,
+            memberXid,
+        } = req.query;
 
-        // 最適化: サーバーサイドでフィルタリング（クライアントサイドフィルタリングを削減）
+        const isLegacyFormat = format === 'legacy';
+
         let videosQuery: FirebaseFirestore.Query = adminDb.collection('videos');
 
-        // isDeleted field might be missing in legacy data, so we cannot use .where('isDeleted', '==', false)
-
-        // eventidでフィルタリング（サーバーサイド）
+        // Filter by eventid
         if (eventid && typeof eventid === 'string') {
             videosQuery = videosQuery.where('eventIds', 'array-contains', eventid);
         }
 
-        // authorXidでフィルタリング（サーバーサイド）
-        const { authorXid } = req.query;
+        // Filter by authorXid
         if (authorXid && typeof authorXid === 'string') {
             if (authorXid.includes(',')) {
-                // 複数のXIDがある場合は 'in' 演算子を使用 (最大10個)
                 const xids = authorXid.split(',').map(x => x.trim()).filter(Boolean).slice(0, 10);
                 if (xids.length > 0) {
                     videosQuery = videosQuery.where('authorXid', 'in', xids);
@@ -155,29 +142,25 @@ export default async function handler(
             }
         }
 
-        // createdByでフィルタリング (Discord ID)
-        const { createdBy } = req.query;
+        // Filter by createdBy
         if (createdBy && typeof createdBy === 'string') {
             videosQuery = videosQuery.where('createdBy', '==', createdBy);
         }
 
-        // memberXidでフィルタリング（メンバーとして参加している作品）
-        const { memberXid } = req.query;
+        // memberXid filtering (done in memory)
         const memberXids: string[] = [];
         if (memberXid && typeof memberXid === 'string') {
             memberXids.push(...memberXid.split(',').map(x => x.trim().toLowerCase()).filter(Boolean));
         }
 
-        // デフォルトで作成日時でソート（最新順）
         videosQuery = videosQuery.orderBy('createdAt', 'desc');
 
-        // limitパラメータの処理
-        if (all === 'true' || all === '1') {
-            // 全件取得モード: ページネーションを使用して全件取得
+        // All mode or legacy format (return all as flat array)
+        if (all === 'true' || all === '1' || (isLegacyFormat && !limitParam)) {
             const allVideos: VideoApiResponse[] = [];
             let lastDoc: FirebaseFirestore.QueryDocumentSnapshot | null = null;
             let hasMore = true;
-            const batchSize = 500; // Firestoreの推奨バッチサイズ
+            const batchSize = 500;
 
             while (hasMore) {
                 let batchQuery: FirebaseFirestore.Query = videosQuery;
@@ -194,18 +177,23 @@ export default async function handler(
                 }
 
                 const batchVideos = batchSnapshot.docs
-                    .map(doc => {
-                        const data = doc.data() as VideoDocument;
-                        return { data, id: doc.id };
-                    })
+                    .map(doc => ({
+                        data: doc.data() as VideoDocument,
+                        id: doc.id,
+                    }))
                     .filter(({ data }) => {
-                        if (includeDeleted === 'true') return true;
-                        return data.isDeleted !== true; // Include false or undefined
+                        // Filter out deleted
+                        if (includeDeleted !== 'true' && data.isDeleted === true) return false;
+                        // Filter out unapproved (slot-linked)
+                        if (data.isApproved === false) return false;
+                        // memberXid filter
+                        if (memberXids.length > 0) {
+                            if (!data.members || !Array.isArray(data.members)) return false;
+                            return data.members.some(m => memberXids.includes((m.xid || '').toLowerCase()));
+                        }
+                        return true;
                     })
-                    .map(({ data, id }) => convertToLegacyFormat({
-                        ...data,
-                        id,
-                    }));
+                    .map(({ data, id }) => convertToLegacyFormat({ ...data, id }));
 
                 allVideos.push(...batchVideos);
 
@@ -216,7 +204,14 @@ export default async function handler(
                 }
             }
 
-            // 全件取得モードではページネーション情報なし
+            // Sort by time descending (legacy behavior)
+            allVideos.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+            // Legacy format: return flat array
+            if (isLegacyFormat) {
+                return res.status(200).json(allVideos);
+            }
+
             return res.status(200).json({
                 videos: allVideos,
                 pagination: {
@@ -225,42 +220,39 @@ export default async function handler(
                     count: allVideos.length,
                 },
             });
-        } else {
-            // 通常モード: limitパラメータに応じて制限
-            const limitValue = limitParam
-                ? parseInt(limitParam as string, 10)
-                : 15; // デフォルト15件（無限スクロール用）
+        }
 
-            // ページネーション: startAfterパラメータがある場合
-            if (startAfterParam && typeof startAfterParam === 'string') {
-                try {
-                    // startAfterパラメータはドキュメントID
-                    // ドキュメントを取得してstartAfterに使用
-                    const docRef = adminDb.collection('videos').doc(startAfterParam);
-                    const docSnap = await docRef.get();
-                    if (docSnap.exists) {
-                        videosQuery = videosQuery.startAfter(docSnap);
-                    }
-                } catch (err) {
-                    console.warn('startAfter parameter invalid, ignoring:', err);
+        // Normal paginated mode
+        const limitValue = limitParam
+            ? parseInt(limitParam as string, 10)
+            : 15;
+
+        if (startAfterParam && typeof startAfterParam === 'string') {
+            try {
+                const docRef = adminDb.collection('videos').doc(startAfterParam);
+                const docSnap = await docRef.get();
+                if (docSnap.exists) {
+                    videosQuery = videosQuery.startAfter(docSnap);
                 }
+            } catch (err) {
+                console.warn('startAfter parameter invalid, ignoring:', err);
             }
+        }
 
-            if (limitValue > 0) {
-                videosQuery = videosQuery.limit(limitValue);
-            }
-            // limitValueが0以下の場合は全件取得（ページネーション使用）
+        if (limitValue > 0) {
+            videosQuery = videosQuery.limit(limitValue);
         }
 
         const videosSnapshot = await videosQuery.get();
 
-        // メモリ内フィルタリング (isDeletedフィールド欠損対応のため)
+        // Memory filtering
         let docs = videosSnapshot.docs;
         if (includeDeleted !== 'true') {
             docs = docs.filter(doc => (doc.data() as VideoDocument).isDeleted !== true);
         }
+        // Filter unapproved
+        docs = docs.filter(doc => (doc.data() as VideoDocument).isApproved !== false);
 
-        // memberXidフィルタリング（Firestoreではネストされた配列内フィールドを直接検索できないため、メモリ内で実施）
         if (memberXids.length > 0) {
             docs = docs.filter(doc => {
                 const data = doc.data() as VideoDocument;
@@ -269,71 +261,57 @@ export default async function handler(
             });
         }
 
-        if (videosSnapshot.empty) {
-            // If no data in Firestore, fallback to legacy API
-            // This ensures compatibility during migration
+        if (docs.length === 0 && !startAfterParam) {
+            // Fallback to legacy API during migration
             try {
                 const legacyRes = await fetch('https://pvsf-cash.vercel.app/api/videos');
                 if (legacyRes.ok) {
                     let legacyData = await legacyRes.json();
 
-                    // Filter legacy data manually
                     if (Array.isArray(legacyData)) {
-                        // Filter by eventid
                         if (eventid && typeof eventid === 'string') {
                             legacyData = legacyData.filter((v: any) =>
                                 v.eventid && v.eventid.split(',').map((e: string) => e.trim()).includes(eventid)
                             );
                         }
-
-                        // Filter by authorXid (tlink)
-                        const { authorXid } = req.query;
                         if (authorXid && typeof authorXid === 'string') {
-                            if (authorXid.includes(',')) {
-                                const xids = authorXid.split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
-                                legacyData = legacyData.filter((v: any) =>
-                                    v.tlink && xids.includes(v.tlink.toLowerCase())
-                                );
-                            } else {
-                                const targetXid = authorXid.toLowerCase();
-                                legacyData = legacyData.filter((v: any) =>
-                                    v.tlink && v.tlink.toLowerCase() === targetXid
-                                );
-                            }
+                            const targetXid = authorXid.toLowerCase();
+                            legacyData = legacyData.filter((v: any) =>
+                                v.tlink && v.tlink.toLowerCase() === targetXid
+                            );
                         }
-
-                        // Sort by date (descending) - assuming 'time' field exists
-                        legacyData.sort((a: any, b: any) => {
-                            const dateA = new Date(a.time).getTime();
-                            const dateB = new Date(b.time).getTime();
-                            return dateB - dateA;
-                        });
+                        legacyData.sort((a: any, b: any) =>
+                            new Date(b.time).getTime() - new Date(a.time).getTime()
+                        );
                     }
 
+                    if (isLegacyFormat) {
+                        return res.status(200).json(legacyData);
+                    }
                     return res.status(200).json(legacyData);
                 }
             } catch (legacyError) {
                 console.error('Legacy API fallback failed:', legacyError);
             }
-            return res.status(200).json([]);
+
+            if (isLegacyFormat) {
+                return res.status(200).json([]);
+            }
+            return res.status(200).json({ videos: [], pagination: { hasMore: false, lastDocId: null, count: 0 } });
         }
 
-        // Convert Firestore documents to legacy format
-        const videos: VideoApiResponse[] = videosSnapshot.docs.map(doc => {
+        const videos: VideoApiResponse[] = docs.map(doc => {
             const data = doc.data() as VideoDocument;
-            return convertToLegacyFormat({
-                ...data,
-                id: doc.id,
-            });
+            return convertToLegacyFormat({ ...data, id: doc.id });
         });
 
-        // ページネーション用の情報を追加
-        const lastDoc = videosSnapshot.docs.length > 0
-            ? videosSnapshot.docs[videosSnapshot.docs.length - 1]
-            : null;
-        const hasMore = videosSnapshot.docs.length === (limitParam ? parseInt(limitParam as string, 10) : 15);
+        if (isLegacyFormat) {
+            return res.status(200).json(videos);
+        }
 
-        // レスポンスにメタデータを追加（無限スクロール用）
+        const lastDoc = docs.length > 0 ? docs[docs.length - 1] : null;
+        const hasMore = docs.length === limitValue;
+
         return res.status(200).json({
             videos,
             pagination: {
@@ -346,7 +324,6 @@ export default async function handler(
     } catch (error) {
         console.error('Videos API error:', error);
 
-        // Fallback to legacy API on error
         try {
             const legacyRes = await fetch('https://pvsf-cash.vercel.app/api/videos');
             if (legacyRes.ok) {
