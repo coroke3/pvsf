@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
   images: {
+    unoptimized: true,
     // 後方互換性のため domains も残す（Next.js 15では非推奨だが動作する）
     domains: [
       "i.gyazo.com",
