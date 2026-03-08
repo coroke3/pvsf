@@ -1,8 +1,6 @@
-// Header component with login functionality
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faInstagram, faYoutube, faDiscord } from "@fortawesome/free-brands-svg-icons";
-import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
@@ -12,7 +10,6 @@ import { ThemeSwitcher } from "./ThemeSwitcher";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
-import { useAuth } from "@/contexts/AuthContext";
 
 // 外部リンクかどうかを判定する関数
 const isExternalLink = (href) => {
@@ -20,10 +17,10 @@ const isExternalLink = (href) => {
 };
 
 const menuItems = [
-  { title: "PVSF2025S", subtitle: "企画概要", href: "/page/pvsf2025s" },
-  { title: "JOIN", subtitle: "参加する", href: "/page/join" },
-  { title: "RELEASES", subtitle: "投稿予定のご案内", href: "/release" },
-  { title: "Q&A", subtitle: "質問", href: "/page/qanda" },
+  { title: "PVSF2025S", subtitle: "企画概要", href: "../../page/pvsf2025s" },
+  { title: "JOIN", subtitle: "参加する", href: "../../page/join" },
+  { title: "RELEASES", subtitle: "投稿予定のご案内", href: "../../release" },
+  { title: "Q&A", subtitle: "質問", href: "../../page/qanda" },
   { title: "ARCHIVES", subtitle: "過去の作品(外部サイト)", href: "https://archive.pvsf.jp", external: true },
 ];
 
@@ -31,68 +28,74 @@ function Header() {
   const router = useRouter();
   const [isHide, setIsHide] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const { resolvedTheme } = useTheme();
   const [imageSrc, setImageSrc] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-
-  // Auth hook
-  const { user, isAuthenticated, isLoading, login, logout, isAdmin } = useAuth();
 
   useEffect(() => {
-    // ルーター準備完了まで待機（本番ビルドでパスが正しく取れるように）
-    if (!router.isReady || typeof window === "undefined") return;
-
-    const isHomePage = router.asPath === "/" || router.asPath === "";
-
     const handleScroll = () => {
-      if (!isHomePage) {
-        setIsHide(false);
-        return;
-      }
-      // トップページ: 1画面分スクロールで表示/非表示
-      if (window.scrollY > window.innerHeight * 0.75) {
-        setIsHide(false);
-      } else {
-        setIsHide(true);
+      // パスに応じて異なるスクロール動作を設定
+      switch (router.pathname) {
+        case "/":
+          // トップページ: 1画面分スクロールで表示/非表示
+          if (window.scrollY > (window.innerHeight * 0.75)) {
+            setIsHide(false);
+          } else {
+            setIsHide(true);
+          }
+
+          // モバイル時のヘッダーバー表示/非表示
+
+          break;
+
+        default:
+          // その他のページ: 常に表示
+          setIsHide(false);
+          break;
       }
     };
 
-    // 初回状態を設定
-    if (isHomePage) {
-      handleScroll();
-      window.addEventListener("scroll", handleScroll);
+    const handleRouteChange = (url) => {
+      console.log("現在のパス:", url); // URLをログに出力
+    };
+
+    // スクロールイベントを監視するパスを指定
+    const shouldWatchScroll = ["/"].includes(router.pathname);
+    if (shouldWatchScroll) {
+      window.addEventListener('scroll', handleScroll);
     } else {
+      // その他のページでは常に表示
       setIsHide(false);
     }
 
-    const handleRouteChange = (url) => {
-      const isNowHome = url === "/" || url === "";
-      if (isNowHome) {
-        handleScroll();
-      } else {
+    // ルート変更イベントを監視
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    // 初回レンダリング時に現在のパスをログに出力
+    console.log("初期パス:", router.pathname);
+    switch (router.pathname) {
+      case "/":
+        // トップページ: 1画面分スクロールで表示/非表示
+        if (window.scrollY > window.innerHeight) {
+          setIsHide(false);
+        } else {
+          setIsHide(true);
+        }
+        break;
+
+      default:
+        // その他のページ: 常に表示
         setIsHide(false);
-      }
-    };
+        break;
+    }
 
-    router.events.on("routeChangeComplete", handleRouteChange);
-
+    // クリーンアップ
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      router.events.off("routeChangeComplete", handleRouteChange);
+      window.removeEventListener('scroll', handleScroll);
+      router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, [router.isReady, router.asPath, router.events]);
-
-  // Close user menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isUserMenuOpen && !event.target.closest('.user-menu-container')) {
-        setIsUserMenuOpen(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isUserMenuOpen]);
+  }, [router.pathname, router.events, lastScrollY]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -102,15 +105,11 @@ function Header() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const toggleUserMenu = () => {
-    setIsUserMenuOpen(!isUserMenuOpen);
-  };
-
   return (
     <header className={`site-header ${isHide ? "Hide" : ""} ${isMobileMenuOpen ? "mobile-open" : ""}`}>
       <div className="header-content">
         <div className={`logo-area `}>
-          <Link href="/">
+          <a href={"../../../"}>
 
             <p className="event-type">movie event</p>
             <div className="logo-title">
@@ -132,7 +131,7 @@ function Header() {
                 <p>映像連続投稿祭</p>
               </div>
             </div>
-          </Link>
+          </a>
         </div>
 
         <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
@@ -167,7 +166,7 @@ function Header() {
                       </div>
                     </a>
                   ) : (
-                    <Link href={item.href}>
+                    <a href={item.href}>
                       <div className="menu-title text-split">
                         {[...item.title].map((char, index) => (
                           <span key={index} data-random={index}>{char}</span>
@@ -178,72 +177,17 @@ function Header() {
                           <span key={index} data-random={index}>{char}</span>
                         ))}
                       </div>
-                    </Link>
+                    </a>
                   )}
                 </li>
               );
             })}
           </ul>
         </nav>
-
-        {/* Auth Section */}
-        <div className="auth-section">
-          {isLoading ? (
-            <div className="auth-loading">
-              <span className="loading-spinner"></span>
-            </div>
-          ) : isAuthenticated ? (
-            <div className="user-menu-container">
-              <button className="user-avatar-btn" onClick={toggleUserMenu}>
-                {user?.image ? (
-                  <Image
-                    src={user.image}
-                    alt={user.name || 'User'}
-                    width={32}
-                    height={32}
-                    className="user-avatar"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="user-avatar-placeholder">
-                    <FontAwesomeIcon icon={faUser} />
-                  </div>
-                )}
-              </button>
-              {isUserMenuOpen && (
-                <div className="user-dropdown">
-                  <div className="user-info">
-                    <span className="user-name">{user?.name}</span>
-                    {isAdmin && <span className="admin-badge">Admin</span>}
-                  </div>
-                  <div className="dropdown-divider"></div>
-                  <Link href="/profile" className="dropdown-item">
-                    <FontAwesomeIcon icon={faUser} />
-                    プロフィール
-                  </Link>
-                  {isAdmin && (
-                    <Link href="/admin" className="dropdown-item">
-                      <FontAwesomeIcon icon={faUser} />
-                      管理画面
-                    </Link>
-                  )}
-                  <button className="dropdown-item logout-btn" onClick={logout}>
-                    <FontAwesomeIcon icon={faSignOutAlt} />
-                    ログアウト
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button className="login-btn" onClick={login}>
-              <FontAwesomeIcon icon={faDiscord} />
-              <span>ログイン</span>
-            </button>
-          )}
-        </div>
       </div>
     </header>
   );
 }
 
 export default Header;
+
