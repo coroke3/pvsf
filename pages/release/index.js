@@ -1,11 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/release.module.css";
 import { css } from "@emotion/react";
 import Head from "next/head";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
@@ -13,36 +12,24 @@ import { useRouter } from "next/router";
 
 const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJPFEyi1zr0h6w0oQ0KoURc';
 
-// HTML やエラーページを返された場合に備えた安全な JSON パース
-async function safeParseJson(res) {
-  const text = await res.text();
-  const contentType = res.headers.get("content-type") || "";
-  if (!contentType.includes("application/json") && text.trimStart().startsWith("<")) {
-    return null;
-  }
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
 export const getStaticProps = async () => {
   // リリースデータの取得
   const releaseRes = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const release = await safeParseJson(releaseRes) || [];
+  const release = await releaseRes.json();
 
   let usernames = [];
   try {
+    // ユーザーIDのリストを取得
     const usersRes = await fetch("https://pvsf-cash.vercel.app/api/users");
-    const users = await safeParseJson(usersRes);
-    if (Array.isArray(users)) {
-      usernames = users.map(user => user.username);
-    }
+    const users = await usersRes.json();
+
+    // ユーザー名の配列を作成
+    usernames = users.map(user => user.username);
   } catch (error) {
     console.error("Failed to fetch users:", error);
+    // エラーが発生した場合は空の配列を使用
   }
 
   return {
@@ -175,12 +162,9 @@ export default function Releases({ release, usernames }) {
                       onClick={(e) => e.stopPropagation()}
                       className={styles.iconLink}
                     >
-                      <Image
+                      <img
                         src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
                         alt={release.creator}
-                        width={100}
-                        height={100}
-                        unoptimized
                         className={styles.memberIcon}
                       />
                     </a>
@@ -240,13 +224,10 @@ export default function Releases({ release, usernames }) {
                     onClick={(e) => e.stopPropagation()}
                     className={styles.iconLink}
                   >
-                    <Image
+                    <img
                       src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
                       alt={release.creator}
-                      width={100}
-                      height={100}
                       className={styles.groupIcon}
-                      unoptimized
                     />
                   </a>
                   <div className={styles.groupInfo}>
@@ -320,8 +301,8 @@ export default function Releases({ release, usernames }) {
     const [contentWidth, setContentWidth] = useState(0);
 
     // メンバー情報の取得
-    const members = useMemo(() => release.member ? release.member.split(',') : [], [release.member]);
-    const memberIds = useMemo(() => release.memberid ? release.memberid.split(',') : [], [release.memberid]);
+    const members = release.member ? release.member.split(',') : [];
+    const memberIds = release.memberid ? release.memberid.split(',') : [];
     const iconUrl = `https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`;
 
     useEffect(() => {
@@ -390,14 +371,7 @@ export default function Releases({ release, usernames }) {
                 <div className={`${styles.type} ${styles[release.type1]} `}>{release.type1}</div>
                 <div className={`${styles.type} ${styles[release.type2]}`}>{release.type2}</div>
               </span>
-              <Image
-                src={iconUrl}
-                alt={release.title}
-                width={100}
-                height={100}
-                className={styles.icon}
-                unoptimized
-              />
+              <img src={iconUrl} alt={release.title} className={styles.icon} />
               <span className={styles.listCreator}>{release.creator}</span>
               <span className={styles.listTitle}>{release.title}</span>
               <div className={styles.listActions}>
@@ -491,13 +465,7 @@ export default function Releases({ release, usernames }) {
                       backgroundImage: `url(${iconUrl})`,
                     }}
                   >
-                    <Image
-                      src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png"
-                      alt=""
-                      width={800}
-                      height={600}
-                      unoptimized
-                    />
+                    <img src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" />
                   </div>
                 </a>
               </div>

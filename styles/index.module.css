@@ -52,8 +52,8 @@
 }
 
 .topms1 h2 span {
-  color: #fff;
-  background-color: var(--color-spring-navy);
+  color: #ffffff;
+  background-color: #000000;
   border: solid 1px var(--foreground);
   padding: 5px;
 }
@@ -102,9 +102,7 @@
   top: 0px;
   z-index: 1;
   position: absolute;
-  /* Light overlay for contrast with dark text */
-  background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(2px);
+  background-color: #0000003c;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -291,7 +289,7 @@
 }
 
 .titlebox {
-  border: 2px solid var(--color-spring-navy);
+  border: 2px solid #000;
   padding: 1px 2rem;
 }
 
@@ -320,7 +318,7 @@
   position: relative;
   width: 2px;
   height: 0;
-  background: var(--color-spring-navy);
+  background: #000;
   margin: 0 1rem;
   transition: height 1s ease;
 }
@@ -337,8 +335,8 @@
   bottom: 0;
   width: 10px;
   height: 10px;
-  border-top: 2px solid var(--color-spring-navy);
-  border-right: 2px solid var(--color-spring-navy);
+  border-top: 2px solid #000;
+  border-right: 2px solid #000;
   transform: rotate(135deg);
   opacity: 0;
   transition: opacity 0.3s ease;

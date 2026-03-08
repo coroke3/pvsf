@@ -1,7 +1,6 @@
 // pages/index.js
 import Link from "next/link";
 import Head from "next/head";
-import Image from "next/image";
 import { client } from "../libs/client";
 import { createClient } from "microcms-js-sdk";
 import Footer from "../components/Footer";
@@ -17,7 +16,7 @@ const nextDates = [
   { date: "03/29", year: "2026", day: "Sun" },
 ];
 
-export default function Home({ blog = [], top = {} }) {
+export default function Home({ blog, top }) {
   const [isHide, setIsHide] = useState(true);
   const [activeItems, setActiveItems] = useState(new Set());
   const aboutItemRefs = useRef([]);
@@ -189,13 +188,12 @@ export default function Home({ blog = [], top = {} }) {
             >
               <div className={styles.blogImageWrapper}>
                 {item.image ? (
-                  <Image
+                  <img
                     src={item.image.url}
-                    alt={item.article?.title || 'ブログ画像'}
-                    width={item.image.width || 400}
-                    height={item.image.height || 300}
+                    alt=""
+                    width={item.image.width}
+                    height={item.image.height}
                     className={styles.blogImage}
-                    unoptimized
                   />
                 ) : (
                   <div className={styles.noImage}>No Image</div>

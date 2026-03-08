@@ -1,4 +1,4 @@
-// Vercel optimized - uses Node.js runtime by default
+export const runtime = 'experimental-edge';
 
 import SitemapComponent from '../components/Sitemap';
 import { getAllWorkIds } from "../libs/work";

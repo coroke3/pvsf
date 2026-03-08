@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Head from "next/head";
-import Image from "next/image";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/releases.module.css";
@@ -10,29 +9,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faYoutube, faTiktok } from "@fortawesome/free-brands-svg-icons";
 import { faUser, faClock as faClockSolid, faCalendarDays as faCalendarSolid, faGlobe, faVideo, faPlay, faExternalLinkAlt, faFilm, faTrophy } from "@fortawesome/free-solid-svg-icons";
 
-// HTML やエラーページを返された場合に備えた安全な JSON パース
-async function safeParseJson(res) {
-  const text = await res.text();
-  const contentType = res.headers.get("content-type") || "";
-  if (!contentType.includes("application/json") && text.trimStart().startsWith("<")) {
-    return null; // HTML の場合は null
-  }
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
 // 静的ページの生成に必要なパスを取得
 export async function getStaticPaths() {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const works = await safeParseJson(res);
-  if (!works || !Array.isArray(works)) {
-    return { paths: [], fallback: "blocking" };
-  }
+  const works = await res.json();
 
   // 有効なIDのみを対象にし、重複を排除
   const seen = new Set();
@@ -47,16 +29,11 @@ export async function getStaticPaths() {
       seen.add(id);
       return true;
     })
-    .map((id) => ({
-      params: {
-        // Encode the ID to avoid filesystem issues with characters like ':'
-        id: encodeURIComponent(id)
-      }
-    }));
+    .map((id) => ({ params: { id } }));
 
   return {
     paths,
-    fallback: "blocking" // Allow on-demand rendering for new paths
+    fallback: false // 未定義のパスは404
   };
 }
 
@@ -65,16 +42,10 @@ export async function getStaticProps({ params }) {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
-  const works = await safeParseJson(res);
-  if (!works || !Array.isArray(works)) {
-    return { notFound: true };
-  }
-
-  // Decode the URL-encoded ID to match against original timestamps
-  const decodedId = decodeURIComponent(params.id);
+  const works = await res.json();
 
   const release = works.find(
-    (work) => work.timestamp.toString() === decodedId
+    (work) => work.timestamp.toString() === params.id
   );
 
   if (!release) {
@@ -88,11 +59,13 @@ export async function getStaticProps({ params }) {
   try {
     const usersRes = await fetch("https://pvsf-cash.vercel.app/api/users");
     if (usersRes.ok) {
-      const data = await safeParseJson(usersRes);
-      externalUsers = Array.isArray(data) ? data : [];
+      externalUsers = await usersRes.json();
+      // デバッグ用：最初の3ユーザーの情報を出力
+      if (externalUsers.length > 0) {
+      }
+    } else {
     }
   } catch (error) {
-    // エラー時は空配列のまま
   }
 
   // PVSF動画データを取得
@@ -100,16 +73,15 @@ export async function getStaticProps({ params }) {
   try {
     const videosRes = await fetch("https://pvsf-cash.vercel.app/api/videos");
     if (videosRes.ok) {
-      const allVideos = await safeParseJson(videosRes);
-      if (Array.isArray(allVideos)) {
-        pvsfVideos = allVideos.filter(video =>
-          (!video.eventid || !video.eventid.includes("PVSFSummary")) &&
-          (!video.status || video.status !== "private")
-        );
-      }
+      const allVideos = await videosRes.json();
+      // eventidに"PVSFSummary"が含まれるものと、statusが"private"のものを除外
+      pvsfVideos = allVideos.filter(video =>
+        (!video.eventid || !video.eventid.includes("PVSFSummary")) &&
+        (!video.status || video.status !== "private")
+      );
+    } else {
     }
   } catch (error) {
-    // エラー時は空配列のまま
   }
 
   return {
@@ -312,13 +284,10 @@ const MediaContent = ({ release, styles }) => {
   }
 
   return (
-    <Image
+    <img
       src="https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"
       className={styles.yf}
       alt="デフォルト画像"
-      width={800}
-      height={600}
-      unoptimized
     />
   );
 };
@@ -328,13 +297,10 @@ const UserInfo = ({ release, styles }) => {
   return (
     <div className={styles.userinfo}>
       {release.icon && (
-        <Image
+        <img
           src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
-          alt={`${release.creator || release.title || 'アイコン'}`}
-          width={100}
-          height={100}
           className={styles.icon}
-          unoptimized
+          alt={`${release.creator} アイコン`}
         />
       )}
 
@@ -446,23 +412,17 @@ const MemberTable = ({ memberInfo, styles }) => {
                 <td>{index + 1}</td>
                 <td className={styles.memberIconCell}>
                   {externalUser?.processedIconUrl ? (
-                    <Image
+                    <img
                       src={externalUser.processedIconUrl}
                       alt={`${username.trim()} アイコン`}
-                      width={50}
-                      height={50}
                       className={styles.memberIcon}
-                      tabIndex={0}
+                      tabIndex="0"
                       role="img"
                       aria-label={`${username.trim()}のプロフィール画像`}
                       onError={(e) => {
-                        const img = e.target;
-                        if (img && img.nextSibling) {
-                          img.style.display = 'none';
-                          img.nextSibling.style.display = 'flex';
-                        }
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
                       }}
-                      unoptimized
                     />
                   ) : null}
                   <div
@@ -550,19 +510,13 @@ const MemberTable = ({ memberInfo, styles }) => {
 
             <div className={styles.memberCardIcon}>
               {externalUser?.processedIconUrl ? (
-                <Image
+                <img
                   src={externalUser.processedIconUrl}
                   alt={`${username.trim()} アイコン`}
-                  width={50}
-                  height={50}
                   onError={(e) => {
-                    const img = e.target;
-                    if (img && img.nextSibling) {
-                      img.style.display = 'none';
-                      img.nextSibling.style.display = 'flex';
-                    }
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
                   }}
-                  unoptimized
                 />
               ) : null}
               <div
@@ -828,13 +782,10 @@ const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
             aria-label={`${currentRelease.creator}の${work.participationType === 'collaboration' ? '合作参加' : '個人'}作品: ${work.title}`}
           >
             <div className={styles.pastWorkThumbnail}>
-              <Image
+              <img
                 src={work.smallThumbnail || work.largeThumbnail || "https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"}
                 alt={`${work.title} サムネイル`}
-                width={320}
-                height={180}
                 className={styles.pastWorkImage}
-                unoptimized
               />
               <div className={styles.pastWorkOverlay} aria-hidden="true">
                 <FontAwesomeIcon icon={work.participationType === 'collaboration' ? faTrophy : faFilm} className={styles.pastWorkPlayIcon} />
@@ -929,13 +880,10 @@ const MemberPastWorks = ({ memberPastWorks, styles }) => {
                   aria-label={`${memberWork.memberName}の${work.participationType === 'collaboration' ? '合作参加' : '個人'}作品: ${work.title}`}
                 >
                   <div className={styles.pastWorkThumbnail}>
-                    <Image
+                    <img
                       src={work.smallThumbnail || work.largeThumbnail || "https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"}
                       alt={`${work.title} サムネイル`}
-                      width={320}
-                      height={180}
                       className={styles.pastWorkImage}
-                      unoptimized
                     />
                     <div className={styles.pastWorkOverlay} aria-hidden="true">
                       <FontAwesomeIcon icon={work.participationType === 'collaboration' ? faTrophy : faFilm} className={styles.pastWorkPlayIcon} />
@@ -1005,13 +953,10 @@ const WorksNavigation = ({ works, currentId, styles }) => {
 
               <div className={styles.navigationWorkInfo}>
                 {work.icon && (
-                  <Image
+                  <img
                     src={`https://lh3.googleusercontent.com/d/${work.icon.slice(33)}`}
                     className={styles.navigationIcon}
                     alt={`${work.creator} アイコン`}
-                    width={50}
-                    height={50}
-                    unoptimized
                   />
                 )}
                 <span className={styles.navigationCreator}>{work.creator}</span>

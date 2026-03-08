@@ -6,24 +6,17 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
-import ErrorBoundary from "@/components/ErrorBoundary";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
-import { SessionProvider } from 'next-auth/react';
-import { AuthProvider } from '@/contexts/AuthContext';
 config.autoAddCss = false
 
-function MyApp({ Component, pageProps: { session, ...pageProps } }) {
+function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
     const handleRouterChange = (url) => {
-      try {
-        gtag.pageview(url);
-      } catch (e) {
-        // gtag 未設定時は無視
-      }
+      gtag.pageview(url);
     };
     router.events.on("routeChangeComplete", handleRouterChange);
     return () => {
@@ -50,41 +43,32 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   }, [router.events, scrollPosition]);
 
   return (
-    <SessionProvider session={session}>
-      <AuthProvider>
-        <Head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-        </Head>
-        <Analytics />
-        {gtag.GA_MEASUREMENT_ID && (
-          <>
-            <Script
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}
-            />
-            <Script
-              id="gtag-init"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${gtag.GA_MEASUREMENT_ID}');
-              `,
-              }}
-            />
-          </>
-        )}
-        <Layout>
-          <ErrorBoundary>
-            <Component {...pageProps} />
-          </ErrorBoundary>
-        </Layout>
-      </AuthProvider>
-    </SessionProvider>
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <Analytics />
+      <Script
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}
+      />
+      <Script
+        id="gtag-init"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gtag.GA_MEASUREMENT_ID}');
+          `,
+        }}
+      />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </>
   );
 }
 
 export default MyApp;
-
