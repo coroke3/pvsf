@@ -376,11 +376,11 @@ table th {
 }
 
 figure {
-  margin: 0px;
+  margin: 20px;
 }
 
 figure img {
-  width: 100%;
+  width: 50%;
   height: auto;
 }
 
