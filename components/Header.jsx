@@ -17,7 +17,7 @@ const isExternalLink = (href) => {
 };
 
 const menuItems = [
-  { title: "PVSF2025S", subtitle: "企画概要", href: "../../page/pvsf2025s" },
+  { title: "PVSF2026Sp", subtitle: "企画概要", href: "../../page/pvsf2026sp" },
   { title: "JOIN", subtitle: "参加する", href: "../../page/join" },
   { title: "RELEASES", subtitle: "投稿予定のご案内", href: "../../release" },
   { title: "Q&A", subtitle: "質問", href: "../../page/qanda" },
