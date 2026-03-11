@@ -4,7 +4,6 @@ import Script from "next/script";
 import * as gtag from "../libs/gtag";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import Layout from "@/components/Layout";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
@@ -47,7 +46,6 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Analytics />
       <Script
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`}

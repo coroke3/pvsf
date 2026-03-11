@@ -91,7 +91,6 @@ export async function getStaticProps({ params }) {
       externalUsers,
       pvsfVideos
     },
-    revalidate: 60
   };
 }
 

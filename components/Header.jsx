@@ -7,7 +7,7 @@ import { Divider } from "@nextui-org/divider";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import Image from "next/image";
+
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 

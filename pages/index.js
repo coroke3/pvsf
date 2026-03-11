@@ -15,7 +15,6 @@ const nextDates = [
   { date: "03/27", year: "2026", day: "Fri" },
   { date: "03/29", year: "2026", day: "Sun" },
 ];
-
 export default function Home({ blog, top }) {
   const [isHide, setIsHide] = useState(true);
   const [activeItems, setActiveItems] = useState(new Set());
@@ -237,7 +236,6 @@ export async function getStaticProps() {
         top: topData, // オブジェクト形式のデータ
         blog: blogData.contents,
       },
-      revalidate: 60,
     };
   } catch (error) {
     console.error('Data fetching error:', error);
@@ -246,7 +244,6 @@ export async function getStaticProps() {
         top: {}, // エラー時は空オブジェクト
         blog: [],
       },
-      revalidate: 60,
     };
   }
 }
