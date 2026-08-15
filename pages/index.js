@@ -12,8 +12,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 const nextDates = [
-  { date: "03/27", year: "2026", day: "Fri" },
-  { date: "03/29", year: "2026", day: "Sun" },
+  { date: "08/27", year: "2026", day: "Thu" },
+  { date: "08/29", year: "2026", day: "Sat" },
 ];
 export default function Home({ blog, top }) {
   const [isHide, setIsHide] = useState(true);

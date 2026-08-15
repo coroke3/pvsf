@@ -21,7 +21,7 @@ const menuItems = [
   { title: "JOIN", subtitle: "参加する", href: "../../page/join" },
   { title: "RELEASES", subtitle: "投稿予定のご案内", href: "../../release" },
   { title: "Q&A", subtitle: "質問", href: "../../page/qanda" },
-  { title: "ARCHIVES", subtitle: "過去の作品(外部サイト)", href: "https://archive.pvsf.jp", external: true },
+  { title: "FlameNode", subtitle: "作品(外部サイト)", href: "https://flamenode.net", external: true },
 ];
 
 function Header() {
