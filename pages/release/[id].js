@@ -8,9 +8,10 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faYoutube, faTiktok } from "@fortawesome/free-brands-svg-icons";
 import { faUser, faClock as faClockSolid, faCalendarDays as faCalendarSolid, faGlobe, faVideo, faPlay, faExternalLinkAlt, faFilm, faTrophy } from "@fortawesome/free-solid-svg-icons";
+import { fetchFlameNodeRelease } from "../../libs/flamenodeRelease";
 
 // 静的ページの生成に必要なパスを取得
-export async function getStaticPaths() {
+async function legacyGetStaticPaths() {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
@@ -38,7 +39,7 @@ export async function getStaticPaths() {
 }
 
 // ページのプロパティを取得
-export async function getStaticProps({ params }) {
+async function legacyGetStaticProps({ params }) {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
   );
@@ -93,6 +94,23 @@ export async function getStaticProps({ params }) {
     },
   };
 }
+
+export async function getStaticPaths() {
+  const { release } = await fetchFlameNodeRelease();
+  return {
+    paths: release.map((work) => ({ params: { id: String(work.id) } })),
+    fallback: false,
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const { release: works } = await fetchFlameNodeRelease();
+  const release = works.find((work) => String(work.id) === String(params.id));
+  if (!release) return { notFound: true };
+  return { props: { release, works, externalUsers: [], pvsfVideos: works } };
+}
+void legacyGetStaticPaths;
+void legacyGetStaticProps;
 
 // YouTube動画IDを抽出するヘルパー関数
 const extractYouTubeId = (url) => {

@@ -9,10 +9,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { useRouter } from "next/router";
+import { fetchFlameNodeRelease } from "../../libs/flamenodeRelease";
 
 const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJPFEyi1zr0h6w0oQ0KoURc';
 
-export const getStaticProps = async () => {
+const legacyGetStaticProps = async () => {
   // リリースデータの取得
   const releaseRes = await fetch(
     "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
@@ -39,6 +40,12 @@ export const getStaticProps = async () => {
     },
   };
 };
+
+export const getStaticProps = async () => {
+  const { release, usernames } = await fetchFlameNodeRelease();
+  return { props: { release, usernames } };
+};
+void legacyGetStaticProps;
 
 export default function Releases({ release, usernames }) {
   const router = useRouter();
