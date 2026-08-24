@@ -439,17 +439,23 @@ a {
 }
 
 
-/* イベント管理者のレイアウト */
+/* FlameNode公開スタッフのレイアウト */
 .event-manage {
   width: 100%;
   margin: 20px 0;
+}
+
+.manager-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 20px;
+  width: 100%;
 }
 
 .manager {
   display: flex;
   align-items: flex-start;
   gap: 1.5rem;
-  margin: 0px 0;
   padding: 1.5rem;
   border-radius: 8px;
   background: var(--color-bg-hero2);
@@ -466,165 +472,59 @@ a {
 
 .manager-info {
   flex: 1;
+  min-width: 0;
 }
 
 .manager h4 {
-  margin: 0 0 0 0;
-  font-size: 1.4rem;
+  margin: 0;
+  font-size: 1.2rem;
   font-family: var(--font-title);
+  overflow-wrap: anywhere;
 }
 
-.ja-name {
-  margin: 0.25rem 0;
-  font-size: 0.7rem;
-  opacity: 0.8;
+.manager-account-name,
+.manager-role {
+  margin: 0.35rem 0;
   font-family: var(--font-jp);
-  font-weight: 400;
-}
-
-.manager-types {
-  display: flex;
-  gap: 0.5rem;
-  margin: 0.5rem 0;
-}
-
-.manager.manager-col-2 .manager-types {
-  margin: 0.4rem 0;
-}
-
-.manager.manager-col-3 .manager-types {
-  margin: 0.3rem 0;
-}
-
-.type-badgeen {
-  border-radius: 4px;
-  font-family: var(--font-title);
   font-size: 0.8rem;
 }
 
-.type-badgeja {
-  border-radius: 4px;
-  font-family: var(--font-jp);
-  font-size: 0.6rem;
+.manager-account-name {
+  opacity: 0.8;
 }
 
-.social-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.social-links a {
+.manager-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
   color: var(--background);
   font-size: 0.9rem;
   transition: opacity 0.2s ease;
+  overflow-wrap: anywhere;
 }
 
-.social-links a:hover {
+.manager-social-link:hover {
   opacity: 0.7;
 }
 
-.manager-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  width: 100%;
+.manager-status {
+  margin: 0.5rem 0;
 }
 
-/* 1列レイアウト */
-.manager.manager-col-1 {
-  width: 100%;
-}
-
-/* 2列レイアウト */
-.manager.manager-col-2 {
-  width: calc(50% - 60px);
-}
-
-/* 3列レイアウト */
-.manager.manager-col-3 {
-  width: calc(33.333% - 65px);
-}
-
-.manager.manager-col-2 h4 {
-  font-size: 1.2rem;
-}
-
-.manager.manager-col-3 h4 {
-  font-size: 0.8rem;
-}
-
-.manager.manager-col-2 .ja-name,
-.manager.manager-col-2 .type-badgeen,
-.manager.manager-col-2 .social-links a {
-  font-size: 0.8rem;
-}
-
-.manager.manager-col-3 .ja-name,
-.manager.manager-col-3 .type-badgeen,
-.manager.manager-col-3 .social-links a {
-  font-size: 0.6rem;
-}
-
-.manager.manager-col-2 img {
-  width: 70px;
-  height: 70px;
-}
-
-.manager.manager-col-3 img {
-  width: 55px;
-  height: 55px;
-}
-
-/* レスポンシブ対応 */
-@media screen and (max-width: 1000px) {}
-
-@media screen and (max-width: 768px) {
-
-  .manager.manager-col-2 {
-    width: 100%;
-  }
-
-  .manager.manager-col-3 {
-    width: calc(50% - 60px);
-    ;
-  }
-
+.manager-status-error {
+  color: #b42318;
 }
 
 @media screen and (max-width: 508px) {
-
-  .manager.manager-col-3 {
-    width: 100%;
+  .manager {
+    gap: 1rem;
+    padding: 1rem;
   }
 
-  .manager.manager-col-2 h4 {
-    font-size: 1rem;
-  }
-
-  .manager.manager-col-3 h4 {
-    font-size: 0.7rem;
-  }
-
-  .manager.manager-col-2 .ja-name,
-  .manager.manager-col-2 .type-badgeen,
-  .manager.manager-col-2 .social-links a {
-    font-size: 0.7rem;
-  }
-
-  .manager.manager-col-3 .ja-name,
-  .manager.manager-col-3 .type-badgeen,
-  .manager.manager-col-3 .social-links a {
-    font-size: 0.6rem;
-  }
-
-  .manager.manager-col-2 img {
+  .manager img {
     width: 60px;
     height: 60px;
-  }
-
-  .manager.manager-col-3 img {
-    width: 50px;
-    height: 50px;
   }
 }
 

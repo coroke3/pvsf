@@ -1,32 +1,100 @@
 // pages/blog/[id].js
-import Link from "next/link";
 import { client } from "../../libs/client";
 import Footer from "../../components/Footer";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { faDiscord } from "@fortawesome/free-brands-svg-icons";
-import { faGlobe } from "@fortawesome/free-solid-svg-icons";
-import { createClient } from "microcms-js-sdk";
 import Head from "next/head";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useRef, useEffect } from 'react';
 import { faChevronLeft, faChevronRight, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { fetchFlameNodeStaff } from "../../libs/flamenodeStaff";
 
-// 列数を判定する関数を上部に移動
-const getColumnClass = (caste) => {
-  // casteが配列なので、最初の要素を取得
-  const casteValue = Array.isArray(caste) ? caste[0] : caste;
+function EventStaff({ eventId }) {
+  const normalizedEventId = typeof eventId === "string" ? eventId.trim() : "";
+  const [state, setState] = useState(() => ({
+    status: normalizedEventId ? "loading" : "error",
+    staff: [],
+  }));
 
-  switch (casteValue) {
-    case "1列": return "manager-col-1";
-    case "2列": return "manager-col-2";
-    case "3列": return "manager-col-3";
-    default: return "manager-col-1"; // デフォルトは1列
-  }
-};
+  useEffect(() => {
+    const controller = new AbortController();
+    let active = true;
 
-export default function PageId({ page, top }) {
+    if (!normalizedEventId) {
+      setState({ status: "error", staff: [] });
+      return () => {
+        active = false;
+        controller.abort();
+      };
+    }
+
+    setState({ status: "loading", staff: [] });
+    fetchFlameNodeStaff(normalizedEventId, { signal: controller.signal })
+      .then(({ staff }) => {
+        if (active) setState({ status: "ready", staff });
+      })
+      .catch((error) => {
+        if (!active || error?.name === "AbortError") return;
+        console.error(`[event-staff] failed to load ${normalizedEventId}`, error);
+        setState({ status: "error", staff: [] });
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [normalizedEventId]);
+
+  return (
+    <section className="event-manage" aria-label="運営メンバー">
+      <h2>運営メンバー</h2>
+      {state.status === "loading" && (
+        <p className="manager-status" role="status">運営情報を読み込んでいます。</p>
+      )}
+      {state.status === "error" && (
+        <p className="manager-status manager-status-error" role="alert">
+          運営情報を現在取得できません。
+        </p>
+      )}
+      {state.status === "ready" && state.staff.length === 0 && (
+        <p className="manager-status">公開中の運営情報はありません。</p>
+      )}
+      {state.status === "ready" && state.staff.length > 0 && (
+        <div className="manager-container">
+          {state.staff.map((staff, index) => (
+            <article className="manager" key={`${staff.xId || staff.displayName}-${index}`}>
+              {staff.iconUrl && (
+                <img src={staff.iconUrl} alt="" loading="lazy" />
+              )}
+              <div className="manager-info">
+                <h4>{staff.displayName}</h4>
+                {staff.xName && staff.xName !== staff.displayName && (
+                  <p className="manager-account-name">{staff.xName}</p>
+                )}
+                {staff.roleLabel && (
+                  <p className="manager-role">{staff.roleLabel}</p>
+                )}
+                {staff.xUrl && (
+                  <a
+                    className="manager-social-link"
+                    href={staff.xUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${staff.displayName}のXプロフィール`}
+                  >
+                    <FontAwesomeIcon icon={faXTwitter} />
+                    {staff.xId && <span>@{staff.xId}</span>}
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+export default function PageId({ page }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const scrollContainerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -261,121 +329,11 @@ export default function PageId({ page, top }) {
               );
 
             case "managementid":
-              const eventId = content.eventid;
-              const eventManage = top.management?.customcontent?.find(
-                (item) => item.fieldId === "eventmanage" && item.eventid === eventId
-              );
-
-              return (
-                <div key={index} className="event-manage">
-                  {eventManage ? (
-                    <>
-                      <h2>運営メンバー</h2>
-                      <div className="manager-container">
-                        {eventManage.manager.map((manager, mIndex) => (
-                          <div key={mIndex} className={`manager ${getColumnClass(manager.caste)}`}>
-                            {manager.icon && (
-                              <img src={manager.icon} alt={manager.name} />
-                            )}
-                            <div className="manager-info">
-                              <h4>{manager.name} {manager.janame && <span className="ja-name">{manager.janame}</span>}</h4>
-                              <div className="manager-types">
-                                {manager.entype && manager.entype.length > 0 && (
-                                  <span className="type-badgeen">
-                                    {manager.entype.join(" / ")}
-                                  </span>
-                                )}
-                                {manager.jatype && manager.jatype.length > 0 && (
-                                  <span className="type-badgeja">
-                                    {manager.jatype.join(" / ")}
-                                  </span>
-                                )}
-                              </div>
-                              {manager.link && (
-                                <div className="social-links">
-                                  {manager.link.map((link, lIndex) => {
-                                    const icon = {
-                                      faXTwitter,
-                                      faInstagram,
-                                      faYoutube,
-                                      faDiscord,
-                                      faGlobe
-                                    }[link.iconid[0]];
-                                    return (
-                                      <a key={lIndex} href={link.iconlink} target="_blank" rel="noopener noreferrer">
-                                        <FontAwesomeIcon icon={icon} />
-                                      </a>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <p><Link href={`../page/${top.management.path}`}>運営一覧ページ {"->"}</Link></p>
-                    </>
-                  ) : (
-                    <div>
-                      <h3>管理情報が見つかりません</h3>
-                      <p>トップデータを表示します。</p>
-                      <pre>{JSON.stringify(top, null, 2)}</pre>
-                    </div>
-                  )}
-                </div>
-              );
+              return <EventStaff key={`${index}:${content.eventid || ''}`} eventId={content.eventid} />;
 
             case "eventmanage":
-              return (
-                <div key={index} className="event-manage">
-                  <h3>{content.eventname}</h3>
-                  <div className="manager-container">
-                    {content.manager.map((manager, mIndex) => (
-                      <div key={mIndex} className={`manager ${getColumnClass(manager.caste)}`}>
-                        {manager.icon && (
-                          <img src={manager.icon} alt={manager.name} />
-                        )}
-                        <div className="manager-info">
-                          <h4>{manager.name} {manager.janame && <span className="ja-name">{manager.janame}</span>}</h4>
-
-                          <div className="manager-types">
-                            {/* 英語の役職を / で区切って表示 */}
-                            {manager.entype && manager.entype.length > 0 && (
-                              <span className="type-badgeen">
-                                {manager.entype.join(" / ")}
-                              </span>
-                            )}
-                            {/* 日本語の役職を / で区切って表示 */}
-                            {manager.jatype && manager.jatype.length > 0 && (
-                              <span className="type-badgeja">
-                                {manager.jatype.join(" / ")}
-                              </span>
-                            )}
-                          </div>
-                          {manager.link && (
-                            <div className="social-links">
-                              {manager.link.map((link, lIndex) => {
-                                const icon = {
-                                  faXTwitter,
-                                  faInstagram,
-                                  faYoutube,
-                                  faDiscord,
-                                  faGlobe
-                                }[link.iconid[0]];
-                                return (
-                                  <a key={lIndex} href={link.iconlink} target="_blank" rel="noopener noreferrer">
-                                    <FontAwesomeIcon icon={icon} />
-                                  </a>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
+              // 旧microCMS managerデータは公開画面へ戻さない。
+              return null;
 
             default:
               // その他のフィールドタイプの場合はJSON形式で表示
@@ -437,17 +395,17 @@ export const getStaticProps = async (context) => {
     const pageByPath = allData.contents.find(content => content.path === idOrPath);
 
     // pathで見つかった場合はそのデータを使用、見つからない場合はIDで検索
-    const pageData = pageByPath || await client.get({ endpoint: "page", contentId: idOrPath });
-
-    // topデータを取得（contentIdを指定しない）
-    const topData = await client.get({
-      endpoint: 'top'
-    });
+    const rawPageData = pageByPath || await client.get({ endpoint: "page", contentId: idOrPath });
+    const pageData = {
+      ...rawPageData,
+      customcontent: Array.isArray(rawPageData.customcontent)
+        ? rawPageData.customcontent.filter((content) => content.fieldId !== "eventmanage")
+        : rawPageData.customcontent,
+    };
 
     return {
       props: {
         page: pageData,
-        top: topData,
       },
     };
   } catch (error) {
@@ -463,7 +421,6 @@ export const getStaticProps = async (context) => {
     return {
       props: {
         page: {},
-        top: {},
       },
     };
   }
