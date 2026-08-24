@@ -1,6 +1,29 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { adaptFlameNodeRelease, fetchFlameNodeRelease } from "./flamenodeRelease.js";
+import {
+  adaptFlameNodeRelease,
+  adaptLegacyRelease,
+  extractYouTubeVideoId,
+  fetchFlameNodeRelease,
+  getReleaseIconUrl,
+  releasePath,
+} from "./flamenodeRelease.js";
+
+test("release URL helpers reject malformed values without creating broken links", () => {
+  assert.equal(extractYouTubeVideoId("https://www.youtube.com/watch?v=dQw4w9WgXcQ"), "dQw4w9WgXcQ");
+  assert.equal(extractYouTubeVideoId("https://youtu.be/dQw4w9WgXcQ?t=12"), "dQw4w9WgXcQ");
+  assert.equal(extractYouTubeVideoId("https://example.test/video"), null);
+  assert.equal(getReleaseIconUrl("javascript:alert(1)"), null);
+  assert.equal(getReleaseIconUrl("https://drive.google.com/open?id=drive_id"), "https://lh3.googleusercontent.com/d/drive_id");
+  assert.equal(releasePath("work/a"), "/release/work%2Fa");
+  assert.equal(releasePath(""), null);
+});
+
+test("legacy fallback adapter drops rows without a stable release id", () => {
+  const result = adaptLegacyRelease([{ timestamp: "work-1", title: "作品" }, { title: "invalid" }]);
+  assert.equal(result.release.length, 1);
+  assert.equal(result.release[0].id, "work-1");
+});
 
 test("FlameNode release payload maps to the legacy PVSF view model", () => {
   const result = adaptFlameNodeRelease({

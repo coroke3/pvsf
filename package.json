@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:pages": "next build && next-sitemap --config next-sitemap.config.js && mv out .open-next",
+    "deploy:pages": "npm run build && npx wrangler pages deploy out --project-name pvsf",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint"

@@ -2,16 +2,27 @@ import Link from "next/link";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../styles/release.module.css";
-import { css } from "@emotion/react";
 import Head from "next/head";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faImage, faUser, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { useRouter } from "next/router";
-import { fetchFlameNodeRelease } from "../../libs/flamenodeRelease";
+import {
+  extractYouTubeVideoId,
+  fetchReleaseSnapshot,
+  getReleaseIconUrl,
+  profilePath,
+  releasePath,
+} from "../../libs/flamenodeRelease";
 
 const YOUTUBE_PLAYLIST_ID = 'PLhxvXoQxAfWJPFEyi1zr0h6w0oQ0KoURc';
+
+const typeClassName = (value, styles) => {
+  if (value === "複数人") return styles.typeGroup;
+  if (value === "個人") return styles.typeIndividual;
+  return styles.typeDefault;
+};
 
 const legacyGetStaticProps = async () => {
   // リリースデータの取得
@@ -42,12 +53,17 @@ const legacyGetStaticProps = async () => {
 };
 
 export const getStaticProps = async () => {
-  const { release, usernames } = await fetchFlameNodeRelease();
-  return { props: { release, usernames } };
+  try {
+    const { release, usernames } = await fetchReleaseSnapshot();
+    return { props: { release, usernames, dataUnavailable: false } };
+  } catch (error) {
+    console.error("[release] failed to load release data", error);
+    return { props: { release: [], usernames: [], dataUnavailable: true } };
+  }
 };
 void legacyGetStaticProps;
 
-export default function Releases({ release, usernames }) {
+export default function Releases({ release, usernames, dataUnavailable = false }) {
   const router = useRouter();
   const [viewMode, setViewMode] = useState('list'); // 'list', 'card', 'members'
 
@@ -92,7 +108,11 @@ export default function Releases({ release, usernames }) {
   };
 
   // リリースを日付でグループ化
-  const groupedReleases = groupByDate(release);
+  const normalizedReleases = useMemo(
+    () => (Array.isArray(release) ? release.filter(Boolean) : []),
+    [release],
+  );
+  const groupedReleases = useMemo(() => groupByDate(normalizedReleases), [normalizedReleases]);
 
   // ユーザー名がリストに含まれているか確認する関数（大文字小文字を区別しない）
   const isValidUsername = (username, usernames) => {
@@ -105,9 +125,14 @@ export default function Releases({ release, usernames }) {
 
   // アーカイブリンクを生成する関数
   const getArchiveLink = (username) => {
-    if (!username) return "";
+    if (!username) return null;
     // 小文字に変換してリンクを生成
-    return `https://archive.pvsf.jp/user/${username.toLowerCase()}`;
+    return profilePath("https://archive.pvsf.jp/user/", username.toLowerCase());
+  };
+
+  const openRelease = (id) => {
+    const href = releasePath(id);
+    if (href) void router.push(href);
   };
 
   // ビューモード切り替え関数
@@ -121,19 +146,28 @@ export default function Releases({ release, usernames }) {
 
       <div className={styles.viewToggle}>
         <button
+          type="button"
           onClick={() => changeViewMode('list')}
+          aria-label="リスト表示"
+          aria-pressed={viewMode === 'list'}
           className={`${styles.toggleButton} ${viewMode === 'list' ? styles.active : ''}`}
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
         <button
+          type="button"
           onClick={() => changeViewMode('card')}
+          aria-label="カード表示"
+          aria-pressed={viewMode === 'card'}
           className={`${styles.toggleButton} ${viewMode === 'card' ? styles.active : ''}`}
         >
           <FontAwesomeIcon icon={faImage} />
         </button>
         <button
+          type="button"
           onClick={() => changeViewMode('members')}
+          aria-label="作者別表示"
+          aria-pressed={viewMode === 'members'}
           className={`${styles.toggleButton} ${viewMode === 'members' ? styles.active : ''}`}
         >
           <FontAwesomeIcon icon={faUser} />
@@ -158,22 +192,38 @@ export default function Releases({ release, usernames }) {
               const hasArchiveProfile = isValidUsername(twitterId, usernames);
 
               return (
-                <div key={release.id} className={styles.memberCard} onClick={() => {
-                  window.location.href = `/release/${release.timestamp}`;
-                }}>
+                <div
+                  key={release.id}
+                  className={styles.memberCard}
+                  onClick={() => openRelease(release.timestamp)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openRelease(release.timestamp);
+                    }
+                  }}
+                  role="link"
+                  tabIndex={0}
+                >
                   <div className={styles.membertop}>
                     <a
-                      href={twitterId ? `https://x.com/${twitterId}` : "#"}
+                      href={profilePath("https://x.com/", twitterId) || undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       className={styles.iconLink}
                     >
-                      <img
-                        src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
-                        alt={release.creator}
-                        className={styles.memberIcon}
-                      />
+                      {getReleaseIconUrl(release.icon) ? (
+                        <img
+                          src={getReleaseIconUrl(release.icon)}
+                          alt={release.creator}
+                          className={styles.memberIcon}
+                        />
+                      ) : (
+                        <div className={`${styles.memberIcon} ${styles.iconFallback}`} aria-hidden="true">
+                          <FontAwesomeIcon icon={faUser} />
+                        </div>
+                      )}
                     </a>
 
 
@@ -181,7 +231,7 @@ export default function Releases({ release, usernames }) {
                     <div className={styles.memberLinks}>
                       {twitterId && (
                         <a
-                          href={`https://x.com/${twitterId}`}
+                          href={profilePath("https://x.com/", twitterId)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.socialLink}
@@ -221,28 +271,49 @@ export default function Releases({ release, usernames }) {
               return (
                 <div key={release.id} className={styles.groupCard} onClick={() => {
                   // グループカード全体をクリックしたときの処理
-                  window.location.href = `/release/${release.timestamp}`;
-                }}>
+                  openRelease(release.timestamp);
+                }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openRelease(release.timestamp);
+                    }
+                  }}
+                  role="link"
+                  tabIndex={0}
+                >
                   {/* アイコン部分 - クリックイベントの伝播を停止 */}
-                  <a
-                    href={release.tlink ? `https://x.com/${release.tlink}` : "#"}
+                  {release.tlink ? <a
+                    href={profilePath("https://x.com/", release.tlink)}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
                     className={styles.iconLink}
                   >
-                    <img
-                      src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
-                      alt={release.creator}
-                      className={styles.groupIcon}
-                    />
-                  </a>
+                    {getReleaseIconUrl(release.icon) ? (
+                      <img
+                        src={getReleaseIconUrl(release.icon)}
+                        alt={release.creator}
+                        className={styles.groupIcon}
+                      />
+                    ) : (
+                      <div className={`${styles.groupIcon} ${styles.iconFallback}`} aria-hidden="true">
+                        <FontAwesomeIcon icon={faUser} />
+                      </div>
+                    )}
+                  </a> : (
+                    <div className={styles.iconLink} aria-hidden="true">
+                      <div className={`${styles.groupIcon} ${styles.iconFallback}`}>
+                        <FontAwesomeIcon icon={faUser} />
+                      </div>
+                    </div>
+                  )}
                   <div className={styles.groupInfo}>
                     <div className={styles.groupName}>
                       {release.creator}
                       {release.tlink && (
                         <a
-                          href={`https://x.com/${release.tlink}`}
+                          href={profilePath("https://x.com/", release.tlink)}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
@@ -263,7 +334,7 @@ export default function Releases({ release, usernames }) {
                               <>
                                 {member.trim()}
                                 <a
-                                  href={`https://x.com/${memberId}`}
+                                  href={profilePath("https://x.com/", memberId)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}
@@ -303,16 +374,23 @@ export default function Releases({ release, usernames }) {
   const ListItem = ({ release, showYlink }) => {
     const scrollContainerRef = useRef(null);
     const scrollContentRef = useRef(null);
+    const animationRef = useRef(null);
+    const cloneRef = useRef(null);
     const [shouldScroll, setShouldScroll] = useState(false);
     const [containerWidth, setContainerWidth] = useState(0);
     const [contentWidth, setContentWidth] = useState(0);
 
     // メンバー情報の取得
-    const members = release.member ? release.member.split(',') : [];
-    const memberIds = release.memberid ? release.memberid.split(',') : [];
-    const iconUrl = `https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`;
+    const members = useMemo(() => release.member ? release.member.split(',') : [], [release.member]);
+    const memberIds = useMemo(() => release.memberid ? release.memberid.split(',') : [], [release.memberid]);
+    const iconUrl = getReleaseIconUrl(release.icon);
+    const youtubeId = extractYouTubeVideoId(release.ylink);
 
     useEffect(() => {
+      animationRef.current?.cancel();
+      animationRef.current = null;
+      cloneRef.current?.remove();
+      cloneRef.current = null;
       if (scrollContainerRef.current && scrollContentRef.current) {
         const containerWidth = scrollContainerRef.current.offsetWidth;
         const contentWidth = scrollContentRef.current.offsetWidth;
@@ -321,18 +399,25 @@ export default function Releases({ release, usernames }) {
         setContentWidth(contentWidth);
 
         // コンテンツがコンテナより広い場合のみスクロールを有効にする
-        setShouldScroll(contentWidth > containerWidth);
+        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        setShouldScroll(contentWidth > containerWidth && !reducedMotion);
 
         // 3秒後にスクロールを開始
         const timer = setTimeout(() => {
-          if (contentWidth > containerWidth) {
+          if (contentWidth > containerWidth && !reducedMotion) {
             startScrollAnimation(scrollContentRef.current, contentWidth, containerWidth);
           }
         }, 3000);
 
-        return () => clearTimeout(timer);
+        return () => {
+          clearTimeout(timer);
+          animationRef.current?.cancel();
+          animationRef.current = null;
+          cloneRef.current?.remove();
+          cloneRef.current = null;
+        };
       }
-    }, [release.comment, members]);
+    }, [release.comment, release.member, release.memberid]);
 
     // スクロールアニメーション関数を修正
     const startScrollAnimation = (element, contentWidth, containerWidth) => {
@@ -343,7 +428,9 @@ export default function Releases({ release, usernames }) {
 
       // コンテンツの複製を作成して連続的なスクロールを実現
       const cloneContent = element.cloneNode(true);
+      cloneContent.setAttribute('aria-hidden', 'true');
       element.appendChild(cloneContent);
+      cloneRef.current = cloneContent;
 
       // 実際のコンテンツ幅（複製後）
       const totalContentWidth = contentWidth;
@@ -365,7 +452,7 @@ export default function Releases({ release, usernames }) {
       };
 
       // アニメーションの開始
-      element.animate(keyframes, options);
+      animationRef.current = element.animate(keyframes, options);
     };
 
     return (
@@ -375,23 +462,29 @@ export default function Releases({ release, usernames }) {
             <div className={styles.listContent}>
               <span className={styles.date}>{release.time}</span>
               <span className={`${styles.types} `}>
-                <div className={`${styles.type} ${styles[release.type1]} `}>{release.type1}</div>
-                <div className={`${styles.type} ${styles[release.type2]}`}>{release.type2}</div>
+                <div className={`${styles.type} ${typeClassName(release.type1, styles)}`}>{release.type1}</div>
+                <div className={`${styles.type} ${typeClassName(release.type2, styles)}`}>{release.type2}</div>
               </span>
-              <img src={iconUrl} alt={release.title} className={styles.icon} />
+              {iconUrl ? (
+                <img src={iconUrl} alt={release.title} className={styles.icon} />
+              ) : (
+                <span className={`${styles.icon} ${styles.iconFallback}`} aria-hidden="true">
+                  <FontAwesomeIcon icon={faUser} />
+                </span>
+              )}
               <span className={styles.listCreator}>{release.creator}</span>
               <span className={styles.listTitle}>{release.title}</span>
               <div className={styles.listActions}>
-                {showYlink && (
+                {showYlink && youtubeId && (
                   <a
-                    href={`https://youtu.be/${release.ylink.slice(17, 28)}?list=${YOUTUBE_PLAYLIST_ID}`}
+                    href={`https://youtu.be/${youtubeId}?list=${YOUTUBE_PLAYLIST_ID}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     視聴
                   </a>
                 )}
-                <Link href={`release/${release.timestamp}`}>
+                <Link href={releasePath(release.timestamp) || "/release"}>
                   詳細
                 </Link>
               </div>
@@ -399,18 +492,11 @@ export default function Releases({ release, usernames }) {
             <div
               className={styles.listContent2}
               ref={scrollContainerRef}
-              style={{
-                overflow: 'hidden',
-                position: 'relative',
-                whiteSpace: 'nowrap'
-              }}
+              aria-label="作品コメントとメンバー"
             >
               <div
                 ref={scrollContentRef}
-                style={{
-                  display: 'inline-block',
-                  whiteSpace: 'nowrap'
-                }}
+                className={styles.scrollContent}
               >
                 <span className={styles.listComment}>{release.comment}</span>
 
@@ -421,7 +507,7 @@ export default function Releases({ release, usernames }) {
                       const memberId = memberIds[index] ? memberIds[index].trim() : null;
                       return memberId ? (
                         <span key={index}>
-                          <a href={`https://x.com/${memberId}`} target="_blank" rel="noopener noreferrer">
+                          <a href={profilePath("https://x.com/", memberId)} target="_blank" rel="noopener noreferrer">
                             {member.trim()}
                           </a>
                           {index < members.length - 1 && ' / '}
@@ -434,16 +520,14 @@ export default function Releases({ release, usernames }) {
                 )}
 
                 {/* スクロールする場合は、間隔を追加 */}
-                {shouldScroll && (
-                  <span style={{ display: 'inline-block', width: '100px' }}></span>
-                )}
+                {shouldScroll && <span className={styles.scrollSpacer} aria-hidden="true" />}
               </div>
             </div>
           </>
         ) : (
           <div className={styles.releases1} style={{
-            backgroundImage: showYlink ?
-              `url(https://i.ytimg.com/vi/${release.ylink.slice(17, 28)}/maxresdefault.jpg)` :
+            backgroundImage: showYlink && youtubeId ?
+              `url(https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg)` :
               'none'
           }}>
             <div className={styles.releases2}>
@@ -462,17 +546,17 @@ export default function Releases({ release, usernames }) {
               </div>
               <div className={styles.r3}>
                 <a
-                  href={`https://twitter.com/${release.tlink}`}
+                  href={profilePath("https://twitter.com/", release.tlink) || undefined}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <div
                     className={styles.r31}
                     style={{
-                      backgroundImage: `url(${iconUrl})`,
+                      backgroundImage: iconUrl ? `url(${iconUrl})` : 'none',
                     }}
                   >
-                    <img src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" />
+                    <img src="https://i.gyazo.com/dc3cc7d76ef8ce02789baf16df939178.png" alt="" />
                   </div>
                 </a>
               </div>
@@ -498,10 +582,7 @@ export default function Releases({ release, usernames }) {
                 <div className={styles.r71}>
                   {" "}
                   <a
-                    href={`https://youtu.be/${release.ylink.slice(
-                      17,
-                      28
-                    )}?list=${YOUTUBE_PLAYLIST_ID}`}
+                    href={youtubeId ? `https://youtu.be/${youtubeId}?list=${YOUTUBE_PLAYLIST_ID}` : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     id="generated-id-1690507402817-hylf4ea9j"
@@ -511,7 +592,7 @@ export default function Releases({ release, usernames }) {
                   </a>
                 </div>
                 <div className={styles.r72}>
-                  <Link href={`release/${release.timestamp}`}>
+                  <Link href={releasePath(release.timestamp) || "/release"}>
                     詳細を見る
                   </Link>
                 </div>
@@ -550,8 +631,17 @@ export default function Releases({ release, usernames }) {
       </Head>
       <div className="content">
         <ViewToggle />
-        {viewMode === 'members' ? (
-          <MembersView releases={release} />
+        {dataUnavailable ? (
+          <div className={styles.releaseState} role="status">
+            <strong>リリース情報を一時的に取得できません。</strong>
+            <span>時間をおいて、もう一度お試しください。</span>
+          </div>
+        ) : normalizedReleases.length === 0 ? (
+          <div className={styles.releaseState} role="status">
+            <strong>公開中の作品はありません。</strong>
+          </div>
+        ) : viewMode === 'members' ? (
+          <MembersView releases={normalizedReleases} />
         ) : (
           <div className={`${styles.table} ${viewMode === 'list' ? styles.listView : ''}`}>
             {Object.entries(groupedReleases).map(([date, releases]) => (
@@ -563,7 +653,7 @@ export default function Releases({ release, usernames }) {
                   <ListItem
                     key={release.id}
                     release={release}
-                    showYlink={release.ylink !== undefined && release.ylink !== ""}
+                    showYlink={Boolean(extractYouTubeVideoId(release.ylink))}
                   />
                 ))}
               </div>

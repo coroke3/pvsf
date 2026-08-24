@@ -17,18 +17,16 @@ const isExternalLink = (href) => {
 };
 
 const menuItems = [
-  { title: "PVSF2026S", subtitle: "企画概要", href: "../../page/pvsf2026s" },
-  { title: "JOIN", subtitle: "参加する", href: "../../page/join" },
-  { title: "RELEASES", subtitle: "投稿予定のご案内", href: "../../release" },
-  { title: "Q&A", subtitle: "質問", href: "../../page/qanda" },
+  { title: "PVSF2026S", subtitle: "企画概要", href: "/page/pvsf2026s" },
+  { title: "JOIN", subtitle: "参加する", href: "/page/join" },
+  { title: "RELEASES", subtitle: "投稿予定のご案内", href: "/release" },
+  { title: "Q&A", subtitle: "質問", href: "/page/qanda" },
   { title: "FlameNode", subtitle: "作品(外部サイト)", href: "https://flamenode.net", external: true },
 ];
 
 function Header() {
   const router = useRouter();
   const [isHide, setIsHide] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const { resolvedTheme } = useTheme();
   const [imageSrc, setImageSrc] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -56,10 +54,6 @@ function Header() {
       }
     };
 
-    const handleRouteChange = (url) => {
-      console.log("現在のパス:", url); // URLをログに出力
-    };
-
     // スクロールイベントを監視するパスを指定
     const shouldWatchScroll = ["/"].includes(router.pathname);
     if (shouldWatchScroll) {
@@ -70,10 +64,6 @@ function Header() {
     }
 
     // ルート変更イベントを監視
-    router.events.on('routeChangeComplete', handleRouteChange);
-
-    // 初回レンダリング時に現在のパスをログに出力
-    console.log("初期パス:", router.pathname);
     switch (router.pathname) {
       case "/":
         // トップページ: 1画面分スクロールで表示/非表示
@@ -93,13 +83,8 @@ function Header() {
     // クリーンアップ
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, [router.pathname, router.events, lastScrollY]);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  }, [router.pathname]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -109,7 +94,7 @@ function Header() {
     <header className={`site-header ${isHide ? "Hide" : ""} ${isMobileMenuOpen ? "mobile-open" : ""}`}>
       <div className="header-content">
         <div className={`logo-area `}>
-          <a href={"../../../"}>
+          <Link href="/">
 
             <p className="event-type">movie event</p>
             <div className="logo-title">
@@ -131,10 +116,17 @@ function Header() {
                 <p>映像連続投稿祭</p>
               </div>
             </div>
-          </a>
+          </Link>
         </div>
 
-        <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+        <button
+          type="button"
+          className="mobile-menu-btn"
+          onClick={toggleMobileMenu}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="pvsf-navigation"
+          aria-label={isMobileMenuOpen ? "メニューを閉じる" : "メニューを開く"}
+        >
           <div className={`hamburger ${isMobileMenuOpen ? "active" : ""}`}>
             <span></span>
             <span></span>
@@ -142,7 +134,7 @@ function Header() {
           </div>
         </button>
 
-        <nav className={`menu ${isMobileMenuOpen ? "mobile-visible" : ""}`}>
+        <nav id="pvsf-navigation" className={`menu ${isMobileMenuOpen ? "mobile-visible" : ""}`}>
           <ul>
             {menuItems.map((item, index) => {
               const isExternal = item.external || isExternalLink(item.href);
@@ -166,7 +158,7 @@ function Header() {
                       </div>
                     </a>
                   ) : (
-                    <a href={item.href}>
+                    <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
                       <div className="menu-title text-split">
                         {[...item.title].map((char, index) => (
                           <span key={index} data-random={index}>{char}</span>
@@ -177,7 +169,7 @@ function Header() {
                           <span key={index} data-random={index}>{char}</span>
                         ))}
                       </div>
-                    </a>
+                    </Link>
                   )}
                 </li>
               );

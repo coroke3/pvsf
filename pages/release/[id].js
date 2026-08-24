@@ -8,7 +8,12 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter, faYoutube, faTiktok } from "@fortawesome/free-brands-svg-icons";
 import { faUser, faClock as faClockSolid, faCalendarDays as faCalendarSolid, faGlobe, faVideo, faPlay, faExternalLinkAlt, faFilm, faTrophy } from "@fortawesome/free-solid-svg-icons";
-import { fetchFlameNodeRelease } from "../../libs/flamenodeRelease";
+import {
+  extractYouTubeVideoId,
+  fetchReleaseSnapshot,
+  getReleaseIconUrl,
+  profilePath,
+} from "../../libs/flamenodeRelease";
 
 // 静的ページの生成に必要なパスを取得
 async function legacyGetStaticPaths() {
@@ -96,16 +101,35 @@ async function legacyGetStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
-  const { release } = await fetchFlameNodeRelease();
+  let release = [];
+  try {
+    ({ release } = await fetchReleaseSnapshot());
+  } catch (error) {
+    console.error("[release/:id] failed to load release paths", error);
+  }
   return {
-    paths: release.map((work) => ({ params: { id: String(work.id) } })),
+    paths: Array.isArray(release)
+      ? release.filter((work) => work?.id != null && String(work.id).trim() !== "").map((work) => ({ params: { id: encodeURIComponent(String(work.id)) } }))
+      : [],
     fallback: false,
   };
 }
 
 export async function getStaticProps({ params }) {
-  const { release: works } = await fetchFlameNodeRelease();
-  const release = works.find((work) => String(work.id) === String(params.id));
+  let works = [];
+  try {
+    ({ release: works } = await fetchReleaseSnapshot());
+  } catch (error) {
+    console.error("[release/:id] failed to load release", error);
+    return { notFound: true };
+  }
+  let requestedId = String(params.id ?? "");
+  try {
+    requestedId = decodeURIComponent(requestedId);
+  } catch {
+    return { notFound: true };
+  }
+  const release = works.find((work) => String(work.id) === requestedId);
   if (!release) return { notFound: true };
   return { props: { release, works, externalUsers: [], pvsfVideos: works } };
 }
@@ -113,11 +137,6 @@ void legacyGetStaticPaths;
 void legacyGetStaticProps;
 
 // YouTube動画IDを抽出するヘルパー関数
-const extractYouTubeId = (url) => {
-  if (!url) return null;
-  return url.slice(17, 28);
-};
-
 // Googleドライブの共有URLからファイルIDを抽出するヘルパー関数
 const extractGoogleDriveFileId = (url) => {
   if (!url) return null;
@@ -261,7 +280,7 @@ const OtherSocialMedia = ({ release, styles }) => {
 
 // メディアコンテンツコンポーネント
 const MediaContent = ({ release, styles }) => {
-  const youtubeId = extractYouTubeId(release.ylink);
+  const youtubeId = extractYouTubeVideoId(release.ylink);
 
   if (youtubeId) {
     return (
@@ -313,9 +332,9 @@ const MediaContent = ({ release, styles }) => {
 const UserInfo = ({ release, styles }) => {
   return (
     <div className={styles.userinfo}>
-      {release.icon && (
+      {getReleaseIconUrl(release.icon) && (
         <img
-          src={`https://lh3.googleusercontent.com/d/${release.icon.slice(33)}`}
+          src={getReleaseIconUrl(release.icon)}
           className={styles.icon}
           alt={`${release.creator} アイコン`}
         />
@@ -338,7 +357,7 @@ const UserInfo = ({ release, styles }) => {
 
           {release.tlink && (
             <a
-              href={`https://twitter.com/${release.tlink}`}
+              href={profilePath("https://twitter.com/", release.tlink) || undefined}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${release.creator}のTwitter`}
@@ -372,6 +391,17 @@ const UserInfo = ({ release, styles }) => {
 };
 
 // 作品詳細情報コンポーネント
+const ReleaseText = ({ value }) => (
+  <>
+    {String(value ?? "").split(/<br\s*\/?>(?:\r?\n)?|\r?\n/gi).map((line, index, lines) => (
+      <span key={index}>
+        {line}
+        {index < lines.length - 1 && <br />}
+      </span>
+    ))}
+  </>
+);
+
 const ReleaseDetails = ({ release, styles }) => {
   return (
     <>
@@ -380,24 +410,10 @@ const ReleaseDetails = ({ release, styles }) => {
       </p>
 
       {release.music && release.credit && (
-        <p>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: `楽曲: ${release.music} - ${release.credit}<br>`
-            }}
-          />
-        </p>
+        <p><ReleaseText value={`楽曲: ${release.music} - ${release.credit}`} /></p>
       )}
 
-      {release.comment && (
-        <p>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: release.comment
-            }}
-          />
-        </p>
-      )}
+      {release.comment && <p><ReleaseText value={release.comment} /></p>}
 
       {/* 他投稿サイト表示 */}
       <OtherSocialMedia release={release} styles={styles} />
@@ -459,7 +475,7 @@ const MemberTable = ({ memberInfo, styles }) => {
                   {matchedUser ? (
                     <>
                       <a
-                        href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
+                        href={profilePath("https://event-archive.vercel.app/user/", matchedUser.username)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.userLink}
@@ -469,7 +485,7 @@ const MemberTable = ({ memberInfo, styles }) => {
                       </a>
                       <div className={styles.userlis}>
                         <a
-                          href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
+                          href={profilePath("https://event-archive.vercel.app/user/", matchedUser.username)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.userLink}
@@ -488,7 +504,7 @@ const MemberTable = ({ memberInfo, styles }) => {
                   <div className={styles.linkContainer}>
                     {memberId && (
                       <a
-                        href={`https://twitter.com/${memberId}`}
+                        href={profilePath("https://twitter.com/", memberId)}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`${memberId}のTwitter`}
@@ -499,7 +515,7 @@ const MemberTable = ({ memberInfo, styles }) => {
                     )}
                     {externalUser && memberId && (
                       <a
-                        href={`https://archive.pvsf.jp/user/${memberId}`}
+                        href={profilePath("https://archive.pvsf.jp/user/", memberId)}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`${memberId}のアーカイブページ`}
@@ -552,7 +568,7 @@ const MemberTable = ({ memberInfo, styles }) => {
               {matchedUser ? (
                 <div className={styles.memberCardId}>
                   <a
-                    href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
+                    href={profilePath("https://event-archive.vercel.app/user/", matchedUser.username)}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: '#1da1f2', textDecoration: 'none' }}
@@ -569,7 +585,7 @@ const MemberTable = ({ memberInfo, styles }) => {
               <div className={styles.memberCardLinks}>
                 {memberId && (
                   <a
-                    href={`https://twitter.com/${memberId}`}
+                    href={profilePath("https://twitter.com/", memberId)}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${memberId}のTwitter`}
@@ -579,7 +595,7 @@ const MemberTable = ({ memberInfo, styles }) => {
                 )}
                 {matchedUser && (
                   <a
-                    href={`https://event-archive.vercel.app/user/${matchedUser.username}`}
+                    href={profilePath("https://event-archive.vercel.app/user/", matchedUser.username)}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${matchedUser.username}のプロフィール`}
@@ -589,7 +605,7 @@ const MemberTable = ({ memberInfo, styles }) => {
                 )}
                 {externalUser && memberId && (
                   <a
-                    href={`https://archive.pvsf.jp/user/${memberId}`}
+                    href={profilePath("https://archive.pvsf.jp/user/", memberId)}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${memberId}のアーカイブページ`}
@@ -608,7 +624,7 @@ const MemberTable = ({ memberInfo, styles }) => {
 
 // メタデータ生成ヘルパー
 const generateMetadata = (release) => {
-  const youtubeId = extractYouTubeId(release.ylink);
+  const youtubeId = extractYouTubeVideoId(release.ylink);
   const defaultImage = "https://i.gyazo.com/35170e03ec321fb94276ca1c918efabc.jpg";
   const youtubeImage = youtubeId
     ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`
@@ -731,7 +747,7 @@ const findRelatedWorksByTlink = (currentRelease, pvsfVideos) => {
 
 // 前後の作品を取得するヘルパー関数
 const getAdjacentWorks = (works, currentId) => {
-  const currentIndex = works.findIndex(work => work.timestamp.toString() === currentId);
+  const currentIndex = works.findIndex(work => work.timestamp?.toString() === currentId);
   if (currentIndex === -1) return { allWorks: [] };
 
   // 前3作品 + 現在の作品 + 次3作品の合計7作品を取得
@@ -813,7 +829,7 @@ const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
                 </div>
               )}
               <a
-                href={`https://archive.pvsf.jp/${extractYouTubeId(work.ylink) || 'undefined'}`}
+                       href={extractYouTubeVideoId(work.ylink) ? `https://archive.pvsf.jp/${extractYouTubeVideoId(work.ylink)}` : undefined}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.pastWorkLink}
@@ -911,7 +927,7 @@ const MemberPastWorks = ({ memberPastWorks, styles }) => {
                       </div>
                     )}
                     <a
-                      href={`https://archive.pvsf.jp/${extractYouTubeId(work.ylink) || 'undefined'}`}
+                       href={extractYouTubeVideoId(work.ylink) ? `https://archive.pvsf.jp/${extractYouTubeVideoId(work.ylink)}` : undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={styles.pastWorkLink}
@@ -969,9 +985,9 @@ const WorksNavigation = ({ works, currentId, styles }) => {
               </div>
 
               <div className={styles.navigationWorkInfo}>
-                {work.icon && (
+                {getReleaseIconUrl(work.icon) && (
                   <img
-                    src={`https://lh3.googleusercontent.com/d/${work.icon.slice(33)}`}
+                    src={getReleaseIconUrl(work.icon)}
                     className={styles.navigationIcon}
                     alt={`${work.creator} アイコン`}
                   />
@@ -981,7 +997,7 @@ const WorksNavigation = ({ works, currentId, styles }) => {
               </div>
 
               {!isCurrent && (
-                <Link href={`/release/${work.timestamp}`} className={styles.navigationLink}>
+                <Link href={`/release/${encodeURIComponent(String(work.timestamp))}`} className={styles.navigationLink}>
                   <span className="sr-only">{work.title}へ移動</span>
                 </Link>
               )}

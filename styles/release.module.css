@@ -385,6 +385,37 @@ a.btn--blue {
   color: #0070f3;
 }
 
+.toggleButton:focus-visible,
+.memberCard:focus-visible,
+.groupCard:focus-visible,
+.listActions a:focus-visible,
+.socialLink:focus-visible,
+.groupXLink:focus-visible {
+  outline: 2px solid #6dcaff;
+  outline-offset: 3px;
+}
+
+.releaseState {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 1000px);
+  margin: 24px auto 40px;
+  padding: 32px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.82);
+  text-align: center;
+}
+
+.iconFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #30343a;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 /* リスト表示のスタイル */
 .table.listView {
   display: block;
@@ -406,7 +437,7 @@ a.btn--blue {
   background: transparent;
   padding: 12px 16px;
   display: grid;
-  grid-template-columns: 80px 50px 40px 200px minmax(200px, 1fr) 100px;
+  grid-template-columns: minmax(64px, 80px) minmax(44px, 50px) 40px minmax(120px, 200px) minmax(0, 1fr) max-content;
   align-items: center;
   gap: 16px;
   transition: background-color 0.3s;
@@ -433,6 +464,18 @@ a.btn--blue {
   text-align: center;
 }
 
+.typeDefault {
+  background: #474747;
+}
+
+.typeGroup {
+  background: #3e4ecd;
+}
+
+.typeIndividual {
+  background: #00cc3a;
+}
+
 .type.複数人 {
   background: #3e4ecd;
 }
@@ -447,12 +490,20 @@ a.btn--blue {
   font-size: 1rem;
   margin: 0;
   color: #fff;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .listCreator {
   font-size: 0.9rem;
   color: #fff;
   margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .listActions {
@@ -460,6 +511,7 @@ a.btn--blue {
   gap: 8px;
   margin: 0;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .listActions a {
@@ -712,6 +764,16 @@ a.btn--blue {
   color: rgba(255, 255, 255, 0.8);
 }
 
+.scrollContent {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.scrollSpacer {
+  display: inline-block;
+  width: 100px;
+}
+
 .listComment {
   display: inline-block;
   vertical-align: middle;
@@ -822,4 +884,14 @@ a.btn--blue {
 .socialLink:hover,
 .members a:hover {
   color: #0077ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .releases1,
+  .releases2,
+  .toggleButton,
+  .memberCard,
+  .groupCard {
+    transition: none;
+  }
 }
