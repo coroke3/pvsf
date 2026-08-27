@@ -15,6 +15,14 @@ test("release URL helpers reject malformed values without creating broken links"
   assert.equal(extractYouTubeVideoId("https://example.test/video"), null);
   assert.equal(getReleaseIconUrl("javascript:alert(1)"), null);
   assert.equal(getReleaseIconUrl("https://drive.google.com/open?id=drive_id"), "https://lh3.googleusercontent.com/d/drive_id");
+  assert.equal(
+    getReleaseIconUrl("/api/media/video-icons/biroudo0402/v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c/827f2452-1aa0-423b-8830-04a3b23d1404.webp"),
+    "https://flamenode.net/api/media/video-icons/biroudo0402/v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c/827f2452-1aa0-423b-8830-04a3b23d1404.webp",
+  );
+  assert.equal(
+    getReleaseIconUrl("https://flamenode.net/api/media/video-icons/biroudo0402/v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c/827f2452-1aa0-423b-8830-04a3b23d1404.webp"),
+    "https://flamenode.net/api/media/video-icons/biroudo0402/v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c/827f2452-1aa0-423b-8830-04a3b23d1404.webp",
+  );
   assert.equal(releasePath("work/a"), "/release/work%2Fa");
   assert.equal(releasePath(""), null);
 });

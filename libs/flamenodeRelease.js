@@ -16,6 +16,15 @@ function asString(value) {
   return value == null ? "" : String(value).trim();
 }
 
+function flameNodeOrigin() {
+  // Browser overrides must use NEXT_PUBLIC_. FLAMENODE_RELEASE_API_ORIGIN
+  // remains a server/test fallback so release and staff share the same origin.
+  const configured = process.env.NEXT_PUBLIC_FLAMENODE_API_ORIGIN
+    || process.env.FLAMENODE_RELEASE_API_ORIGIN
+    || DEFAULT_FLAMENODE_ORIGIN;
+  return configured.replace(/\/+$/, "");
+}
+
 /**
  * Normalize the different YouTube URL shapes used by the old spreadsheet and
  * the FlameNode DTO. Returning null instead of slicing a URL keeps malformed
@@ -43,7 +52,11 @@ export function extractYouTubeVideoId(value) {
   }
 }
 
-/** Convert a Drive URL, a Drive id, or a direct HTTPS image URL to a safe image URL. */
+/**
+ * Convert a Drive URL, a Drive id, a FlameNode relative media path
+ * (e.g. /api/media/video-icons/...), or a direct HTTPS image URL to a safe
+ * absolute image URL.
+ */
 export function getReleaseIconUrl(value) {
   const input = asString(value);
   if (!input) return null;
@@ -51,7 +64,8 @@ export function getReleaseIconUrl(value) {
     return `https://lh3.googleusercontent.com/d/${input}`;
   }
   try {
-    const parsed = new URL(input);
+    // Absolute URLs parse as-is; relative paths resolve against FlameNode.
+    const parsed = new URL(input, `${flameNodeOrigin()}/`);
     if (parsed.protocol !== "https:") return null;
     const host = parsed.hostname.toLowerCase();
     const driveId = parsed.pathname.match(/\/d\/([A-Za-z0-9_-]+)/)?.[1]
@@ -59,7 +73,7 @@ export function getReleaseIconUrl(value) {
     if ((host === "drive.google.com" || host.endsWith("googleusercontent.com")) && driveId) {
       return `https://lh3.googleusercontent.com/d/${driveId}`;
     }
-    return input;
+    return parsed.toString();
   } catch {
     return null;
   }
