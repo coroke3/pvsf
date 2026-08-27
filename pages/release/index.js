@@ -385,6 +385,9 @@ export default function Releases({ release, usernames, dataUnavailable = false }
     const memberIds = useMemo(() => release.memberid ? release.memberid.split(',') : [], [release.memberid]);
     const iconUrl = getReleaseIconUrl(release.icon);
     const youtubeId = extractYouTubeVideoId(release.ylink);
+    const cardThumb = youtubeId
+      ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`
+      : (getReleaseIconUrl(release.largeThumbnail) || getReleaseIconUrl(release.small) || null);
 
     useEffect(() => {
       animationRef.current?.cancel();
@@ -526,9 +529,7 @@ export default function Releases({ release, usernames, dataUnavailable = false }
           </>
         ) : (
           <div className={styles.releases1} style={{
-            backgroundImage: showYlink && youtubeId ?
-              `url(https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg)` :
-              'none'
+            backgroundImage: cardThumb ? `url(${cardThumb})` : 'none'
           }}>
             <div className={styles.releases2}>
               <div className={styles.r0}>{release.data}</div>

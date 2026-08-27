@@ -564,6 +564,8 @@
   background: var(--social-color, var(--gray-dark));
   transition: all 0.3s ease;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 }
 
 /* .socialMediaSimpleItem:hover {

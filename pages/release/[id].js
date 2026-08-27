@@ -205,44 +205,62 @@ const processMemberInfo = (release, works, externalUsers = []) => {
   });
 };
 
-// 他投稿サイトの処理ヘルパー関数
+// 他投稿サイトの処理ヘルパー関数（JSON配列 / カンマ区切り両対応）
 const processSocialMedia = (othersns) => {
   if (!othersns) return [];
 
   const socialMediaMap = {
-    'X': { icon: faXTwitter, color: '#1da1f2', baseUrl: 'https://twitter.com/' },
-    'x': { icon: faXTwitter, color: '#1da1f2', baseUrl: 'https://twitter.com/' },
-    'Twitter': { icon: faXTwitter, color: '#1da1f2', baseUrl: 'https://twitter.com/' },
-    'twitter': { icon: faXTwitter, color: '#1da1f2', baseUrl: 'https://twitter.com/' },
-    'TikTok': { icon: faTiktok, color: '#ff0050', baseUrl: 'https://www.tiktok.com/@' },
-    'tiktok': { icon: faTiktok, color: '#ff0050', baseUrl: 'https://www.tiktok.com/@' },
-    'ニコニコ動画': { icon: faVideo, color: '#252525', baseUrl: 'https://www.nicovideo.jp/user/' },
-    'ニコニコ': { icon: faVideo, color: '#252525', baseUrl: 'https://www.nicovideo.jp/user/' },
-    'nicovideo': { icon: faVideo, color: '#252525', baseUrl: 'https://www.nicovideo.jp/user/' },
-    'YouTube': { icon: faYoutube, color: '#ff0000', baseUrl: 'https://www.youtube.com/c/' },
-    'youtube': { icon: faYoutube, color: '#ff0000', baseUrl: 'https://www.youtube.com/c/' },
-    'Instagram': { icon: faGlobe, color: '#e4405f', baseUrl: 'https://www.instagram.com/' },
-    'instagram': { icon: faGlobe, color: '#e4405f', baseUrl: 'https://www.instagram.com/' },
-    'Twitch': { icon: faPlay, color: '#9146ff', baseUrl: 'https://www.twitch.tv/' },
-    'twitch': { icon: faPlay, color: '#9146ff', baseUrl: 'https://www.twitch.tv/' },
+    'X': { icon: faXTwitter, color: '#1da1f2' },
+    'x': { icon: faXTwitter, color: '#1da1f2' },
+    'Twitter': { icon: faXTwitter, color: '#1da1f2' },
+    'twitter': { icon: faXTwitter, color: '#1da1f2' },
+    'TikTok': { icon: faTiktok, color: '#ff0050' },
+    'tiktok': { icon: faTiktok, color: '#ff0050' },
+    'ニコニコ動画': { icon: faVideo, color: '#252525' },
+    'ニコニコ': { icon: faVideo, color: '#252525' },
+    'Niconico': { icon: faVideo, color: '#252525' },
+    'nicovideo': { icon: faVideo, color: '#252525' },
+    'YouTube': { icon: faYoutube, color: '#ff0000' },
+    'youtube': { icon: faYoutube, color: '#ff0000' },
+    'Instagram': { icon: faGlobe, color: '#e4405f' },
+    'instagram': { icon: faGlobe, color: '#e4405f' },
+    'Twitch': { icon: faPlay, color: '#9146ff' },
+    'twitch': { icon: faPlay, color: '#9146ff' },
+    'Website': { icon: faGlobe, color: '#6c757d' },
+    'Portfolio': { icon: faGlobe, color: '#6c757d' },
+    'Email': { icon: faGlobe, color: '#6c757d' },
+    'Bluesky': { icon: faGlobe, color: '#0085ff' },
+    'Discord': { icon: faGlobe, color: '#5865f2' },
+    'Other': { icon: faGlobe, color: '#6c757d' },
   };
 
-  return othersns.split(/[,、，]/).map((sns, index) => {
-    const trimmedSns = sns.trim();
-    const snsData = socialMediaMap[trimmedSns] || {
-      icon: faGlobe,
-      color: '#6c757d',
-      baseUrl: '#'
-    };
-
+  const toItem = (name, url, index) => {
+    const snsData = socialMediaMap[name] || { icon: faGlobe, color: '#6c757d' };
     return {
-      name: trimmedSns,
+      name,
       icon: snsData.icon,
       color: snsData.color,
-      url: snsData.baseUrl,
-      key: `${trimmedSns}-${index}`
+      url: url || null,
+      key: `${name}-${index}`,
     };
-  });
+  };
+
+  const raw = typeof othersns === "string" ? othersns.trim() : othersns;
+  if (typeof raw === "string" && raw.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item, index) => toItem(item?.type || "Other", item?.url || null, index))
+          .filter((item) => item.name);
+      }
+    } catch {
+      // fall through to comma-separated parsing
+    }
+  }
+
+  if (typeof raw !== "string") return [];
+  return raw.split(/[,、，]/).map((sns, index) => toItem(sns.trim(), null, index)).filter((item) => item.name);
 };
 
 // 他投稿サイト表示コンポーネント（簡素化版）
@@ -255,24 +273,44 @@ const OtherSocialMedia = ({ release, styles }) => {
     <div
       className={styles.otherSocialContainer}
       role="region"
-      aria-label="投稿予定のサイト一覧"
+      aria-label="関連リンク一覧"
     >
-      <span className={styles.otherSocialLabel}>投稿予定のサイト:</span>
+      <span className={styles.otherSocialLabel}>関連リンク:</span>
       <div className={styles.socialMediaSimpleList}>
-        {socialMediaList.map((social) => (
-          <div
-            key={social.key}
-            className={styles.socialMediaSimpleItem}
-            title={social.name}
-            aria-label={`${social.name}に投稿予定`}
-          >
+        {socialMediaList.map((social) => {
+          const content = (
             <FontAwesomeIcon
               icon={social.icon}
               className={styles.socialMediaSimpleIcon}
               style={{ '--social-color': social.color }}
             />
-          </div>
-        ))}
+          );
+          if (social.url) {
+            return (
+              <a
+                key={social.key}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.socialMediaSimpleItem}
+                title={social.name}
+                aria-label={social.name}
+              >
+                {content}
+              </a>
+            );
+          }
+          return (
+            <div
+              key={social.key}
+              className={styles.socialMediaSimpleItem}
+              title={social.name}
+              aria-label={social.name}
+            >
+              {content}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -281,6 +319,7 @@ const OtherSocialMedia = ({ release, styles }) => {
 // メディアコンテンツコンポーネント
 const MediaContent = ({ release, styles }) => {
   const youtubeId = extractYouTubeVideoId(release.ylink);
+  const fallbackThumb = getReleaseIconUrl(release.largeThumbnail) || getReleaseIconUrl(release.small);
 
   if (youtubeId) {
     return (
@@ -321,9 +360,9 @@ const MediaContent = ({ release, styles }) => {
 
   return (
     <img
-      src="https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"
+      src={fallbackThumb || "https://i.gyazo.com/9f4ec61924577737d1ea2e4af33b2eae.png"}
       className={styles.yf}
-      alt="デフォルト画像"
+      alt={fallbackThumb ? `${release.title} サムネイル` : "デフォルト画像"}
     />
   );
 };
@@ -403,17 +442,30 @@ const ReleaseText = ({ value }) => (
 );
 
 const ReleaseDetails = ({ release, styles }) => {
+  const section = release.type2 || "";
+  const sectionLabel = section
+    ? (section.endsWith("部") ? section : `${section}の部`)
+    : "";
+  const musicLabel = release.music
+    ? (release.credit ? `楽曲: ${release.music} - ${release.credit}` : `楽曲: ${release.music}`)
+    : "";
+
   return (
     <>
-      <p>
-        {release.type1}出展 {release.type2}の部
-      </p>
-
-      {release.music && release.credit && (
-        <p><ReleaseText value={`楽曲: ${release.music} - ${release.credit}`} /></p>
+      {(release.type1 || sectionLabel) && (
+        <p>
+          {release.type1 ? `${release.type1}出展` : "出展"}
+          {sectionLabel ? ` ${sectionLabel}` : ""}
+        </p>
       )}
 
+      {musicLabel && <p><ReleaseText value={musicLabel} /></p>}
+
       {release.comment && <p><ReleaseText value={release.comment} /></p>}
+
+      {release.hitokoto && <p><ReleaseText value={`見どころ: ${release.hitokoto}`} /></p>}
+
+      {release.soft && <p><ReleaseText value={`使用ソフト: ${release.soft}`} /></p>}
 
       {/* 他投稿サイト表示 */}
       <OtherSocialMedia release={release} styles={styles} />
@@ -632,7 +684,7 @@ const generateMetadata = (release) => {
 
   return {
     title: `${release.title} - ${release.creator} | オンライン映像イベント / PVSF`,
-    description: `PVSF 出展作品 ${release.title} - ${release.creator} music:${release.music} - ${release.credit}`,
+    description: `PVSF 出展作品 ${release.title} - ${release.creator}${release.music ? ` music:${release.music}${release.credit ? ` - ${release.credit}` : ""}` : ""}`,
     image: youtubeImage,
     cardType: youtubeId ? "summary_large_image" : "summary"
   };
@@ -1021,7 +1073,7 @@ export default function Release({ release, works, externalUsers = [], pvsfVideos
     youtube: Boolean(release.ylink),
     youtubeCH: Boolean(release.ychlink),
     member: Boolean(release.member),
-    music: Boolean(release.music && release.credit)
+    music: Boolean(release.music)
   };
 
   // メンバー情報の処理

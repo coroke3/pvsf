@@ -6,6 +6,7 @@ import {
   extractYouTubeVideoId,
   fetchFlameNodeRelease,
   getReleaseIconUrl,
+  normalizeReleaseTime,
   releasePath,
 } from "./flamenodeRelease.js";
 
@@ -23,6 +24,8 @@ test("release URL helpers reject malformed values without creating broken links"
     getReleaseIconUrl("https://flamenode.net/api/media/video-icons/biroudo0402/v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c/827f2452-1aa0-423b-8830-04a3b23d1404.webp"),
     "https://flamenode.net/api/media/video-icons/biroudo0402/v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c/827f2452-1aa0-423b-8830-04a3b23d1404.webp",
   );
+  assert.equal(normalizeReleaseTime("18時00分"), "18:00");
+  assert.equal(normalizeReleaseTime("18:12"), "18:12");
   assert.equal(releasePath("work/a"), "/release/work%2Fa");
   assert.equal(releasePath(""), null);
 });
@@ -31,6 +34,38 @@ test("legacy fallback adapter drops rows without a stable release id", () => {
   const result = adaptLegacyRelease([{ timestamp: "work-1", title: "作品" }, { title: "invalid" }]);
   assert.equal(result.release.length, 1);
   assert.equal(result.release[0].id, "work-1");
+});
+
+test("FlameNode legacy rows prefer video id and keep display fields", () => {
+  const result = adaptLegacyRelease([{
+    id: "v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c",
+    timestamp: "2026-08-22T06:39:03.000Z",
+    type1: "個人",
+    type2: "個人",
+    type: "1日目第1部",
+    creator: "biroudo",
+    tlink: "biroudo0402",
+    icon: "/api/media/video-icons/biroudo0402/v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c/827f2452-1aa0-423b-8830-04a3b23d1404.webp",
+    data: "08/27",
+    time: "18:24",
+    title: "いますぐ輪廻",
+    music: "なきそ-いますぐ輪廻",
+    credit: "",
+    comment: "コメント",
+    othersns: "[{\"type\":\"X\",\"url\":\"https://x.com/Biroudo0402\"}]",
+    ylink: "https://www.youtube.com/watch?v=-qZYSGuv480",
+    eventid: "pvsf2026s",
+    soft: "AviUtl2,Blender,MMD",
+    hitokoto: "見どころ",
+    small: "https://i.ytimg.com/vi/-qZYSGuv480/mqdefault.jpg",
+    largeThumbnail: "https://i.ytimg.com/vi/-qZYSGuv480/maxresdefault.jpg",
+  }]);
+  assert.equal(result.release[0].id, "v_c1020271-e63e-4eb8-a8c0-a40e5f9e400c");
+  assert.equal(result.release[0].time, "18:24");
+  assert.equal(result.release[0].type2, "1日目第1部");
+  assert.equal(result.release[0].music, "なきそ-いますぐ輪廻");
+  assert.equal(result.release[0].soft, "AviUtl2,Blender,MMD");
+  assert.match(result.release[0].othersns, /Biroudo0402/);
 });
 
 test("FlameNode release payload maps to the legacy PVSF view model", () => {
@@ -42,7 +77,7 @@ test("FlameNode release payload maps to the legacy PVSF view model", () => {
       youtube_video_id: "abcdefghijk",
       scheduled_time: 1787821200,
       collaboration_type: "collab",
-      part: "1",
+      part: "1日目第1部",
       intro_comment: "紹介",
       creator_display_name: "Alice",
       creator_x_user_id: "alice_x",
@@ -51,24 +86,12 @@ test("FlameNode release payload maps to the legacy PVSF view model", () => {
     }],
   });
   assert.equal(result.event.id, "pvsf2026s");
-  assert.deepEqual(result.release[0], {
-    id: "video-1",
-    timestamp: "video-1",
-    title: "作品",
-    creator: "Alice",
-    tlink: "alice_x",
-    ylink: "https://www.youtube.com/watch?v=abcdefghijk",
-    data: "2026/08/27",
-    time: "18時00分",
-    type1: "複数人",
-    type2: "1",
-    comment: "紹介",
-    member: "Bob",
-    memberid: "bob_x",
-    icon: "https://example.test/icon.png",
-    eventid: "pvsf2026s",
-    eventTitle: "PVSF2026S",
-  });
+  assert.equal(result.release[0].id, "video-1");
+  assert.equal(result.release[0].time, "18:00");
+  assert.equal(result.release[0].data, "2026/08/27");
+  assert.equal(result.release[0].type1, "複数人");
+  assert.equal(result.release[0].type2, "1日目第1部");
+  assert.equal(result.release[0].ylink, "https://www.youtube.com/watch?v=abcdefghijk");
 });
 
 test("FlameNode API failures stay explicit instead of publishing an empty archive", async () => {

@@ -1,7 +1,8 @@
 const DEFAULT_FLAMENODE_ORIGIN = "https://flamenode.net";
 const DEFAULT_EVENT_ID = "pvsf2026s";
-const LEGACY_RELEASE_API_URL = "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec";
+const SHEETS_LEGACY_RELEASE_API_URL = "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec";
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
+const ISO_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T/;
 
 // Pages export invokes getStaticPaths first and then getStaticProps once per
 // release item. Keep one immutable build snapshot so a 500-item event does
@@ -10,7 +11,9 @@ const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 // intentionally not cached; they are used by tests and local probes.
 let cachedReleaseUrl = null;
 let cachedReleasePromise = null;
+let cachedLegacyReleaseUrl = null;
 let cachedLegacyReleasePromise = null;
+let cachedSheetsLegacyReleasePromise = null;
 
 function asString(value) {
   return value == null ? "" : String(value).trim();
@@ -89,10 +92,31 @@ export function profilePath(base, value) {
   return id ? `${base}${encodeURIComponent(id)}` : null;
 }
 
+/** Normalize "18時00分" / "18:00" / "8:5" into zero-padded "HH:mm". */
+export function normalizeReleaseTime(value) {
+  const input = asString(value);
+  if (!input) return "";
+  const jp = input.match(/^(\d{1,2})\s*時\s*(\d{1,2})\s*分$/);
+  if (jp) {
+    return `${jp[1].padStart(2, "0")}:${jp[2].padStart(2, "0")}`;
+  }
+  const colon = input.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (colon) {
+    return `${colon[1].padStart(2, "0")}:${colon[2].padStart(2, "0")}`;
+  }
+  return input;
+}
+
 function releaseApiUrl() {
   const origin = (process.env.FLAMENODE_RELEASE_API_ORIGIN || DEFAULT_FLAMENODE_ORIGIN).replace(/\/$/, "");
   const eventId = process.env.FLAMENODE_RELEASE_EVENT_ID || DEFAULT_EVENT_ID;
   return `${origin}/api/event-endpoints/${encodeURIComponent(eventId)}/release`;
+}
+
+function legacyReleaseApiUrl() {
+  const origin = (process.env.FLAMENODE_RELEASE_API_ORIGIN || DEFAULT_FLAMENODE_ORIGIN).replace(/\/$/, "");
+  const eventId = process.env.FLAMENODE_RELEASE_EVENT_ID || DEFAULT_EVENT_ID;
+  return `${origin}/api/event-endpoints/${encodeURIComponent(eventId)}?update=scheduled&format=legacy&refresh=15`;
 }
 
 function formatDate(timestamp) {
@@ -105,7 +129,16 @@ function formatDate(timestamp) {
     hour: "2-digit", minute: "2-digit", hour12: false,
   }).formatToParts(date);
   const get = (type) => parts.find((part) => part.type === type)?.value || "";
-  return { data: `${get("year")}/${get("month")}/${get("day")}`, time: `${get("hour")}時${get("minute")}分` };
+  return { data: `${get("year")}/${get("month")}/${get("day")}`, time: `${get("hour")}:${get("minute")}` };
+}
+
+function legacyReleaseId(row) {
+  const videoId = asString(row?.id);
+  const stamp = asString(row?.timestamp);
+  // FlameNode legacy rows use id=v_… and timestamp=ISO submission time.
+  if (videoId.startsWith("v_")) return videoId;
+  if (stamp && !ISO_TIMESTAMP_PATTERN.test(stamp)) return stamp;
+  return videoId || stamp;
 }
 
 export function adaptFlameNodeRelease(payload) {
@@ -128,17 +161,20 @@ export function adaptFlameNodeRelease(payload) {
       member: members.map((member) => asString(member?.name)).filter(Boolean).join(","),
       memberid: members.map((member) => asString(member?.x_user_id)).join(","),
       icon: asString(video.creator_icon_url), eventid: asString(event.id), eventTitle: asString(event.title),
+      music: "", credit: "", ychlink: "", othersns: "", soft: "", hitokoto: "",
+      small: "", largeThumbnail: "",
     };
   }).filter(Boolean);
   return { release, usernames: release.map((item) => item.creator).filter(Boolean), event };
 }
 
-/** Keep the public archive usable while an older FlameNode deployment is being rolled out. */
+/** Adapt FlameNode `format=legacy` rows (and older spreadsheet snapshots). */
 export function adaptLegacyRelease(payload) {
   if (!Array.isArray(payload)) throw new Error("invalid_legacy_release_payload");
   const release = payload.map((row) => {
-    const id = asString(row?.timestamp ?? row?.id);
+    const id = legacyReleaseId(row);
     if (!id) return null;
+    const section = asString(row?.type || row?.fu || row?.type2);
     return {
       id,
       timestamp: id,
@@ -147,67 +183,94 @@ export function adaptLegacyRelease(payload) {
       tlink: asString(row?.tlink),
       ylink: asString(row?.ylink),
       data: asString(row?.data),
-      time: asString(row?.time),
+      time: normalizeReleaseTime(row?.time),
       type1: asString(row?.type1),
-      type2: asString(row?.type2),
-      comment: asString(row?.comment),
+      type2: section,
+      comment: asString(row?.comment || row?.beforecomment),
       member: asString(row?.member),
       memberid: asString(row?.memberid),
       icon: asString(row?.icon),
       eventid: asString(row?.eventid),
       eventTitle: asString(row?.eventTitle),
+      music: asString(row?.music),
+      credit: asString(row?.credit),
+      ychlink: asString(row?.ychlink),
+      othersns: typeof row?.othersns === "string" ? row.othersns : (row?.othersns ? JSON.stringify(row.othersns) : ""),
+      soft: asString(row?.soft),
+      hitokoto: asString(row?.hitokoto || row?.ycomment),
+      small: asString(row?.small),
+      largeThumbnail: asString(row?.largeThumbnail),
     };
   }).filter(Boolean);
   return { release, usernames: [...new Set(release.map((item) => item.creator).filter(Boolean))], event: null };
 }
 
+async function fetchJson(url, fetchImpl) {
+  const response = await fetchImpl(url, { headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error(`flamenode_release_http_${response.status}`);
+  return response.json();
+}
+
 export async function fetchFlameNodeRelease(fetchImpl = fetch) {
   const url = releaseApiUrl();
-  const options = { headers: { Accept: "application/json" } };
   if (fetchImpl !== fetch || process.env.NODE_ENV !== "production") {
-    const response = await fetchImpl(url, options);
-    if (!response.ok) throw new Error(`flamenode_release_http_${response.status}`);
-    return adaptFlameNodeRelease(await response.json());
+    return adaptFlameNodeRelease(await fetchJson(url, fetchImpl));
   }
   if (cachedReleasePromise && cachedReleaseUrl === url) {
     return cachedReleasePromise;
   }
   cachedReleaseUrl = url;
-  cachedReleasePromise = (async () => {
-    const response = await fetchImpl(url, options);
-    if (!response.ok) throw new Error(`flamenode_release_http_${response.status}`);
-    return adaptFlameNodeRelease(await response.json());
-  })();
+  cachedReleasePromise = (async () => adaptFlameNodeRelease(await fetchJson(url, fetchImpl)))();
   return cachedReleasePromise;
 }
 
+export async function fetchFlameNodeLegacyRelease(fetchImpl = fetch) {
+  const url = legacyReleaseApiUrl();
+  if (fetchImpl !== fetch || process.env.NODE_ENV !== "production") {
+    return adaptLegacyRelease(await fetchJson(url, fetchImpl));
+  }
+  if (cachedLegacyReleasePromise && cachedLegacyReleaseUrl === url) {
+    return cachedLegacyReleasePromise;
+  }
+  cachedLegacyReleaseUrl = url;
+  cachedLegacyReleasePromise = (async () => adaptLegacyRelease(await fetchJson(url, fetchImpl)))()
+    .catch((error) => {
+      cachedLegacyReleasePromise = null;
+      throw error;
+    });
+  return cachedLegacyReleasePromise;
+}
+
 /**
- * Build-time loader with an explicit legacy fallback. The canonical API still
- * fails loudly when called directly; only the static PVSF build may use the
- * old public snapshot so a temporary FlameNode rollout does not publish a
- * blank site or fail the entire export.
+ * Prefer FlameNode's scheduled legacy payload (icons / music / SNS), then the
+ * structured /release DTO, then the older Google Sheets snapshot.
  */
 export async function fetchReleaseSnapshot(fetchImpl = fetch) {
   try {
-    return await fetchFlameNodeRelease(fetchImpl);
-  } catch (primaryError) {
-    if (process.env.PVSF_DISABLE_LEGACY_RELEASE_FALLBACK === "1") throw primaryError;
-    if (fetchImpl !== fetch && process.env.PVSF_ALLOW_TEST_LEGACY_FALLBACK !== "1") throw primaryError;
+    return await fetchFlameNodeLegacyRelease(fetchImpl);
+  } catch (legacyError) {
+    try {
+      return await fetchFlameNodeRelease(fetchImpl);
+    } catch (primaryError) {
+      if (process.env.PVSF_DISABLE_LEGACY_RELEASE_FALLBACK === "1") throw primaryError;
+      if (fetchImpl !== fetch && process.env.PVSF_ALLOW_TEST_LEGACY_FALLBACK !== "1") throw primaryError;
 
-    const loadLegacy = async () => {
-      const response = await fetchImpl(LEGACY_RELEASE_API_URL, { headers: { Accept: "application/json" } });
-      if (!response.ok) throw primaryError;
-      return adaptLegacyRelease(await response.json());
-    };
-    if (fetchImpl !== fetch || process.env.NODE_ENV !== "production") return loadLegacy();
-    if (!cachedLegacyReleasePromise) {
-      cachedLegacyReleasePromise = loadLegacy().catch((error) => {
-        cachedLegacyReleasePromise = null;
-        throw error;
-      });
+      const loadSheetsLegacy = async () => {
+        const response = await fetchImpl(SHEETS_LEGACY_RELEASE_API_URL, { headers: { Accept: "application/json" } });
+        if (!response.ok) throw primaryError;
+        return adaptLegacyRelease(await response.json());
+      };
+      if (fetchImpl !== fetch || process.env.NODE_ENV !== "production") return loadSheetsLegacy();
+      if (!cachedSheetsLegacyReleasePromise) {
+        cachedSheetsLegacyReleasePromise = loadSheetsLegacy().catch((error) => {
+          cachedSheetsLegacyReleasePromise = null;
+          throw error;
+        });
+      }
+      return cachedSheetsLegacyReleasePromise;
     }
-    return cachedLegacyReleasePromise;
   }
 }
 
 export function getFlameNodeReleaseApiUrlForTests() { return releaseApiUrl(); }
+export function getFlameNodeLegacyReleaseApiUrlForTests() { return legacyReleaseApiUrl(); }
