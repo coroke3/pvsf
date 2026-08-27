@@ -18,7 +18,7 @@ import {
 // 静的ページの生成に必要なパスを取得
 async function legacyGetStaticPaths() {
   const res = await fetch(
-    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
+    "https://flamenode.net/api/event-endpoints/pvsf2026s?update=scheduled&format=legacy&refresh=15"
   );
   const works = await res.json();
 
@@ -829,7 +829,7 @@ const RelatedWorksByTlink = ({ relatedWorks, currentRelease, styles }) => {
                 </div>
               )}
               <a
-                       href={extractYouTubeVideoId(work.ylink) ? `https://archive.pvsf.jp/${extractYouTubeVideoId(work.ylink)}` : undefined}
+                href={extractYouTubeVideoId(work.ylink) ? `https://archive.pvsf.jp/${extractYouTubeVideoId(work.ylink)}` : undefined}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.pastWorkLink}
@@ -927,7 +927,7 @@ const MemberPastWorks = ({ memberPastWorks, styles }) => {
                       </div>
                     )}
                     <a
-                       href={extractYouTubeVideoId(work.ylink) ? `https://archive.pvsf.jp/${extractYouTubeVideoId(work.ylink)}` : undefined}
+                      href={extractYouTubeVideoId(work.ylink) ? `https://archive.pvsf.jp/${extractYouTubeVideoId(work.ylink)}` : undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={styles.pastWorkLink}

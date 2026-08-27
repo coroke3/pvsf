@@ -27,7 +27,7 @@ const typeClassName = (value, styles) => {
 const legacyGetStaticProps = async () => {
   // リリースデータの取得
   const releaseRes = await fetch(
-    "https://script.google.com/macros/s/AKfycbyoJtRhCw1DLnHOcbGkSd2_gXy6Zvdj-nYZbIM17sOL82BdIETte0d-hDRP7qnYyDPpAQ/exec"
+    "https://flamenode.net/api/event-endpoints/pvsf2026s?update=scheduled&format=legacy&refresh=15"
   );
   const release = await releaseRes.json();
 
