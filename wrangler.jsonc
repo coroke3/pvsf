@@ -1,0 +1,7 @@
+{
+  // Static Next.js export (`output: "export"`) writes to ./out.
+  // Cloudflare Pages previously expected .open-next from an older OpenNext setup.
+  "name": "pvsf",
+  "compatibility_date": "2026-08-27",
+  "pages_build_output_dir": "./out"
+}
