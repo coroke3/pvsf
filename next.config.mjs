@@ -1,12 +1,3 @@
-// Security remediation diagnostic: presence only; never print secret values.
-if (process.env.CF_PAGES) {
-  console.log("[PVSF env check]", JSON.stringify({
-    hasServiceDomain: Boolean(process.env.SERVICE_DOMAIN),
-    hasApiKey: Boolean(process.env.API_KEY),
-    hasPublicServiceDomain: Boolean(process.env.NEXT_PUBLIC_SERVICE_DOMAIN),
-    hasPublicApiKey: Boolean(process.env.NEXT_PUBLIC_API_KEY)
-  }));
-}
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
