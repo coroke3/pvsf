@@ -1,3 +1,13 @@
+// Temporary build-only diagnostic: logs presence, never values.
+if (process.env.CF_PAGES) {
+  console.log("[microCMS build env] " + JSON.stringify({
+    SERVICE_DOMAIN: Boolean(process.env.SERVICE_DOMAIN),
+    API_KEY: Boolean(process.env.API_KEY),
+    NEXT_PUBLIC_SERVICE_DOMAIN: Boolean(process.env.NEXT_PUBLIC_SERVICE_DOMAIN),
+    NEXT_PUBLIC_API_KEY: Boolean(process.env.NEXT_PUBLIC_API_KEY),
+  }));
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
